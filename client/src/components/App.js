@@ -1,22 +1,14 @@
 import React, { useState, useEffect } from "react";
 import SimpleStorageContract from "../contracts/SimpleStorage.json";
 import Web3 from "web3";
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Link,
-  useParams,
-  useRouteMatch,
-  Routes,
-} from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 // import "./App.css";
 import Navbar from "./Navbar";
-import { ReactComponent as Close } from "../assets/close.svg";
 import Tickets from "./Tickets";
 import Home from "./Home";
 import CreateTicket from "./CreateTicket";
+import { ReactComponent as Close } from "../assets/close.svg";
 
 function App() {
   const [newValue, setNewValue] = useState(undefined);
@@ -115,6 +107,7 @@ function App() {
     <div className="w-full h-screen bg-background">
       <Router>
         <Navbar connectWallet={connectWallet} accounts={accounts} />
+        <div className="h-18 w-full"></div>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="tickets" element={<Tickets />} />
