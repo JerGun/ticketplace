@@ -23,7 +23,8 @@ module.exports = {
         search: "#353840",
         hover: "#48494F",
         text: "#C0C3C6",
-        "sub-text": "#89919A"
+        "sub-text": "#89919A",
+        alert: "#F54E4E"
       },
     },
   },

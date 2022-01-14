@@ -1,0 +1,13 @@
+.divider-y {
+  position: relative;
+}
+.divider-y:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 1px;
+  height: 100%;
+  background-color: #C0C3C6;
+}

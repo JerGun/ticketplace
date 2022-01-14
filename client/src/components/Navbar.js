@@ -1,4 +1,6 @@
 import React from "react";
+import { Router, Link } from "react-router-dom";
+import "./Navbar.css";
 
 import { ReactComponent as Search } from "../assets/search.svg";
 import { ReactComponent as Wallet } from "../assets/wallet.svg";
@@ -14,16 +16,29 @@ function Navbar({ connectWallet, accounts }) {
         <input
           type="text"
           placeholder="Search tickets, organizers"
-          className="h-1/3 w-full bg-transparent"
+          className="h-full w-full bg-transparent"
         />
       </div>
-      <div className="col-span-3 space-x-5 flex justify-end px-5">
-        <button>Explore</button>
-        <button className="flex items-center space-x-3 border-l pl-5">
-          {accounts.length !== 0 && <p>{accounts}</p>}
-          {accounts.length === 0 && <p>Connect wallet</p>}
-          <Wallet />
-        </button>
+      <div className="col-span-3 h-full flex justify-end items-center text-text">
+        <div className="px-5">
+          <Link to="/tickets">Explore</Link>
+        </div>
+        <span className="h-1/2 divider-y"></span>
+        <div className="h-full flex">
+          {accounts.length !== 0 && (
+            <button className="px-5">
+              <Link to="/ticket/create">Create Ticket</Link>
+            </button>
+          )}
+          <button
+            className="h-full flex items-center space-x-3 px-5"
+            onClick={connectWallet}
+          >
+            {accounts.length !== 0 && <p>{accounts}</p>}
+            {accounts.length === 0 && <p>Connect wallet</p>}
+            <Wallet />
+          </button>
+        </div>
       </div>
     </div>
   );
