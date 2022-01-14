@@ -1,0 +1,17 @@
+{
+  "files": {
+    "main.css": "/ticketplace/static/css/main.f8dd8a29.css",
+    "main.js": "/ticketplace/static/js/main.22194619.js",
+    "static/js/787.db9b214f.chunk.js": "/ticketplace/static/js/787.db9b214f.chunk.js",
+    "static/media/wallet.svg": "/ticketplace/static/media/wallet.4194497f733825d20936e9c7149ff89a.svg",
+    "static/media/search.svg": "/ticketplace/static/media/search.79a26bd8c0e1c1d2db19604d024e4757.svg",
+    "index.html": "/ticketplace/index.html",
+    "main.f8dd8a29.css.map": "/ticketplace/static/css/main.f8dd8a29.css.map",
+    "main.22194619.js.map": "/ticketplace/static/js/main.22194619.js.map",
+    "787.db9b214f.chunk.js.map": "/ticketplace/static/js/787.db9b214f.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f8dd8a29.css",
+    "static/js/main.22194619.js"
+  ]
+}
