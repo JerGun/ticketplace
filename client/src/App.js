@@ -47,13 +47,13 @@ function App() {
       const response = await contract.methods.getX().call();
       setStorageValue(response);
     };
-    // if (
-    //   typeof web3 !== "undefined" &&
-    //   typeof accounts !== "undefined" &&
-    //   typeof contract !== "undefined"
-    // ) {
-    //   load();
-    // }
+    if (
+      typeof web3 !== "undefined" &&
+      typeof accounts !== "undefined" &&
+      typeof contract !== "undefined"
+    ) {
+      load();
+    }
   }, [web3, accounts, contract]);
 
   function handleChange(e) {
