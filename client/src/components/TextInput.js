@@ -5,7 +5,7 @@ function TextInput({ title, des, placeholder }) {
     <div className="space-y-3">
       <div className="">
         <p>{title}</p>
-        {des.length != 0 && <p className="text-sm text-sub-text">{des}</p>}
+        {des.length !== 0 && <p className="text-sm text-sub-text">{des}</p>}
       </div>
       <div className="h-11 px-3 flex items-center rounded-lg bg-search hover:bg-hover focus-within:bg-hover">
         <input

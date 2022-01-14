@@ -7,6 +7,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Navbar from "./Navbar";
 import Tickets from "./Tickets";
 import Home from "./Home";
+import Account from "./Account";
 import CreateTicket from "./CreateTicket";
 import { ReactComponent as Close } from "../assets/close.svg";
 
@@ -98,8 +99,6 @@ function App() {
       if (accounts.length !== 0) {
         setAccounts(`${accounts[0].slice(0, 5)} ... ${accounts[0].slice(-6)}`);
       }
-    } else {
-      alert("Inventory");
     }
   }
 
@@ -112,6 +111,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="tickets" element={<Tickets />} />
           <Route path="ticket/create" element={<CreateTicket />} />
+          <Route path="account" element={<Account />} />
         </Routes>
       </Router>
       <div
