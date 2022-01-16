@@ -7,7 +7,7 @@ function TextInput({ title, des, placeholder }) {
         <p>{title}</p>
         {des.length !== 0 && <p className="text-sm text-sub-text">{des}</p>}
       </div>
-      <div className="h-11 px-3 flex items-center rounded-lg bg-search hover:bg-hover focus-within:bg-hover">
+      <div className="h-11 px-3 flex items-center rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
         <input
           type="text"
           placeholder={placeholder}

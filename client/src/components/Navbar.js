@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { ReactComponent as Search } from "../assets/search.svg";
 import { ReactComponent as Wallet } from "../assets/wallet.svg";
 
-function Navbar({ connectWallet, accounts }) {
+function Navbar({ connectWallet, account }) {
   const [path, setPath] = useState("");
 
   function watchPath(path) {
@@ -24,7 +24,7 @@ function Navbar({ connectWallet, accounts }) {
         </Link>
       </div>
       <div className="col-span-3 h-full w-full flex items-center">
-        <div className="h-11 w-full space-x-3 px-3 flex items-center rounded-lg bg-search hover:bg-hover focus-within:bg-hover">
+        <div className="h-11 w-full space-x-3 px-3 flex items-center rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
           <Search className="h-1/2" />
           <input
             type="text"
@@ -50,7 +50,7 @@ function Navbar({ connectWallet, accounts }) {
         </div>
         <span className="h-1/2 divider-y"></span>
         <div className="h-full flex items-center">
-          {accounts.length !== 0 && (
+          {account.length !== 0 && (
             <div className="relative h-full w-fit flex items-center">
               <Link
                 to="/ticket/create"
@@ -68,15 +68,15 @@ function Navbar({ connectWallet, accounts }) {
           )}
           <div className="relative h-full w-fit">
             <Link
-              to={accounts.length !== 0 ? "/account" : ""}
+              to={account.length !== 0 ? "/account" : ""}
               className="h-full flex items-center space-x-3 px-5 hover:text-white"
               onClick={() => {
                 connectWallet();
                 watchPath("/account");
               }}
             >
-              {accounts.length !== 0 && <p>{accounts}</p>}
-              {accounts.length === 0 && <p>Connect wallet</p>}
+              {account.length !== 0 && <p>{`${account.slice(0, 5)} ... ${account.slice(-6)}`}</p>}
+              {account.length === 0 && <p>Connect wallet</p>}
               <Wallet />
             </Link>
             {path === "/account" ? (
