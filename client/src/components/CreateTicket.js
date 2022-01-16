@@ -58,7 +58,7 @@ function CreateTicket() {
               <div className="h-fit px-3 py-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
                 <textarea
                   type="text"
-                  rows="3"
+                  rows="8"
                   placeholder="Ticket detailed description."
                   className="h-full w-full bg-transparent"
                 />
