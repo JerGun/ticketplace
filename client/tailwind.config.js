@@ -20,7 +20,7 @@ module.exports = {
       colors: {
         primary: "#4ED0F5",
         background: "#212428",
-        search: "#353840",
+        input: "#353840",
         hover: "#48494F",
         text: "#C0C3C6",
         "sub-text": "#89919A",

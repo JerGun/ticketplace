@@ -1,10 +1,18 @@
-import React from "react";
+import { React, useState } from "react";
 
 import { ReactComponent as Photo } from "../assets/photo.svg";
 import { ReactComponent as Calendar } from "../assets/calendar.svg";
 import { ReactComponent as Clock } from "../assets/clock.svg";
 
 function CreateTicket() {
+  const [supply, setSupply] = useState();
+
+  const handleChange = (event) => {
+    let { value } = event.target;
+    value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : null;
+    setSupply(value);
+  };
+
   return (
     <div className="h-fit w-full p-10 bg-background">
       <div className="h-full mx-28 text-white">
@@ -22,7 +30,7 @@ function CreateTicket() {
           <div className="w-1/2 space-y-10">
             <div className="space-y-3">
               <p>Ticket name</p>
-              <div className="h-11 px-3 rounded-lg bg-search hover:bg-hover focus-within:bg-hover">
+              <div className="h-11 px-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
                 <input
                   type="text"
                   placeholder="Ticket name"
@@ -37,7 +45,7 @@ function CreateTicket() {
                   You are welcome to link to your own webpage with more details.
                 </p>
               </div>
-              <div className="h-11 px-3 rounded-lg bg-search hover:bg-hover focus-within:bg-hover">
+              <div className="h-11 px-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
                 <input
                   type="text"
                   placeholder="https://yoursite.com/ticket/details"
@@ -47,7 +55,7 @@ function CreateTicket() {
             </div>
             <div className="space-y-3">
               <p>Description</p>
-              <div className="h-fit px-3 py-3 rounded-lg bg-search hover:bg-hover focus-within:bg-hover">
+              <div className="h-fit px-3 py-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
                 <textarea
                   type="text"
                   rows="3"
@@ -58,7 +66,7 @@ function CreateTicket() {
             </div>
             <div className="space-y-3">
               <p>Location</p>
-              <div className="h-11 px-3 rounded-lg bg-search hover:bg-hover focus-within:bg-hover">
+              <div className="h-11 px-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
                 <input
                   type="text"
                   placeholder="Location"
@@ -105,15 +113,20 @@ function CreateTicket() {
                   The number of copies that can be minted.
                 </p>
               </div>
-              <div className="h-11 px-3 rounded-lg bg-search hover:bg-hover focus-within:bg-hover">
+              <div className="h-11 px-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
                 <input
-                  type="text"
+                  type="number"
                   placeholder="1"
+                  min="1"
+                  value={supply}
+                  onChange={handleChange}
                   className="h-full w-full bg-transparent"
                 />
               </div>
             </div>
-            <div className="h-11 w-24 flex justify-center items-center rounded-lg font-bold text-black bg-primary">Create</div>
+            <button className="h-11 w-24 flex justify-center items-center rounded-lg font-bold text-black bg-primary">
+              Create
+            </button>
           </div>
         </div>
       </div>
