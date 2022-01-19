@@ -1,6 +1,6 @@
 {
   "name": "client",
-  "homepage": "http://ticketplace.me/",
+  "homepage": "https://ticketplace.me/",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
