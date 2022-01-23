@@ -106,6 +106,21 @@ function App() {
       <Router>
         <Navbar connectWallet={connectWallet} account={accounts} />
         <div className="h-18 w-full"></div>
+        <div
+          className={
+            network !== 97
+              ? "absolute h-12 w-full flex justify-center items-center space-x-3 bg-alert"
+              : "hidden"
+          }
+        >
+          <p>
+            Your wallet is connected to other network. To use Ticketplace,
+            please switch to BSC Testnet network.
+          </p>
+          <button>
+            <Close />
+          </button>
+        </div>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="tickets" element={<TicketItem />} />
@@ -114,21 +129,6 @@ function App() {
           <Route path="account/*" element={<Account account={accounts} />} />
         </Routes>
       </Router>
-      <div
-        className={
-          network !== 97
-            ? "absolute h-12 w-full flex justify-center items-center space-x-3 bg-alert"
-            : "hidden"
-        }
-      >
-        <p>
-          Your wallet is connected to other network. To use Ticketplace, please
-          switch to BSC Testnet network.
-        </p>
-        <button>
-          <Close />
-        </button>
-      </div>
       <div className="text-red-500">
         <h1>Welcome do this dapp!</h1>
         <div>The stored value is: {storageValue}</div>
