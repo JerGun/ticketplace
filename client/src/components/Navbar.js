@@ -12,7 +12,7 @@ function Navbar({ connectWallet, account }) {
   }
 
   return (
-    <div className="fixed w-full h-18 grid grid-cols-8 items-center text-white shadow-lg bg-background">
+    <div className="sticky top-0 w-full h-18 grid grid-cols-8 items-center text-white shadow-lg bg-background">
       <div className="col-span-2 px-5">
         <Link
           to="/"
