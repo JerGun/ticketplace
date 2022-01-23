@@ -1,4 +1,5 @@
-import React from "react";
+import { React, Fragment, useState } from "react";
+import { Dialog, Transition } from "@headlessui/react";
 
 import { ReactComponent as Price } from "../assets/price.svg";
 import { ReactComponent as Binance } from "../assets/binance.svg";
@@ -9,8 +10,10 @@ import { ReactComponent as Location } from "../assets/location.svg";
 import { ReactComponent as Calendar } from "../assets/calendar.svg";
 import { ReactComponent as Clock } from "../assets/clock.svg";
 import { ReactComponent as History } from "../assets/history.svg";
+import { ReactComponent as Close } from "../assets/close.svg";
 
 function TicketItem() {
+  const [showModal, setShowModal] = useState(false);
   return (
     <div className="h-fit w-full p-10 bg-background">
       <div className="h-full mx-28 text-white">
@@ -30,7 +33,10 @@ function TicketItem() {
                 <Binance />
                 <p className="text-4xl font-bold">1.0 BNB</p>
               </div>
-              <button className="h-11 w-full flex justify-center items-center rounded-lg font-bold text-black bg-primary">
+              <button
+                className="h-11 w-full flex justify-center items-center rounded-lg font-bold text-black bg-primary"
+                onClick={() => setShowModal(true)}
+              >
                 Buy for 1.0 BNB
               </button>
             </div>
@@ -114,6 +120,154 @@ function TicketItem() {
                 <p>by</p>
                 <p className="text-white">0x4e...06C7 </p>
                 <p>on 16/03/2021 - 15:46</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <Transition
+          show={showModal}
+          enter="transition duration-100 ease-out"
+          enterFrom="transform scale-95 opacity-0"
+          enterTo="transform scale-100 opacity-100"
+          leave="transition duration-75 ease-out"
+          leaveFrom="transform scale-100 opacity-100"
+          leaveTo="transform scale-95 opacity-0"
+        >
+          <Dialog
+            as="div"
+            className="fixed inset-0 z-10 overflow-y-auto "
+            onClose={() => setShowModal(false)}
+          >
+            <div className="px-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0"
+                enterTo="opacity-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <Dialog.Overlay className="fixed inset-0 bg-black opacity-50" />
+              </Transition.Child>
+
+              {/* This element is to trick the browser into centering the modal contents. */}
+              <span
+                className="inline-block h-screen align-middle"
+                aria-hidden="true"
+              >
+                &#8203;
+              </span>
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <div className="inline-block w-full max-w-2xl my-8 text-left align-middle transition-all transform text-white bg-background shadow-xl rounded-2xl">
+                  {/*header*/}
+                  <div className="relative flex items-center justify-center p-5 border-b border-solid border-white">
+                    <h3 className="text-2xl">Complete checkout</h3>
+                    <button
+                      className="absolute right-5 p-3 text-white"
+                      onClick={() => setShowModal(false)}
+                    >
+                      <Close />
+                    </button>
+                  </div>
+                  {/*body*/}
+                  <div className="relative p-6 space-y-3">
+                    <p>Items</p>
+                    <div className="flex justify-between">
+                      <div className="flex space-x-5">
+                        <span className="h-24 w-16 rounded-lg bg-white"></span>
+                        <div className="space-y-3">
+                          <p>Cat Radio</p>
+                          <p className="text-xl">LEO presents Cat Expo</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-5">
+                        <Binance className="h-6" />
+                        <p className="text-xl">1.0 BNB</p>
+                      </div>
+                    </div>
+                  </div>
+                  {/*footer*/}
+                  <div className="flex items-center justify-end p-6 space-x-5 border-t border-solid border-white">
+                    <button
+                      className="h-11 w-fit px-5 flex justify-center items-center rounded-lg font-bold text-black bg-primary"
+                      type="button"
+                      onClick={() => setShowModal(false)}
+                    >
+                      Confirm checkout
+                    </button>
+                    <button
+                      className="h-11 w-fit px-5 flex justify-center items-center rounded-lg font-bold text-white bg-modal-button"
+                      type="button"
+                      onClick={() => setShowModal(false)}
+                    >
+                      Add funds
+                    </button>
+                  </div>
+                </div>
+              </Transition.Child>
+            </div>
+          </Dialog>
+        </Transition>
+        <div className="justify-center items-center overflow-x-hidden overflow-y-auto fixed inset-0 z-50 hidden">
+          <div
+            className="fixed h-full w-full opacity-50 bg-black"
+            onClick={() => setShowModal(false)}
+          ></div>
+          <div className="relative w-full my-6 mx-auto max-w-3xl">
+            {/*content*/}
+            <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-background">
+              {/*header*/}
+              <div className="relative flex items-center justify-center p-5 border-b border-solid border-white">
+                <h3 className="text-2xl">Complete checkout</h3>
+                <button
+                  className="absolute right-5 p-3 text-white"
+                  onClick={() => setShowModal(false)}
+                >
+                  <Close />
+                </button>
+              </div>
+              {/*body*/}
+              <div className="relative p-6 space-y-3">
+                <p>Items</p>
+                <div className="flex justify-between">
+                  <div className="flex space-x-5">
+                    <span className="h-24 w-16 rounded-lg bg-white"></span>
+                    <div className="space-y-3">
+                      <p>Cat Radio</p>
+                      <p className="text-xl">LEO presents Cat Expo</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-5">
+                    <Binance className="h-6" />
+                    <p className="text-xl">1.0 BNB</p>
+                  </div>
+                </div>
+              </div>
+              {/*footer*/}
+              <div className="flex items-center justify-end p-6 space-x-5 border-t border-solid border-white">
+                <button
+                  className="h-11 w-fit px-5 flex justify-center items-center rounded-lg font-bold text-black bg-primary"
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                >
+                  Confirm checkout
+                </button>
+                <button
+                  className="h-11 w-fit px-5 flex justify-center items-center rounded-lg font-bold text-white bg-modal-button"
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                >
+                  Add funds
+                </button>
               </div>
             </div>
           </div>

@@ -105,7 +105,6 @@ function App() {
     <div className="w-full h-screen bg-background">
       <Router>
         <Navbar connectWallet={connectWallet} account={accounts} />
-        <div className="h-18 w-full"></div>
         <div
           className={
             network !== 97
