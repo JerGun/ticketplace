@@ -1,5 +1,7 @@
-import { React, Fragment, useState } from "react";
+import { React, Fragment, useState, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
+import { Scrollbars } from "react-custom-scrollbars";
+import CustomScrollbars from "./CustomScrollbars";
 
 import { ReactComponent as Price } from "../assets/price.svg";
 import { ReactComponent as Binance } from "../assets/binance.svg";
@@ -13,7 +15,9 @@ import { ReactComponent as History } from "../assets/history.svg";
 import { ReactComponent as Close } from "../assets/close.svg";
 
 function TicketItem() {
-  const [showModal, setShowModal] = useState(false);
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [showAddFundsModal, setShowAddFundsModal] = useState(false);
+
   return (
     <div className="h-fit w-full p-10 bg-background">
       <div className="h-full mx-28 text-white">
@@ -35,7 +39,7 @@ function TicketItem() {
               </div>
               <button
                 className="h-11 w-full flex justify-center items-center rounded-lg font-bold text-black bg-primary"
-                onClick={() => setShowModal(true)}
+                onClick={() => setShowCheckoutModal(true)}
               >
                 Buy for 1.0 BNB
               </button>
@@ -63,32 +67,57 @@ function TicketItem() {
                 <p>0x4e...06C7</p>
               </div>
             </div>
-            <div className="h-fit w-full p-5 rounded-lg bg-input">
-              <div className="max-h-72 space-y-3 overflow-auto">
-                <div className="flex items-center space-x-3">
+            <div className="h-screen max-h-80 w-full py-5 pl-5 pr-3 rounded-lg bg-input">
+              <div className="h-full pb-10">
+                <div className="sticky top-0 w-full flex items-center space-x-3 pb-5 bg-input">
                   <Description />
                   <p>Description</p>
                 </div>
-                <div className="">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Quisque sodales, neque in ullamcorper ultrices, eros erat
-                  venenatis libero, quis accumsan libero augue in libero.
-                  Pellentesque sollicitudin eu tortor quis fermentum.Lorem ipsum
-                  dolor sit amet, consectetur adipiscing elit. Quisque sodales,
-                  neque in ullamcorper ultrices, eros erat venenatis libero,
-                  quis accumsan libero augue in libero. Pellentesque
-                  sollicitudin eu tortor quis fermentum.Lorem ipsum dolor sit
-                  amet, consectetur adipiscing elit. Quisque sodales, neque in
-                  ullamcorper ultrices, eros erat venenatis libero, quis
-                  accumsan libero augue in libero. Pellentesque sollicitudin eu
-                  tortor quis fermentum.Lorem ipsum dolor sit amet, consectetur
-                  adipiscing elit. Quisque sodales, neque in ullamcorper
-                  ultrices, eros erat venenatis libero, quis accumsan libero
-                  augue in libero. Pellentesque sollicitudin eu tortor quis
-                  fermentum.Lorem ipsum dolor sit amet, consectetur adipiscing
-                  elit. Quisque sodales, neque in ullamcorper ultrices, eros
-                  erat venenatis libero, quis accumsan libero augue in libero.
-                </div>
+                <CustomScrollbars>
+                  <div className=" pr-5">
+                    <p>
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                      Quisque sodales, neque in ullamcorper ultrices, eros erat
+                      venenatis libero, quis accumsan libero augue in libero.
+                      Pellentesque sollicitudin eu tortor quis fermentum.Lorem
+                      ipsum dolor sit amet, consectetur adipiscing elit. Quisque
+                      sodales, neque in ullamcorper ultrices, eros erat
+                      venenatis libero, quis accumsan libero augue in libero.
+                      Pellentesque sollicitudin eu tortor quis fermentum.Lorem
+                      ipsum dolor sit amet, consectetur adipiscing elit. Quisque
+                      sodales, neque in ullamcorper ultrices, eros erat
+                      venenatis libero, quis accumsan libero augue in libero.
+                      Pellentesque sollicitudin eu tortor quis fermentum.Lorem
+                      ipsum dolor sit amet, consectetur adipiscing elit. Quisque
+                      sodales, neque in ullamcorper ultrices, eros erat
+                      venenatis libero, quis accumsan libero augue in libero.
+                      Pellentesque sollicitudin eu tortor quis fermentum.Lorem
+                      ipsum dolor sit amet, consectetur adipiscing elit. Quisque
+                      sodales, neque in ullamcorper ultrices, eros erat
+                      venenatis libero, quis accumsan libero augue in
+                      libero.Lorem ipsum dolor sit amet, consectetur adipiscing
+                      elit. Quisque sodales, neque in ullamcorper ultrices, eros
+                      erat venenatis libero, quis accumsan libero augue in
+                      libero. Pellentesque sollicitudin eu tortor quis
+                      fermentum.Lorem ipsum dolor sit amet, consectetur
+                      adipiscing elit. Quisque sodales, neque in ullamcorper
+                      ultrices, eros erat venenatis libero, quis accumsan libero
+                      augue in libero. Pellentesque sollicitudin eu tortor quis
+                      fermentum.Lorem ipsum dolor sit amet, consectetur
+                      adipiscing elit. Quisque sodales, neque in ullamcorper
+                      ultrices, eros erat venenatis libero, quis accumsan libero
+                      augue in libero. Pellentesque sollicitudin eu tortor quis
+                      fermentum.Lorem ipsum dolor sit amet, consectetur
+                      adipiscing elit. Quisque sodales, neque in ullamcorper
+                      ultrices, eros erat venenatis libero, quis accumsan libero
+                      augue in libero. Pellentesque sollicitudin eu tortor quis
+                      fermentum.Lorem ipsum dolor sit amet, consectetur
+                      adipiscing elit. Quisque sodales, neque in ullamcorper
+                      ultrices, eros erat venenatis libero, quis accumsan libero
+                      augue in libero.
+                    </p>
+                  </div>
+                </CustomScrollbars>
               </div>
             </div>
             <div className="h-fit w-full p-5 space-y-3 rounded-lg bg-input">
@@ -125,7 +154,7 @@ function TicketItem() {
           </div>
         </div>
         <Transition
-          show={showModal}
+          show={showCheckoutModal}
           enter="transition duration-100 ease-out"
           enterFrom="transform scale-95 opacity-0"
           enterTo="transform scale-100 opacity-100"
@@ -136,7 +165,7 @@ function TicketItem() {
           <Dialog
             as="div"
             className="fixed inset-0 z-10 overflow-y-auto "
-            onClose={() => setShowModal(false)}
+            onClose={() => setShowCheckoutModal(false)}
           >
             <div className="px-4 text-center">
               <Transition.Child
@@ -173,7 +202,7 @@ function TicketItem() {
                     <h3 className="text-2xl">Complete checkout</h3>
                     <button
                       className="absolute right-5 p-3 text-white"
-                      onClick={() => setShowModal(false)}
+                      onClick={() => setShowCheckoutModal(false)}
                     >
                       <Close />
                     </button>
@@ -200,14 +229,14 @@ function TicketItem() {
                     <button
                       className="h-11 w-fit px-5 flex justify-center items-center rounded-lg font-bold text-black bg-primary"
                       type="button"
-                      onClick={() => setShowModal(false)}
+                      onClick={() => setShowCheckoutModal(false)}
                     >
                       Confirm checkout
                     </button>
                     <button
                       className="h-11 w-fit px-5 flex justify-center items-center rounded-lg font-bold text-white bg-modal-button"
                       type="button"
-                      onClick={() => setShowModal(false)}
+                      onClick={() => setShowAddFundsModal(true)}
                     >
                       Add funds
                     </button>
@@ -217,61 +246,6 @@ function TicketItem() {
             </div>
           </Dialog>
         </Transition>
-        <div className="justify-center items-center overflow-x-hidden overflow-y-auto fixed inset-0 z-50 hidden">
-          <div
-            className="fixed h-full w-full opacity-50 bg-black"
-            onClick={() => setShowModal(false)}
-          ></div>
-          <div className="relative w-full my-6 mx-auto max-w-3xl">
-            {/*content*/}
-            <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-background">
-              {/*header*/}
-              <div className="relative flex items-center justify-center p-5 border-b border-solid border-white">
-                <h3 className="text-2xl">Complete checkout</h3>
-                <button
-                  className="absolute right-5 p-3 text-white"
-                  onClick={() => setShowModal(false)}
-                >
-                  <Close />
-                </button>
-              </div>
-              {/*body*/}
-              <div className="relative p-6 space-y-3">
-                <p>Items</p>
-                <div className="flex justify-between">
-                  <div className="flex space-x-5">
-                    <span className="h-24 w-16 rounded-lg bg-white"></span>
-                    <div className="space-y-3">
-                      <p>Cat Radio</p>
-                      <p className="text-xl">LEO presents Cat Expo</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-5">
-                    <Binance className="h-6" />
-                    <p className="text-xl">1.0 BNB</p>
-                  </div>
-                </div>
-              </div>
-              {/*footer*/}
-              <div className="flex items-center justify-end p-6 space-x-5 border-t border-solid border-white">
-                <button
-                  className="h-11 w-fit px-5 flex justify-center items-center rounded-lg font-bold text-black bg-primary"
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                >
-                  Confirm checkout
-                </button>
-                <button
-                  className="h-11 w-fit px-5 flex justify-center items-center rounded-lg font-bold text-white bg-modal-button"
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                >
-                  Add funds
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
