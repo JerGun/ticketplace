@@ -11,7 +11,7 @@ class CustomScrollbars extends Component {
             {...props}
             style={{
               ...style,
-              backgroundColor: "white",
+              backgroundColor: "#4ED0F5",
               borderRadius: "25px",
             }}
           />
