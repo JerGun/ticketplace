@@ -8,7 +8,7 @@ import Owned from "./Owned";
 
 function Account({ account }) {
   const [path, setPath] = useState();
-  const [copy, setCopy] = useState(true);
+  const [copy, setCopy] = useState(false);
   const [buttonDisabled, setButtonDisabled] = useState();
 
   function watchPath(path) {
