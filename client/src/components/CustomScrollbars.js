@@ -13,10 +13,12 @@ class CustomScrollbars extends Component {
               ...style,
               backgroundColor: "white",
               borderRadius: "25px",
-              zIndex: 0,
             }}
           />
         )}
+        autoHide
+        autoHideTimeout={1500}
+        autoHideDuration={200}
       >
         {this.props.children}
       </Scrollbars>
