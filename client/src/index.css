@@ -36,7 +36,7 @@ input::-webkit-inner-spin-button {
 }
 
 /* Firefox */
-input[type=number] {
+input[type="number"] {
   -moz-appearance: textfield;
 }
 
@@ -51,7 +51,7 @@ input[type=number] {
   right: 0;
   width: 100%;
   height: 1px;
-  background-color: #C0C3C6;
+  background-color: #c0c3c6;
 }
 
 .divider-y {
@@ -65,5 +65,15 @@ input[type=number] {
   right: 0;
   width: 2px;
   height: 100%;
-  background-color: #C0C3C6;
+  background-color: #c0c3c6;
+}
+
+::-webkit-scrollbar {
+  width: 7px;
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 25px;
+  background-color: #4ed0f5;
 }
