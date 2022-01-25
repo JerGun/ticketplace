@@ -4,6 +4,7 @@ import { useLocation, NavLink } from "react-router-dom";
 
 import { ReactComponent as Info } from "../assets/info.svg";
 import { ReactComponent as Cart } from "../assets/cart.svg";
+import { ReactComponent as Down } from "../assets/down.svg";
 
 const listOption = [
   { title: "Recently Listed", value: "recently" },
@@ -33,8 +34,9 @@ function Tickets() {
           <p className="w-full text-2xl font-bold">Sort by</p>
           <Listbox value={sortBy} onChange={setSortBy}>
             <div className="w-full relative inline-block rounded-lg shadow-lg bg-hover hover:bg-hover-light">
-              <Listbox.Button className="h-11 w-full inline-flex px-3 items-center space-x-3 text-white rounded-lg">
+              <Listbox.Button className="h-11 w-full inline-flex justify-between px-3 items-center space-x-3 text-white rounded-lg">
                 {<p>{sortBy.title}</p>}
+                <Down className="h-4 w-4"/>
               </Listbox.Button>
               <Transition
                 as={Fragment}
@@ -103,12 +105,12 @@ function Tickets() {
           >
             <div className="h-72 w-full rounded-lg bg-white"></div>
             <div className="w-full flex flex-col items-start">
-              <p>Cat Radio</p>
+              <p className="text-text">Cat Radio</p>
               <div className="w-full flex justify-between items-center text-left">
                 <p className="w-10/12 truncate">LEO presents Cat Expo</p>
                 <Info />
               </div>
-              <p>1.0 BNB</p>
+              <p className="text-lg">1.0 BNB</p>
             </div>
             <button className="absolute bottom-5 right-5 text-primary">
               <Cart className="h-7 w-7" />
