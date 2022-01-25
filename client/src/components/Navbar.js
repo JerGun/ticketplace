@@ -1,25 +1,18 @@
-import { React, useState } from "react";
-import { Link } from "react-router-dom";
+import { React, useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 import { ReactComponent as Search } from "../assets/search.svg";
 import { ReactComponent as Wallet } from "../assets/wallet.svg";
 
 function Navbar({ connectWallet, account }) {
-  const [path, setPath] = useState("");
+  const location = useLocation();
 
-  function watchPath(path) {
-    setPath(path);
-  }
+  useEffect(() => {}, [location]);
 
   return (
     <div className="sticky top-0 w-full z-10 h-18 grid grid-cols-8 items-center text-white shadow-lg bg-background">
       <div className="col-span-2 px-5">
-        <Link
-          to="/"
-          onClick={() => {
-            watchPath("/");
-          }}
-        >
+        <Link to="/">
           <p className="text-4xl">Ticketplace</p>
         </Link>
       </div>
@@ -38,13 +31,10 @@ function Navbar({ connectWallet, account }) {
           <Link
             to="/tickets"
             className="h-full w-full px-5 flex items-center hover:text-white"
-            onClick={() => {
-              watchPath("/tickets");
-            }}
           >
             Explore
           </Link>
-          {path === "/tickets" ? (
+          {location.pathname === "/tickets" ? (
             <span className="absolute h-1 w-full bottom-0 left-0 rounded-t-lg bg-primary"></span>
           ) : null}
         </div>
@@ -55,13 +45,10 @@ function Navbar({ connectWallet, account }) {
               <Link
                 to="/ticket/create"
                 className="h-full w-full px-5 flex items-center hover:text-white"
-                onClick={() => {
-                  watchPath("/ticket/create");
-                }}
               >
                 Create Ticket
               </Link>
-              {path === "/ticket/create" ? (
+              {location.pathname === "/ticket/create" ? (
                 <span className="absolute h-1 w-full bottom-0 left-0 rounded-t-lg bg-primary"></span>
               ) : null}
             </div>
@@ -72,14 +59,15 @@ function Navbar({ connectWallet, account }) {
               className="h-full flex items-center space-x-3 px-5 hover:text-white"
               onClick={() => {
                 connectWallet();
-                watchPath("/account");
               }}
             >
-              {account.length !== 0 && <p>{`${account.slice(0, 5)} ... ${account.slice(-6)}`}</p>}
+              {account.length !== 0 && (
+                <p>{`${account.slice(0, 5)} ... ${account.slice(-6)}`}</p>
+              )}
               {account.length === 0 && <p>Connect wallet</p>}
               <Wallet />
             </Link>
-            {path === "/account" ? (
+            {location.pathname === "/account" ? (
               <span className="absolute h-1 w-full bottom-0 left-0 rounded-t-lg bg-primary"></span>
             ) : null}
           </div>
