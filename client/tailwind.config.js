@@ -23,6 +23,7 @@ module.exports = {
         background: "#212428",
         input: "#353840",
         hover: "#48494F",
+        "hover-light": "#5A5A5C",
         modal: "#1F2124",
         "modal-button": "#333538",
         text: "#C0C3C6",

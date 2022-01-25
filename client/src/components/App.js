@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import SimpleStorageContract from "../contracts/SimpleStorage.json";
 import Web3 from "web3";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import CustomScrollbars from "./CustomScrollbars";
 
 // import "./App.css";
 import Navbar from "./Navbar";
@@ -12,6 +11,7 @@ import Account from "./Account";
 import CreateTicket from "./CreateTicket";
 import { ReactComponent as Close } from "../assets/close.svg";
 import TicketItem from "./TicketItem";
+import CustomScrollbars from "./CustomScrollbars";
 
 function App() {
   const [newValue, setNewValue] = useState(undefined);
@@ -134,8 +134,8 @@ function App() {
           </div>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="tickets" element={<TicketItem />} />
-            {/* <Route path="ticket/create" element={<CreateTicket />} /> */}
+            <Route path="tickets" element={<Tickets />} />
+            {/* <Route path="tickets" element={<TicketItem />} /> */}
             <Route path="ticket/create" element={<CreateTicket />} />
             <Route path="account/*" element={<Account account={accounts} />} />
           </Routes>

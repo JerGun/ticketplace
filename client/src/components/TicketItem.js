@@ -233,7 +233,7 @@ function TicketItem() {
                   leaveFrom="opacity-100 scale-100"
                   leaveTo="opacity-0 scale-95"
                 >
-                  <div className="inline-block w-full max-w-2xl my-8 text-left align-middle transition-all transform text-white bg-background shadow-xl rounded-2xl">
+                  <div className="inline-block w-full max-w-2xl my-8 text-left align-middle transition-all transform text-white bg-background shadow-lg rounded-2xl">
                     {/*header*/}
                     <div className="relative flex items-center justify-center p-5 border-b border-solid border-white">
                       <h3 className="text-2xl">Complete checkout</h3>
