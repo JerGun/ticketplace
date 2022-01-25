@@ -1,5 +1,6 @@
 import { React, Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
+import { useParams } from 'react-router-dom';
 
 import { ReactComponent as Price } from "../assets/price.svg";
 import { ReactComponent as Binance } from "../assets/binance.svg";
@@ -18,6 +19,8 @@ function TicketItem() {
   const [buttonDisabled, setButtonDisabled] = useState();
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [showAddFundsModal, setShowAddFundsModal] = useState(false);
+
+  const params = useParams();
 
   function copyURL() {
     navigator.clipboard.writeText(window.location.href);
@@ -56,7 +59,7 @@ function TicketItem() {
               <div className="h-80 w-full rounded-xl bg-white"></div>
               <div className="h-fit w-full flex justify-between items-center p-3 rounded-lg bg-input">
                 <p>Token ID</p>
-                <p>383641...45654</p>
+                <p>{params.ticketId}</p>
               </div>
               <div className="h-fit w-full p-3 space-y-3 rounded-lg bg-input">
                 <div className="flex items-center space-x-3">

@@ -1,8 +1,9 @@
 import { React, Fragment, useState } from "react";
 import { Listbox, Transition } from "@headlessui/react";
-import { Scrollbars } from "react-custom-scrollbars";
+import { useLocation, NavLink } from "react-router-dom";
 
 import { ReactComponent as Info } from "../assets/info.svg";
+import { ReactComponent as Cart } from "../assets/cart.svg";
 
 const listOption = [
   { title: "Recently Listed", value: "recently" },
@@ -10,6 +11,12 @@ const listOption = [
   { title: "Price: High to Low", value: "high" },
   { title: "Price: Low to High", value: "low" },
 ];
+
+function QueryNavLink({ to, ...props }) {
+  let location = useLocation();
+  console.log(location);
+  return <NavLink to={to + location.search} {...props} />;
+}
 
 function Tickets() {
   const [sortBy, setSortBy] = useState(listOption[0]);
@@ -87,22 +94,26 @@ function Tickets() {
           </div>
         </div>
       </div>
-      <div className="h-ful w-10/12 p-10 space-x-10 flex flex-wrap">
+      <div className="h-full w-10/12 p-10 space-x-10 flex flex-wrap">
         {[...Array(4)].map((x, i) => (
-          <div
+          <QueryNavLink
+            to={`/tickets/${i}`}
             key={i}
-            className="h-96 w-60 p-3 flex flex-col space-y-3 rounded-lg shadow-lg bg-modal-button"
+            className="relative h-fit w-60 p-3 pb-10 space-y-3 rounded-lg shadow-lg bg-modal-button"
           >
-            <div className="h-full w-full rounded-lg bg-white"></div>
-            <div className="flex justify-between">
-              <div>
-                <p>Cat Radio</p>
-                <p>LEO presents Cat Expo</p>
-                <p>1.0 BNB</p>
+            <div className="h-72 w-full rounded-lg bg-white"></div>
+            <div className="w-full flex flex-col items-start">
+              <p>Cat Radio</p>
+              <div className="w-full flex justify-between items-center text-left">
+                <p className="w-10/12 truncate">LEO presents Cat Expo</p>
+                <Info />
               </div>
-              <Info />
+              <p>1.0 BNB</p>
             </div>
-          </div>
+            <button className="absolute bottom-5 right-5 text-primary">
+              <Cart className="h-7 w-7" />
+            </button>
+          </QueryNavLink>
         ))}
       </div>
     </div>

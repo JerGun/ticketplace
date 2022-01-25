@@ -102,16 +102,6 @@ function App() {
     }
   }
 
-  const renderThumb = ({ style, ...props }) => {
-    const { top } = this.state;
-    const thumbStyle = {
-      backgroundColor: `rgb(${Math.round(255 - top * 255)}, ${Math.round(
-        255 - top * 255
-      )}, ${Math.round(255 - top * 255)})`,
-    };
-    return <div style={{ ...style, ...thumbStyle }} {...props} />;
-  };
-
   return (
     <div className="w-full h-screen bg-background">
       <CustomScrollbars>
@@ -135,7 +125,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="tickets" element={<Tickets />} />
-            {/* <Route path="tickets" element={<TicketItem />} /> */}
+            <Route path="tickets/:ticketId" element={<TicketItem />} />
             <Route path="ticket/create" element={<CreateTicket />} />
             <Route path="account/*" element={<Account account={accounts} />} />
           </Routes>

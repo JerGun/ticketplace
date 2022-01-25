@@ -10,7 +10,7 @@ function Navbar({ connectWallet, account }) {
   useEffect(() => {}, [location]);
 
   return (
-    <div className="sticky top-0 w-full z-10 h-18 grid grid-cols-8 items-center text-white shadow-lg bg-background">
+    <nav className="sticky top-0 w-full z-10 h-18 grid grid-cols-8 items-center text-white shadow-lg bg-background">
       <div className="col-span-2 px-5">
         <Link to="/">
           <p className="text-4xl">Ticketplace</p>
@@ -73,7 +73,7 @@ function Navbar({ connectWallet, account }) {
           </div>
         </div>
       </div>
-    </div>
+    </nav>
   );
 }
 
