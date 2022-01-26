@@ -103,7 +103,7 @@ function App() {
   }
 
   return (
-    <div className="w-full h-screen bg-background">
+    <div className="w-full h-screen  bg-gradient-to-b from-indigo-500 to-background">
       <CustomScrollbars>
         <Router>
           <Navbar connectWallet={connectWallet} account={accounts} />
