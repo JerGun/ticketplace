@@ -9,7 +9,7 @@ import Tickets from "./Tickets";
 import Home from "./Home";
 import Account from "./Account";
 import CreateTicket from "./CreateTicket";
-import { ReactComponent as Close } from "../assets/close.svg";
+import { ReactComponent as Close } from "../assets/icons/close.svg";
 import TicketItem from "./TicketItem";
 import CustomScrollbars from "./CustomScrollbars";
 
@@ -131,7 +131,7 @@ function App() {
           </Routes>
         </Router>
 
-        <div className="text-red-500">
+        {/* <div className="text-red-500">
           <h1>Welcome do this dapp!</h1>
           <div>The stored value is: {storageValue}</div>
           <form onSubmit={handleSubmit}>
@@ -142,7 +142,7 @@ function App() {
             />
             <input type="submit" value="Submit" />
           </form>
-        </div>
+        </div> */}
       </CustomScrollbars>
     </div>
   );

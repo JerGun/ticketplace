@@ -2,8 +2,8 @@ import { React, useState, Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Routes, Route, Link } from "react-router-dom";
 
-import { ReactComponent as Copy } from "../assets/copy.svg";
-import { ReactComponent as Check } from "../assets/check.svg";
+import { ReactComponent as Copy } from "../assets/icons/copy.svg";
+import { ReactComponent as Check } from "../assets/icons/check.svg";
 import Owned from "./Owned";
 
 function Account({ account }) {

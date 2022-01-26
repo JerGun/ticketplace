@@ -1,10 +1,10 @@
 import { React, Fragment, useState } from "react";
 import { Listbox, Transition } from "@headlessui/react";
-import { useLocation, NavLink } from "react-router-dom";
+import QueryNavLink from "./QueryNavLink";
 
-import { ReactComponent as Info } from "../assets/info.svg";
-import { ReactComponent as Cart } from "../assets/cart.svg";
-import { ReactComponent as Down } from "../assets/down.svg";
+import { ReactComponent as Info } from "../assets/icons/info.svg";
+import { ReactComponent as Cart } from "../assets/icons/cart.svg";
+import { ReactComponent as Down } from "../assets/icons/down.svg";
 
 const listOption = [
   { title: "Recently Listed", value: "recently" },
@@ -12,12 +12,6 @@ const listOption = [
   { title: "Price: High to Low", value: "high" },
   { title: "Price: Low to High", value: "low" },
 ];
-
-function QueryNavLink({ to, ...props }) {
-  let location = useLocation();
-  console.log(location);
-  return <NavLink to={to + location.search} {...props} />;
-}
 
 function Tickets() {
   const [sortBy, setSortBy] = useState(listOption[0]);
@@ -28,15 +22,15 @@ function Tickets() {
   };
 
   return (
-    <div className="h-full w-full flex text-white bg-background">
-      <div className="h-full w-2/12 p-5 space-y-10 flex flex-col items-center shadow-lg bg-modal-button">
+    <div className="h-full w-full flex justify-end text-white bg-background">
+      <div className="h-full w-2/12 fixed p-5 space-y-10 left-0 flex flex-col items-center shadow-lg bg-modal-button">
         <div className="w-full space-y-3">
           <p className="w-full text-2xl font-bold">Sort by</p>
           <Listbox value={sortBy} onChange={setSortBy}>
             <div className="w-full relative inline-block rounded-lg shadow-lg bg-hover hover:bg-hover-light">
               <Listbox.Button className="h-11 w-full inline-flex justify-between px-3 items-center space-x-3 text-white rounded-lg">
                 {<p>{sortBy.title}</p>}
-                <Down className="h-4 w-4"/>
+                <Down className="h-4 w-4" />
               </Listbox.Button>
               <Transition
                 as={Fragment}
@@ -96,14 +90,14 @@ function Tickets() {
           </div>
         </div>
       </div>
-      <div className="h-full w-10/12 p-10 space-x-10 flex flex-wrap">
+      <div className="h-full w-10/12 p-10 space-x-10 flex flex-wrap justify-center">
         {[...Array(4)].map((x, i) => (
           <QueryNavLink
             to={`/tickets/${i}`}
             key={i}
-            className="relative h-fit w-60 p-3 pb-10 space-y-3 rounded-lg shadow-lg bg-modal-button"
+            className="relative h-fit w-56 p-3 pb-10 space-y-3 rounded-lg shadow-lg float-right bg-modal-button"
           >
-            <div className="h-72 w-full rounded-lg bg-white"></div>
+            <div className="h-64 w-full rounded-lg bg-white"></div>
             <div className="w-full flex flex-col items-start">
               <p className="text-text">Cat Radio</p>
               <div className="w-full flex justify-between items-center text-left">

@@ -1,8 +1,8 @@
 import { React, useState } from "react";
 
-import { ReactComponent as Photo } from "../assets/photo.svg";
-import { ReactComponent as Calendar } from "../assets/calendar.svg";
-import { ReactComponent as Clock } from "../assets/clock.svg";
+import { ReactComponent as Photo } from "../assets/icons/photo.svg";
+import { ReactComponent as Calendar } from "../assets/icons/calendar.svg";
+import { ReactComponent as Clock } from "../assets/icons/clock.svg";
 
 function CreateTicket() {
   const [supply, setSupply] = useState();

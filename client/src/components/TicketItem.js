@@ -2,17 +2,17 @@ import { React, Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { useParams } from 'react-router-dom';
 
-import { ReactComponent as Price } from "../assets/price.svg";
-import { ReactComponent as Binance } from "../assets/binance.svg";
-import { ReactComponent as External } from "../assets/external.svg";
-import { ReactComponent as Share } from "../assets/share.svg";
-import { ReactComponent as Description } from "../assets/description.svg";
-import { ReactComponent as Location } from "../assets/location.svg";
-import { ReactComponent as Calendar } from "../assets/calendar.svg";
-import { ReactComponent as Clock } from "../assets/clock.svg";
-import { ReactComponent as History } from "../assets/history.svg";
-import { ReactComponent as Close } from "../assets/close.svg";
-import { ReactComponent as Check } from "../assets/check.svg";
+import { ReactComponent as Price } from "../assets/icons/price.svg";
+import { ReactComponent as BNB } from "../assets/icons/bnb.svg";
+import { ReactComponent as External } from "../assets/icons/external.svg";
+import { ReactComponent as Share } from "../assets/icons/share.svg";
+import { ReactComponent as Description } from "../assets/icons/description.svg";
+import { ReactComponent as Location } from "../assets/icons/location.svg";
+import { ReactComponent as Calendar } from "../assets/icons/calendar.svg";
+import { ReactComponent as Clock } from "../assets/icons/clock.svg";
+import { ReactComponent as History } from "../assets/icons/history.svg";
+import { ReactComponent as Close } from "../assets/icons/close.svg";
+import { ReactComponent as Check } from "../assets/icons/check.svg";
 
 function TicketItem() {
   const [copy, setCopy] = useState(false);
@@ -67,7 +67,7 @@ function TicketItem() {
                   <p>Price</p>
                 </div>
                 <div className="flex space-x-5">
-                  <Binance />
+                  <BNB />
                   <p className="text-4xl font-bold">1.0 BNB</p>
                 </div>
                 <button
@@ -259,7 +259,7 @@ function TicketItem() {
                           </div>
                         </div>
                         <div className="flex items-center space-x-5">
-                          <Binance className="h-6" />
+                          <BNB className="h-6" />
                           <p className="text-xl">1.0 BNB</p>
                         </div>
                       </div>

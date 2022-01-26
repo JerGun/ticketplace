@@ -1,8 +1,9 @@
 import { React, useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 
-import { ReactComponent as Search } from "../assets/search.svg";
-import { ReactComponent as Wallet } from "../assets/wallet.svg";
+import { ReactComponent as Search } from "../assets/icons/search.svg";
+import { ReactComponent as Wallet } from "../assets/icons/wallet.svg";
+import logo from "../assets/images/logo.png";
 
 function Navbar({ connectWallet, account }) {
   const location = useLocation();
@@ -12,7 +13,10 @@ function Navbar({ connectWallet, account }) {
   return (
     <nav className="sticky top-0 w-full z-10 h-18 grid grid-cols-8 items-center text-white shadow-lg bg-background">
       <div className="col-span-2 px-5">
-        <Link to="/">
+        <Link to="/" className="flex items-center space-x-5">
+          <div className="p-2 rounded-full bg-white">
+            <img src={logo} alt="logo" className="h-7 w-7"/>
+          </div>
           <p className="text-4xl">Ticketplace</p>
         </Link>
       </div>
