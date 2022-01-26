@@ -11,30 +11,40 @@ function Navbar({ connectWallet, account }) {
   useEffect(() => {}, [location]);
 
   return (
-    <nav className="sticky top-0 w-full z-10 h-18 grid grid-cols-8 items-center text-white shadow-lg bg-background">
-      <div className="col-span-2 px-5">
+    <nav
+      className={`${
+        location.pathname === "/" ? "bg-transparent" : "shadow-lg bg-background"
+      } sticky top-0 w-full z-10 h-18 grid grid-cols-8 items-center`}
+    >
+      <div className="col-span-2 px-5 text-white">
         <Link to="/" className="flex items-center space-x-5">
           <div className="p-2 rounded-full bg-white">
-            <img src={logo} alt="logo" className="h-7 w-7"/>
+            <img src={logo} alt="logo" className="h-7 w-7" />
           </div>
           <p className="text-4xl">Ticketplace</p>
         </Link>
       </div>
       <div className="col-span-3 h-full w-full flex items-center">
-        <div className="h-11 w-full space-x-3 px-3 flex items-center rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
-          <Search className="h-1/2" />
-          <input
-            type="text"
-            placeholder="Search tickets, organizers"
-            className="h-full w-full bg-transparent"
-          />
-        </div>
+        {location.pathname !== "/" && (
+          <div className="h-11 w-full space-x-3 px-3 flex items-center rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
+            <Search className="h-1/2" />
+            <input
+              type="text"
+              placeholder="Search tickets, organizers"
+              className="h-full w-full bg-transparent"
+            />
+          </div>
+        )}
       </div>
-      <div className="col-span-3 h-full flex justify-end items-center text-text ">
+      <div
+        className={`${
+          location.pathname === "/" ? "text-white" : "text-text"
+        } col-span-3 h-full flex justify-end items-center`}
+      >
         <div className="relative h-full flex items-center hover:text-white">
           <Link
             to="/tickets"
-            className="h-full w-full px-5 flex items-center hover:text-white"
+            className={`h-full w-full px-5 flex items-center`}
           >
             Explore
           </Link>
@@ -42,13 +52,17 @@ function Navbar({ connectWallet, account }) {
             <span className="absolute h-1 w-full bottom-0 left-0 rounded-t-lg bg-primary"></span>
           ) : null}
         </div>
-        <span className="h-1/2 divider-y"></span>
+        <span
+          className={
+            location.pathname === "/" ? "h-1/2 divider-y-w" : "h-1/2 divider-y"
+          }
+        ></span>
         <div className="h-full flex items-center">
           {account.length !== 0 && (
-            <div className="relative h-full w-fit flex items-center">
+            <div className="relative h-full w-fit flex items-center hover:text-white">
               <Link
                 to="/ticket/create"
-                className="h-full w-full px-5 flex items-center hover:text-white"
+                className="h-full w-full px-5 flex items-center"
               >
                 Create Ticket
               </Link>
@@ -57,10 +71,10 @@ function Navbar({ connectWallet, account }) {
               ) : null}
             </div>
           )}
-          <div className="relative h-full w-fit">
+          <div className="relative h-full w-fit hover:text-white">
             <Link
               to={account.length !== 0 ? "/account" : ""}
-              className="h-full flex items-center space-x-3 px-5 hover:text-white"
+              className="h-full flex items-center space-x-3 px-5"
               onClick={() => {
                 connectWallet();
               }}
