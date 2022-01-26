@@ -1,7 +1,6 @@
 import React from "react";
-import QueryNavLink from "./QueryNavLink";
 
-import { ReactComponent as Info } from "../assets/icons/info.svg";
+import logo from "../assets/images/logo.png";
 
 function Home() {
   return (
@@ -17,22 +16,9 @@ function Home() {
             Explore
           </button>
         </div>
-        <div className="px-5 py-10 space-y-10 bg-white">
-          <div className="h-full w-full bg-black">
-            <QueryNavLink
-              to={`/tickets/1`}
-              className="relative h-fit w-56 p-3 pb-10 space-y-3 rounded-lg shadow-lg float-right bg-modal-button"
-            >
-              <div className="h-64 w-full rounded-lg bg-white"></div>
-              <div className="w-full flex flex-col items-start">
-                <p className="text-text">Cat Radio</p>
-                <div className="w-full flex justify-between items-center text-left">
-                  <p className="w-10/12 truncate">LEO presents Cat Expo</p>
-                  <Info />
-                </div>
-                <p className="text-lg">1.0 BNB</p>
-              </div>
-            </QueryNavLink>
+        <div className="px-5 py-20 space-y-10 flex justify-center">
+          <div className="h-96 w-96 rounded-full bg-white">
+            <img src={logo} alt="Logo" className="scale-75" />
           </div>
         </div>
       </div>

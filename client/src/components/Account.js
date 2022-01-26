@@ -45,7 +45,7 @@ function Account({ account }) {
           </Dialog>
         </Transition.Child>
       </Transition>
-      <div className="h-full w-full text-wh flex justify-center my-10 bg-background">
+      <div className="h-full w-full text-wh flex justify-center py-10 bg-background">
         <div className="h-full w-10/12">
           <div className="flex flex-col space-y-5 items-center">
             <div className="flex space-x-3 text-text">

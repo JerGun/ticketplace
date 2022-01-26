@@ -68,6 +68,20 @@ input[type="number"] {
   background-color: #c0c3c6;
 }
 
+.divider-y-w {
+  position: relative;
+}
+.divider-y-w:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 2px;
+  height: 100%;
+  background-color: white;
+}
+
 ::-webkit-scrollbar {
   width: 7px;
   background: transparent;
