@@ -1,6 +1,7 @@
 import { React, Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
+import ReactTooltip from "react-tooltip";
 
 import { ReactComponent as Price } from "../assets/icons/price.svg";
 import { ReactComponent as BNB } from "../assets/icons/bnb.svg";
@@ -84,13 +85,21 @@ function TicketItem() {
                   <p className="text-3xl">LEO presents Cat Expo</p>
                   <div className="flex space-x-5">
                     <a
+                      data-tip="External Link"
                       target={"_blank"}
                       href="https://www.pawaret.dev"
                       className="h-11 w-11 flex justify-center items-center rounded-lg bg-input"
                     >
                       <External />
                     </a>
+                    <ReactTooltip
+                      effect="solid"
+                      place="top"
+                      offset={{ top: 2, left: 20 }}
+                      backgroundColor="#353840"
+                    />
                     <button
+                      data-tip="Share"
                       className="h-11 w-11 flex justify-center items-center rounded-lg bg-input"
                       onClick={copyURL}
                       disabled={buttonDisabled}
@@ -101,6 +110,12 @@ function TicketItem() {
                         <Share />
                       )}
                     </button>
+                    <ReactTooltip
+                      effect="solid"
+                      place="top"
+                      offset={{ top: 2, left: 20 }}
+                      backgroundColor="#353840"
+                    />
                   </div>
                 </div>
                 <div className="flex text-sm space-x-1">
