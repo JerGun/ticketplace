@@ -4,20 +4,33 @@ import { ReactComponent as Photo } from "../assets/icons/photo.svg";
 import { ReactComponent as Calendar } from "../assets/icons/calendar.svg";
 import { ReactComponent as Clock } from "../assets/icons/clock.svg";
 
-function CreateTicket() {
+function CreateTicket({account, contract}) {
+  const [newValue, setNewValue] = useState({});
   const [supply, setSupply] = useState();
 
-  const handleChange = (event) => {
-    let { value } = event.target;
+  const handleChange = (e) => {
+    
+  };
+
+  const handleNumberChange = (e) => {
+    let { value } = e.target;
     value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : null;
     setSupply(value);
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    await contract.methods.listToken(account, 1, 100).send({ from: account });
+    const response = await contract.methods.listToken().call();
+    console.log(response);
+  }
 
   return (
     <div className="h-fit w-full p-10 bg-background">
       <div className="h-full mx-28 text-white">
         <p className="text-4xl font-bold py-5">Create new ticket</p>
-        <div className="h-full w-full flex space-x-20">
+        <form onSubmit={handleSubmit} className="h-full w-full flex space-x-20">
           <div className="h-full w-3/12">
             <p>Image</p>
             <p className="text-sm text-sub-text">
@@ -124,11 +137,11 @@ function CreateTicket() {
                 />
               </div>
             </div>
-            <button className="h-11 w-24 flex justify-center items-center rounded-lg font-bold text-black bg-primary">
+            <button type="submit" className="h-11 w-24 flex justify-center items-center rounded-lg font-bold text-black bg-primary">
               Create
             </button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );

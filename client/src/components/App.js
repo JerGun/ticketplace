@@ -43,7 +43,7 @@ function App() {
             MarketContract.networks[networkId].address
           );
           setContract(SimpleStorage);
-          setMarketContract(Market)
+          setMarketContract(Market);
         }
 
         setWeb3(web3);
@@ -121,9 +121,17 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="tickets" element={<Tickets />} />
             <Route path="tickets/:ticketId" element={<TicketItem />} />
-            <Route path="ticket/create" element={<CreateTicket />} />
+            <Route
+              path="ticket/create"
+              element={
+                <CreateTicket account={accounts} contract={marketContract} />
+              }
+            />
             <Route path="account/*" element={<Account account={accounts} />} />
-            <Route path="simple" element={<SimpleStorage contract={contract} account={accounts}/>} />
+            <Route
+              path="simple"
+              element={<SimpleStorage account={accounts} contract={contract} />}
+            />
           </Routes>
         </Router>
       </CustomScrollbars>
