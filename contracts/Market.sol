@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.11;
 
-import "./IBRC721.sol";
+import "./IERC721.sol";
 
 contract Market {
     // public - anyone can call
@@ -48,7 +48,7 @@ contract Market {
     mapping(uint => Listing) private _listing;
 
     function listToken(address token, uint tokenId, uint price) external {
-        IBRC721(token).transferFrom(msg.sender, address(this), tokenId);
+        IERC721(token).transferFrom(msg.sender, address(this), tokenId);
 
         Listing memory listing = Listing(
             ListingStatus.Active,
@@ -82,7 +82,7 @@ contract Market {
         require(msg.value >= listing.price, "Insufficient payment");
 
         payable(listing.seller).transfer(listing.price);
-        IBRC721(listing.token).transferFrom(address(this), msg.sender, listing.tokenId);
+        IERC721(listing.token).transferFrom(address(this), msg.sender, listing.tokenId);
 
         listing.status = ListingStatus.Sold;
 
@@ -97,7 +97,7 @@ contract Market {
 
         listing.status = ListingStatus.Cancelled;
         
-        IBRC721(listing.token).transferFrom(address(this), msg.sender, listing.tokenId);
+        IERC721(listing.token).transferFrom(address(this), msg.sender, listing.tokenId);
 
         emit Cancel(listingId, listing.seller);
     }
