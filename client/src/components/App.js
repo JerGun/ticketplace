@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
+import MigrationsContract from "../contracts/Migrations.json";
 import SimpleStorageContract from "../contracts/SimpleStorage.json";
+import MarketContract from "../contracts/Market.json";
 import Web3 from "web3";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
@@ -12,13 +14,13 @@ import CreateTicket from "./CreateTicket";
 import { ReactComponent as Close } from "../assets/icons/close.svg";
 import TicketItem from "./TicketItem";
 import CustomScrollbars from "./CustomScrollbars";
+import SimpleStorage from "./SimpleStorage";
 
 function App() {
-  const [newValue, setNewValue] = useState(undefined);
-  const [storageValue, setStorageValue] = useState(undefined);
   const [web3, setWeb3] = useState(undefined);
   const [accounts, setAccounts] = useState([]);
   const [contract, setContract] = useState([]);
+  const [marketContract, setMarketContract] = useState();
   const [network, setNetwork] = useState(97);
 
   useEffect(() => {
@@ -32,11 +34,16 @@ function App() {
         setNetwork(networkId);
         if (networkId === 97) {
           const deployedNetwork = SimpleStorageContract.networks[networkId];
-          const contract = new web3.eth.Contract(
+          const SimpleStorage = new web3.eth.Contract(
             SimpleStorageContract.abi,
             deployedNetwork.address
           );
-          setContract(contract);
+          const Market = new web3.eth.Contract(
+            MarketContract.abi,
+            MarketContract.networks[networkId].address
+          );
+          setContract(SimpleStorage);
+          setMarketContract(Market)
         }
 
         setWeb3(web3);
@@ -48,20 +55,20 @@ function App() {
     init();
   }, []);
 
-  useEffect(() => {
-    const load = async () => {
-      await contract.methods.setX(5).send({ from: accounts[0] });
-      const response = await contract.methods.getX().call();
-      setStorageValue(response);
-    };
-    if (
-      typeof web3 !== "undefined" &&
-      typeof accounts !== "undefined" &&
-      typeof contract !== "undefined"
-    ) {
-      // load();
-    }
-  }, [web3, accounts, contract]);
+  // useEffect(() => {
+  //   const load = async () => {
+  //     await contract.methods.setX(5).send({ from: accounts[0] });
+  //     const response = await contract.methods.getX().call();
+  //     setStorageValue(response);
+  //   };
+  //   if (
+  //     typeof web3 !== "undefined" &&
+  //     typeof accounts !== "undefined" &&
+  //     typeof contract !== "undefined"
+  //   ) {
+  //     load();
+  //   }
+  // }, [web3, accounts, contract]);
 
   useEffect(() => {
     if (window.ethereum) {
@@ -78,18 +85,6 @@ function App() {
       });
     }
   });
-
-  function handleChange(e) {
-    setNewValue(e.target.value);
-  }
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-
-    await contract.methods.setX(newValue).send({ from: accounts[0] });
-    const response = await contract.methods.getX().call();
-    setStorageValue(response);
-  }
 
   async function connectWallet() {
     if (accounts.length === 0) {
@@ -128,21 +123,9 @@ function App() {
             <Route path="tickets/:ticketId" element={<TicketItem />} />
             <Route path="ticket/create" element={<CreateTicket />} />
             <Route path="account/*" element={<Account account={accounts} />} />
+            <Route path="simple" element={<SimpleStorage contract={contract} account={accounts}/>} />
           </Routes>
         </Router>
-
-        {/* <div className="text-red-500">
-          <h1>Welcome do this dapp!</h1>
-          <div>The stored value is: {storageValue}</div>
-          <form onSubmit={handleSubmit}>
-            <input
-              type="text"
-              value={newValue}
-              onChange={handleChange.bind(this)}
-            />
-            <input type="submit" value="Submit" />
-          </form>
-        </div> */}
       </CustomScrollbars>
     </div>
   );
