@@ -1,15 +1,30 @@
 import { React, useState } from "react";
+import NFTMarket from "../contracts/NFTMarket.json";
+import Web3 from "web3";
 
 import { ReactComponent as Photo } from "../assets/icons/photo.svg";
 import { ReactComponent as Calendar } from "../assets/icons/calendar.svg";
 import { ReactComponent as Clock } from "../assets/icons/clock.svg";
+import { ReactComponent as Close } from "../assets/icons/close.svg";
 
-function CreateTicket({account, contract}) {
+function CreateTicket({ account }) {
+  const [image, setImage] = useState({ preview: "", raw: "" });
   const [newValue, setNewValue] = useState({});
   const [supply, setSupply] = useState();
 
-  const handleChange = (e) => {
-    
+  const handleChange = (e) => {};
+
+  const handleImageChange = (e) => {
+    if (e.target.files.length) {
+      setImage({
+        preview: URL.createObjectURL(e.target.files[0]),
+        raw: e.target.files[0],
+      });
+    }
+  };
+
+  const removeImage = () => {
+    setImage({ preview: "", raw: "" });
   };
 
   const handleNumberChange = (e) => {
@@ -19,12 +34,20 @@ function CreateTicket({account, contract}) {
   };
 
   const handleSubmit = async (e) => {
+    const web3 = new Web3(window.ethereum);
+    const networkId = await web3.eth.net.getId();
+    const contract = new web3.eth.Contract(
+      NFTMarket.abi,
+      NFTMarket.networks[networkId].address
+    );
+
+    console.log(account);
     e.preventDefault();
 
     await contract.methods.listToken(account, 1, 100).send({ from: account });
     const response = await contract.methods.listToken().call();
     console.log(response);
-  }
+  };
 
   return (
     <div className="h-fit w-full p-10 bg-background">
@@ -36,8 +59,36 @@ function CreateTicket({account, contract}) {
             <p className="text-sm text-sub-text">
               File types supported: JPG, PNG
             </p>
-            <div className="h-96 w-10/12 mt-3 flex justify-center items-center rounded-2xl border-dashed border-2">
-              <Photo />
+            <div className="h-96 w-10/12 mt-3 p-1 rounded-2xl border-dashed border-2">
+              <div className="relative h-full w-full">
+                <label
+                  htmlFor="upload-button"
+                  className="absolute h-full w-full hover:cursor-pointer"
+                >
+                  {image.preview ? (
+                    <div className="relative h-full w-full">
+                      <div className="absolute h-full w-full z-20 flex justify-center items-center opacity-0 hover:bg-black hover:bg-opacity-50 hover:opacity-100">
+                        <Photo />
+                      </div>
+                      <img
+                        src={image.preview}
+                        alt="dummy"
+                        className="h-full w-full object-cover rounded-xl"
+                      />
+                    </div>
+                  ) : (
+                    <div className="absolute h-full w-full z-10 flex justify-center items-center rounded-xl hover:bg-black hover:bg-opacity-50">
+                      <Photo />
+                    </div>
+                  )}
+                </label>
+                <input
+                  type="file"
+                  id="upload-button"
+                  className="hidden"
+                  onChange={handleImageChange}
+                />
+              </div>
             </div>
           </div>
           <div className="w-1/2 space-y-10">
@@ -137,7 +188,10 @@ function CreateTicket({account, contract}) {
                 />
               </div>
             </div>
-            <button type="submit" className="h-11 w-24 flex justify-center items-center rounded-lg font-bold text-black bg-primary">
+            <button
+              type="submit"
+              className="h-11 w-24 flex justify-center items-center rounded-lg font-bold text-black bg-primary"
+            >
               Create
             </button>
           </div>
