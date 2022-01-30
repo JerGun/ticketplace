@@ -1,6 +1,10 @@
-import { React, Fragment, useState } from "react";
+import { React, Fragment, useState, useEffect } from "react";
+import Web3 from "web3";
+import axios from "axios";
 import { Listbox, Transition } from "@headlessui/react";
 import QueryNavLink from "./QueryNavLink";
+import Ticket from "../contracts/Ticket.json";
+import Market from "../contracts/NFTMarket.json";
 
 import { ReactComponent as Info } from "../assets/icons/info.svg";
 import { ReactComponent as Cart } from "../assets/icons/cart.svg";
@@ -15,7 +19,48 @@ const listOption = [
 
 function Tickets() {
   const [sortBy, setSortBy] = useState(listOption[0]);
+  const [tickets, setTickets] = useState([]);
+  const [loadingState, setLoadingState] = useState("not-loaded");
 
+  useEffect(() => {
+    loadTickets();
+  }, []);
+
+  const loadTickets = async () => {
+    const web3 = new Web3(window.ethereum);
+    const networkId = await web3.eth.net.getId();
+    const ticketContract = new web3.eth.Contract(
+      Ticket.abi,
+      Ticket.networks[networkId].address
+    );
+    const marketContract = new web3.eth.Contract(
+      Market.abi,
+      Market.networks[networkId].address
+    );
+    const data = await marketContract.methods.fetchMarketItems().call();
+
+    const items = await Promise.all(
+      data.map(async (i) => {
+        const tokenUri = await ticketContract.methods
+          .tokenURI(i.tokenId)
+          .call();
+        const meta = await axios.get(tokenUri);
+        let price = i.price.toString();
+        let item = {
+          price,
+          tokenId: i.tokenId,
+          seller: i.seller,
+          owner: i.owner,
+          image: meta.data.image,
+          name: meta.data.name,
+          description: meta.data.description,
+        };
+        return item;
+      })
+    );
+    setTickets(items);
+    setLoadingState("loaded");
+  };
   const handleChange = (event) => {
     let { value } = event.target;
     value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : null;
@@ -90,27 +135,35 @@ function Tickets() {
           </div>
         </div>
       </div>
-      <div className="h-full w-10/12 p-10 space-x-10 flex flex-wrap justify-center">
-        {[...Array(4)].map((x, i) => (
-          <QueryNavLink
-            to={`/tickets/${i}`}
-            key={i}
-            className="relative h-fit w-56 p-3 pb-10 space-y-3 rounded-lg shadow-lg float-right bg-modal-button"
-          >
-            <div className="h-64 w-full rounded-lg bg-white"></div>
-            <div className="w-full flex flex-col items-start">
-              <p className="text-text">Cat Radio</p>
-              <div className="w-full flex justify-between items-center text-left">
-                <p className="w-10/12 truncate">LEO presents Cat Expo</p>
-                <Info />
+      <div className="h-full w-10/12 p-10">
+        <div className="h-full w-full space-x-10 flex flex-wrap justify-center">
+          {tickets.map((ticket, i) => (
+            <QueryNavLink
+              to={`/tickets/${i}`}
+              key={i}
+              className="relative h-fit w-56 p-3 pb-10 space-y-3 rounded-lg shadow-lg float-right bg-modal-button"
+            >
+              <div className="h-72 w-full rounded-lg">
+                <img
+                  src={ticket.image}
+                  alt=""
+                  className="h-full w-full object-cover rounded-lg"
+                />
               </div>
-              <p className="text-lg">1.0 BNB</p>
-            </div>
-            <button className="absolute bottom-5 right-5 text-primary">
-              <Cart className="h-7 w-7" />
-            </button>
-          </QueryNavLink>
-        ))}
+              <div className="w-full flex flex-col items-start">
+                <p className="text-text">Cat Radio</p>
+                <div className="w-full flex justify-between items-center text-left">
+                  <p className="w-10/12 truncate">{ticket.name}</p>
+                  <Info />
+                </div>
+                <p className="text-lg">{ticket.price} BNB</p>
+              </div>
+              <button className="absolute bottom-5 right-5 text-primary">
+                <Cart className="h-7 w-7" />
+              </button>
+            </QueryNavLink>
+          ))}
+        </div>
       </div>
     </div>
   );
