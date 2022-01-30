@@ -1,8 +1,9 @@
 import { React, useState } from "react";
+import Web3 from "web3";
+import { withRouter  } from "react-router-dom";
+import { create as ipfsHttpClient } from "ipfs-http-client";
 import Ticket from "../contracts/Ticket.json";
 import Market from "../contracts/NFTMarket.json";
-import Web3 from "web3";
-import { create as ipfsHttpClient } from "ipfs-http-client";
 
 import { ReactComponent as Photo } from "../assets/icons/photo.svg";
 import { ReactComponent as Calendar } from "../assets/icons/calendar.svg";
@@ -13,9 +14,9 @@ const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
 function CreateTicket({ account }) {
   const [image, setImage] = useState({ preview: "", raw: "" });
   const [formInput, setFormInput] = useState({
-    price: "",
     name: "",
     description: "",
+    price: "",
   });
   const [fileUrl, setFileUrl] = useState(null);
   const [supply, setSupply] = useState();
@@ -64,11 +65,8 @@ function CreateTicket({ account }) {
   // };
 
   const createTicket = async () => {
-    console.log("pass");
-
     const { name, description, price } = formInput;
     if (!name || !description || !price || !fileUrl) return;
-
     const data = JSON.stringify({
       name,
       description,
@@ -85,7 +83,7 @@ function CreateTicket({ account }) {
   };
 
   async function createSale(url) {
-    console.log("pass2");
+    console.log("pass");
     const web3 = new Web3(window.ethereum);
     const networkId = await web3.eth.net.getId();
     let contract = new web3.eth.Contract(
@@ -106,17 +104,12 @@ function CreateTicket({ account }) {
       Market.abi,
       Market.networks[networkId].address
     );
-    // let listingPrice = await contract.getListingPrice();
-    // listingPrice = listingPrice.toString();
 
     transaction = await contract.methods
-      .createMarketItem(
-        Ticket.networks[networkId].address,
-        tokenId,
-        price
-        // { value: listingPrice }
-      )
+      .createMarketItem(Ticket.networks[networkId].address, tokenId, price)
       .send({ from: account });
+    console.log("create", transaction);
+    this.props.history.push.push('/tickets')
   }
 
   return (
