@@ -18,7 +18,7 @@ import SimpleStorage from "./SimpleStorage";
 
 function App() {
   const [web3, setWeb3] = useState(undefined);
-  const [accounts, setAccounts] = useState([]);
+  const [account, setAccount] = useState([]);
   const [contract, setContract] = useState([]);
   const [marketContract, setMarketContract] = useState();
   const [network, setNetwork] = useState(97);
@@ -48,7 +48,7 @@ function App() {
 
         setWeb3(web3);
         if (accounts.length !== 0) {
-          setAccounts(accounts[0]);
+          setAccount(accounts[0]);
         }
       }
     };
@@ -75,7 +75,7 @@ function App() {
       const web3 = new Web3(window.ethereum);
 
       window.ethereum.on("accountsChanged", function (accounts) {
-        setAccounts("");
+        setAccount("");
         window.location.reload();
       });
 
@@ -87,12 +87,12 @@ function App() {
   });
 
   async function connectWallet() {
-    if (accounts.length === 0) {
+    if (account.length === 0) {
       const accounts = await window.ethereum.request({
         method: "eth_requestAccounts",
       });
       if (accounts.length !== 0) {
-        setAccounts(accounts[0]);
+        setAccount(accounts[0]);
       }
     }
   }
@@ -101,7 +101,7 @@ function App() {
     <div className="w-full h-screen  bg-gradient-to-b from-indigo-500 to-background">
       <CustomScrollbars>
         <Router>
-          <Navbar connectWallet={connectWallet} account={accounts} />
+          <Navbar connectWallet={connectWallet} account={account} />
           <div
             className={
               network !== 97
@@ -124,13 +124,13 @@ function App() {
             <Route
               path="ticket/create"
               element={
-                <CreateTicket account={accounts} contract={marketContract} />
+                <CreateTicket account={account} />
               }
             />
-            <Route path="account/*" element={<Account account={accounts} />} />
+            <Route path="account/*" element={<Account account={account} />} />
             <Route
               path="simple"
-              element={<SimpleStorage account={accounts} contract={contract} />}
+              element={<SimpleStorage account={account} contract={contract} />}
             />
           </Routes>
         </Router>

@@ -14,7 +14,7 @@ function Navbar({ connectWallet, account }) {
     <nav
       className={`${
         location.pathname === "/" ? "bg-transparent" : "shadow-lg bg-background"
-      } sticky top-0 w-full z-10 h-18 grid grid-cols-8 items-center`}
+      } sticky top-0 w-full z-30 h-18 grid grid-cols-8 items-center`}
     >
       <div className="col-span-2 px-5 text-white">
         <Link to="/" className="flex items-center space-x-5">

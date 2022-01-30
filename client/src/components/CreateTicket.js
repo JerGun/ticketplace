@@ -1,25 +1,39 @@
 import { React, useState } from "react";
-import NFTMarket from "../contracts/NFTMarket.json";
+import Ticket from "../contracts/Ticket.json";
+import Market from "../contracts/NFTMarket.json";
 import Web3 from "web3";
+import { create as ipfsHttpClient } from "ipfs-http-client";
 
 import { ReactComponent as Photo } from "../assets/icons/photo.svg";
 import { ReactComponent as Calendar } from "../assets/icons/calendar.svg";
 import { ReactComponent as Clock } from "../assets/icons/clock.svg";
-import { ReactComponent as Close } from "../assets/icons/close.svg";
+
+const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
 
 function CreateTicket({ account }) {
   const [image, setImage] = useState({ preview: "", raw: "" });
-  const [newValue, setNewValue] = useState({});
+  const [formInput, setFormInput] = useState({
+    price: "",
+    name: "",
+    description: "",
+  });
+  const [fileUrl, setFileUrl] = useState(null);
   const [supply, setSupply] = useState();
 
   const handleChange = (e) => {};
 
-  const handleImageChange = (e) => {
-    if (e.target.files.length) {
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    try {
+      const added = await client.add(file);
+      const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+      setFileUrl(url);
       setImage({
-        preview: URL.createObjectURL(e.target.files[0]),
+        preview: url,
         raw: e.target.files[0],
       });
+    } catch (error) {
+      console.log("Error uploading file: ", error);
     }
   };
 
@@ -33,27 +47,83 @@ function CreateTicket({ account }) {
     setSupply(value);
   };
 
-  const handleSubmit = async (e) => {
+  // const handleSubmit = async (e) => {
+  //   const web3 = new Web3(window.ethereum);
+  //   const networkId = await web3.eth.net.getId();
+  //   const contract = new web3.eth.Contract(
+  //     Market.abi,
+  //     Market.networks[networkId].address
+  //   );
+
+  //   console.log(account);
+  //   e.preventDefault();
+
+  //   await contract.methods.listToken(account, 1, 100).send({ from: account });
+  //   const response = await contract.methods.listToken().call();
+  //   console.log(response);
+  // };
+
+  const createTicket = async () => {
+    console.log("pass");
+
+    const { name, description, price } = formInput;
+    if (!name || !description || !price || !fileUrl) return;
+
+    const data = JSON.stringify({
+      name,
+      description,
+      image: fileUrl,
+    });
+    try {
+      const added = await client.add(data);
+      const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+
+      createSale(url);
+    } catch (error) {
+      console.log("Error uploading file: ", error);
+    }
+  };
+
+  async function createSale(url) {
+    console.log("pass2");
     const web3 = new Web3(window.ethereum);
     const networkId = await web3.eth.net.getId();
-    const contract = new web3.eth.Contract(
-      NFTMarket.abi,
-      NFTMarket.networks[networkId].address
+    let contract = new web3.eth.Contract(
+      Ticket.abi,
+      Ticket.networks[networkId].address
     );
 
-    console.log(account);
-    e.preventDefault();
+    let transaction = await contract.methods
+      .createToken(url)
+      .send({ from: account });
+    console.log(transaction);
+    let event = transaction.events;
+    let value = event.Transfer.returnValues;
+    let tokenId = value.tokenId;
+    const price = formInput.price;
 
-    await contract.methods.listToken(account, 1, 100).send({ from: account });
-    const response = await contract.methods.listToken().call();
-    console.log(response);
-  };
+    contract = new web3.eth.Contract(
+      Market.abi,
+      Market.networks[networkId].address
+    );
+    // let listingPrice = await contract.getListingPrice();
+    // listingPrice = listingPrice.toString();
+
+    transaction = await contract.methods
+      .createMarketItem(
+        Ticket.networks[networkId].address,
+        tokenId,
+        price
+        // { value: listingPrice }
+      )
+      .send({ from: account });
+  }
 
   return (
     <div className="h-fit w-full p-10 bg-background">
       <div className="h-full mx-28 text-white">
         <p className="text-4xl font-bold py-5">Create new ticket</p>
-        <form onSubmit={handleSubmit} className="h-full w-full flex space-x-20">
+        <div className="h-full w-full flex space-x-20">
           <div className="h-full w-3/12">
             <p>Image</p>
             <p className="text-sm text-sub-text">
@@ -99,6 +169,12 @@ function CreateTicket({ account }) {
                   type="text"
                   placeholder="Ticket name"
                   className="h-full w-full bg-transparent"
+                  onChange={(e) =>
+                    setFormInput({
+                      ...formInput,
+                      name: e.target.value,
+                    })
+                  }
                 />
               </div>
             </div>
@@ -125,6 +201,12 @@ function CreateTicket({ account }) {
                   rows="8"
                   placeholder="Ticket detailed description."
                   className="h-full w-full bg-transparent"
+                  onChange={(e) =>
+                    setFormInput({
+                      ...formInput,
+                      description: e.target.value,
+                    })
+                  }
                 />
               </div>
             </div>
@@ -135,6 +217,12 @@ function CreateTicket({ account }) {
                   type="text"
                   placeholder="Location"
                   className="h-full w-full bg-transparent"
+                  onChange={(e) =>
+                    setFormInput({
+                      ...formInput,
+                      price: e.target.value,
+                    })
+                  }
                 />
               </div>
             </div>
@@ -190,12 +278,13 @@ function CreateTicket({ account }) {
             </div>
             <button
               type="submit"
+              onClick={createTicket}
               className="h-11 w-24 flex justify-center items-center rounded-lg font-bold text-black bg-primary"
             >
               Create
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );
