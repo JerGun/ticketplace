@@ -19,35 +19,36 @@ contract Market {
         ListingStatus status;
         address seller;
         address token;
-        uint tokenId;
-        uint price;
+        uint256 tokenId;
+        uint256 price;
     }
 
     event Listed(
-        uint listingId,
+        uint256 listingId,
         address seller,
         address token,
-        uint tokenId,
-        uint price
+        uint256 tokenId,
+        uint256 price
     );
 
     event Sale(
-        uint listingId,
+        uint256 listingId,
         address buyer,
         address token,
-        uint tokenId,
-        uint price
+        uint256 tokenId,
+        uint256 price
     );
 
-    event Cancel(
-        uint listingId,
-        address seller
-    );
+    event Cancel(uint256 listingId, address seller);
 
-    uint private _listingId = 0;
-    mapping(uint => Listing) private _listing;
+    uint256 private _listingId = 0;
+    mapping(uint256 => Listing) private _listing;
 
-    function listToken(address token, uint tokenId, uint price) external {
+    function listToken(
+        address token,
+        uint256 tokenId,
+        uint256 price
+    ) external {
         IERC721(token).transferFrom(msg.sender, address(this), tokenId);
 
         Listing memory listing = Listing(
@@ -69,35 +70,59 @@ contract Market {
     // view - read only
     // pure - no read, no write
 
-    function getListing(uint listingId) public view returns (Listing memory listing) {
+    function getListing(uint256 listingId)
+        public
+        view
+        returns (Listing memory listing)
+    {
         return _listing[listingId];
     }
 
-    function buyToken(uint listingId) external payable {
+    function buyToken(uint256 listingId) external payable {
         Listing storage listing = _listing[listingId];
 
         require(msg.sender != listing.seller, "Seller cannot be buyer");
-        require(listing.status != ListingStatus.Active, "Listing is not active");
+        require(
+            listing.status != ListingStatus.Active,
+            "Listing is not active"
+        );
 
         require(msg.value >= listing.price, "Insufficient payment");
 
         payable(listing.seller).transfer(listing.price);
-        IERC721(listing.token).transferFrom(address(this), msg.sender, listing.tokenId);
+        IERC721(listing.token).transferFrom(
+            address(this),
+            msg.sender,
+            listing.tokenId
+        );
 
         listing.status = ListingStatus.Sold;
 
-        emit Sale(listingId, msg.sender, listing.token, listing.tokenId, listing.price);
+        emit Sale(
+            listingId,
+            msg.sender,
+            listing.token,
+            listing.tokenId,
+            listing.price
+        );
     }
 
-    function cancel(uint listingId) public {
+    function cancel(uint256 listingId) public {
         Listing storage listing = _listing[listingId];
 
         require(msg.sender == listing.seller, "Only seller can cancel listing");
-        require(listing.status == ListingStatus.Active, "Listing is not active");
+        require(
+            listing.status == ListingStatus.Active,
+            "Listing is not active"
+        );
 
         listing.status = ListingStatus.Cancelled;
-        
-        IERC721(listing.token).transferFrom(address(this), msg.sender, listing.tokenId);
+
+        IERC721(listing.token).transferFrom(
+            address(this),
+            msg.sender,
+            listing.tokenId
+        );
 
         emit Cancel(listingId, listing.seller);
     }
