@@ -4,6 +4,7 @@ const Ticket = artifacts.require("./Ticket.sol");
 const NFTMarket = artifacts.require("./NFTMarket.sol");
 
 module.exports = function (deployer) {
-  deployer.deploy(Ticket);
-  deployer.deploy(NFTMarket);
+  deployer.deploy(NFTMarket).then(function() {
+    return deployer.deploy(Ticket, NFTMarket.address);
+  });
 };
