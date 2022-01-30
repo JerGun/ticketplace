@@ -10,7 +10,9 @@ contract Ticket is ERC721URIStorage {
     Counters.Counter private _tokenIds;
     address contractAddress;
 
-    constructor() ERC721("Tiketplace Tokens", "TKP") {}
+    constructor(address marketAddress) ERC721("Tiketplace Tokens", "TKP") {
+        contractAddress = marketAddress;
+    }
 
     function createToken(string memory tokenURI) public returns (uint256) {
         _tokenIds.increment();
