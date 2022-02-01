@@ -16,9 +16,10 @@ import CreateTicket from "./CreateTicket";
 import TicketItem from "./TicketItem";
 import CustomScrollbars from "./CustomScrollbars";
 import SimpleStorage from "./SimpleStorage";
-import SetUpOrganizer from "./SetUpAccount";
+import SetUpOrganizer from "./AccountSetup";
 import Confirm from "./Confirm";
 import { API_URL } from "../config";
+import SettingAccount from "./AccountSettings";
 
 function App() {
   const [web3, setWeb3] = useState(undefined);
@@ -140,6 +141,7 @@ function App() {
               element={<CreateTicket account={account} verify={info.verify} />}
             />
             <Route path="account/setup" element={<SetUpOrganizer />} />
+            <Route path="account/setting" element={<SettingAccount />} />
             <Route path="/confirm/:id" element={<Confirm />} />
             <Route
               path="account/*"

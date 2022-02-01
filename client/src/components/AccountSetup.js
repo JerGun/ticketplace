@@ -23,21 +23,15 @@ function SetUpOrganizer() {
     });
   }, []);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async () => {
     const { name, email } = formInput;
     if (!name || !email) return;
 
-    e.preventDefault();
     setSendingEmail(true);
-    console.log("pass");
 
     await axios
       .post(`${API_URL}/email`, formInput)
       .then((response) => {
-        // Everything has come back successfully, time to update the state to
-        // reenable the button and stop the <Spinner>. Also, show a toast with a
-        // message from the server to give the user feedback and reset the form
-        // so the user can start over if she chooses.
         setSendingEmail(false);
         console.log(response.data.msg);
       })
@@ -54,7 +48,7 @@ function SetUpOrganizer() {
           <p className="text-text">You are signed in as</p>
           <p className="text-3xl font-bold">{account}</p>
           <p className="text-text">
-            We will use this wallet to create your organizer account
+            We will use this wallet to create your account
           </p>
         </div>
         <div className="space-y-3">

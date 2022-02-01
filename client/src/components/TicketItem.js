@@ -47,7 +47,7 @@ function TicketItem() {
         >
           <Dialog
             onClose={() => setCopy(false)}
-            className="absolute bottom-10 left-10 py-3 px-6 rounded-lg shadow-lg bg-white"
+            className="absolute bottom-10 right-10 py-3 px-6 rounded-lg shadow-lg bg-white"
           >
             <p>Copied</p>
           </Dialog>
