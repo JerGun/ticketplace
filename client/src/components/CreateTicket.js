@@ -1,6 +1,5 @@
-import { React, useState } from "react";
+import React, { useState } from "react";
 import Web3 from "web3";
-import { withRouter  } from "react-router-dom";
 import { create as ipfsHttpClient } from "ipfs-http-client";
 import Ticket from "../contracts/Ticket.json";
 import Market from "../contracts/NFTMarket.json";
@@ -83,7 +82,6 @@ function CreateTicket({ account }) {
   };
 
   async function createSale(url) {
-    console.log("pass");
     const web3 = new Web3(window.ethereum);
     const networkId = await web3.eth.net.getId();
     let contract = new web3.eth.Contract(
@@ -204,11 +202,11 @@ function CreateTicket({ account }) {
               </div>
             </div>
             <div className="space-y-3">
-              <p>Location</p>
+              <p>Price</p>
               <div className="h-11 px-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
                 <input
                   type="text"
-                  placeholder="Location"
+                  placeholder="Price"
                   className="h-full w-full bg-transparent"
                   onChange={(e) =>
                     setFormInput({

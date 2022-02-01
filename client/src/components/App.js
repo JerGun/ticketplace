@@ -15,6 +15,8 @@ import { ReactComponent as Close } from "../assets/icons/close.svg";
 import TicketItem from "./TicketItem";
 import CustomScrollbars from "./CustomScrollbars";
 import SimpleStorage from "./SimpleStorage";
+import SetUpOrganizer from "./SetUpOrganizer";
+import Confirm from "./Confirm";
 
 function App() {
   const [web3, setWeb3] = useState(undefined);
@@ -124,9 +126,11 @@ function App() {
             <Route
               path="ticket/create"
               element={
-                <CreateTicket account={account} />
+                // <CreateTicket account={account} />
+                <SetUpOrganizer />
               }
             />
+            <Route path="/confirm/:id" element={<Confirm />} />
             <Route path="account/*" element={<Account account={account} />} />
             <Route
               path="simple"
