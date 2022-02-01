@@ -7,10 +7,11 @@ import Market from "../contracts/NFTMarket.json";
 import { ReactComponent as Photo } from "../assets/icons/photo.svg";
 import { ReactComponent as Calendar } from "../assets/icons/calendar.svg";
 import { ReactComponent as Clock } from "../assets/icons/clock.svg";
+import { useNavigate } from "react-router-dom";
 
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
 
-function CreateTicket({account}) {
+function CreateTicket({ account, verify }) {
   const [image, setImage] = useState({ preview: "", raw: "" });
   const [formInput, setFormInput] = useState({
     name: "",
@@ -20,7 +21,12 @@ function CreateTicket({account}) {
   const [fileUrl, setFileUrl] = useState(null);
   const [supply, setSupply] = useState();
 
+  const navigate = useNavigate();
+
   useEffect(async () => {
+    if (!verify) {
+      return navigate("/account/setup");
+    }
     const web3 = new Web3(window.ethereum);
     const accounts = await web3.eth.getAccounts();
     setFormInput({

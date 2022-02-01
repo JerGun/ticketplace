@@ -48,7 +48,7 @@ function SetUpOrganizer() {
     <div className="fixed h-full w-full p-10 bg-background">
       <div className="h-full mx-28 space-y-5 text-white">
         <p className="text-4xl font-bold py-5">
-          Setup Your Ticketplace Organizer Account
+          Setup Your Ticketplace Account
         </p>
         <div className="space-y-3">
           <p className="text-text">You are signed in as</p>
@@ -58,11 +58,11 @@ function SetUpOrganizer() {
           </p>
         </div>
         <div className="space-y-3">
-          <p>Organizer name</p>
+          <p>Name</p>
           <div className="h-11 w-1/3 px-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
             <input
               type="text"
-              placeholder="Your organizer name"
+              placeholder="Name"
               className="h-full w-full bg-transparent"
               onChange={(e) =>
                 setFormInput({

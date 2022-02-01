@@ -51,52 +51,17 @@ function Account({ account, info }) {
 
   return (
     <>
-      <Transition show={copy}>
-        <Transition.Child
-          as={Fragment}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
-          <Dialog
-            onClose={() => setCopy(false)}
-            className="absolute bottom-10 left-10 py-3 px-6 rounded-lg shadow-lg bg-white"
-          >
-            <p>Copied</p>
-          </Dialog>
-        </Transition.Child>
-      </Transition>
-      <Transition show={share}>
-        <Transition.Child
-          as={Fragment}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
-          <Dialog
-            onClose={() => setShare(false)}
-            className="absolute bottom-10 left-10 py-3 px-6 rounded-lg shadow-lg bg-white"
-          >
-            <p>Link Copied</p>
-          </Dialog>
-        </Transition.Child>
-      </Transition>
       <div className="h-full w-full text-wh flex justify-center py-10 bg-background">
         <div className="h-full w-10/12">
           <div className="relative flex flex-col space-y-5 items-center">
             <div className="absolute flex right-0 space-x-5">
-              <a
+              <Link
+                to="/account/setup"
                 data-tip="Setting"
                 className="h-11 w-11 p-3 flex justify-center items-center rounded-lg text-white bg-input"
               >
                 <Setting />
-              </a>
+              </Link>
               <ReactTooltip
                 effect="solid"
                 place="top"
@@ -177,6 +142,42 @@ function Account({ account, info }) {
           </div>
         </div>
       </div>
+      <Transition show={copy}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <Dialog
+            onClose={() => setCopy(false)}
+            className="absolute bottom-10 left-10 py-3 px-6 rounded-lg shadow-lg bg-white"
+          >
+            <p>Copied</p>
+          </Dialog>
+        </Transition.Child>
+      </Transition>
+      <Transition show={share}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <Dialog
+            onClose={() => setShare(false)}
+            className="absolute bottom-10 left-10 py-3 px-6 rounded-lg shadow-lg bg-white"
+          >
+            <p>Link Copied</p>
+          </Dialog>
+        </Transition.Child>
+      </Transition>
     </>
   );
 }

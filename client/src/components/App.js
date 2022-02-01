@@ -16,7 +16,7 @@ import CreateTicket from "./CreateTicket";
 import TicketItem from "./TicketItem";
 import CustomScrollbars from "./CustomScrollbars";
 import SimpleStorage from "./SimpleStorage";
-import SetUpOrganizer from "./SetUpOrganizer";
+import SetUpOrganizer from "./SetUpAccount";
 import Confirm from "./Confirm";
 import { API_URL } from "../config";
 
@@ -137,16 +137,14 @@ function App() {
             <Route path="tickets/:ticketId" element={<TicketItem />} />
             <Route
               path="ticket/create"
-              element={
-                info.verify ? (
-                  <CreateTicket account={account} />
-                ) : (
-                  <SetUpOrganizer />
-                )
-              }
+              element={<CreateTicket account={account} verify={info.verify} />}
             />
+            <Route path="account/setup" element={<SetUpOrganizer />} />
             <Route path="/confirm/:id" element={<Confirm />} />
-            <Route path="account/*" element={<Account account={account} info={info}/>} />
+            <Route
+              path="account/*"
+              element={<Account account={account} info={info} />}
+            />
             <Route
               path="simple"
               element={<SimpleStorage account={account} contract={contract} />}
