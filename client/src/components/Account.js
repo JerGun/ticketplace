@@ -2,6 +2,9 @@ import { React, useState, Fragment, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Routes, Route, Link, useNavigate } from "react-router-dom";
 import ReactTooltip from "react-tooltip";
+import Web3 from "web3";
+import axios from "axios";
+import { API_URL } from "../config";
 
 import { ReactComponent as Copy } from "../assets/icons/copy.svg";
 import { ReactComponent as Check } from "../assets/icons/check.svg";
@@ -10,7 +13,14 @@ import { ReactComponent as Share } from "../assets/icons/share.svg";
 
 import Owned from "./Owned";
 
-function Account({ account, info }) {
+function Account() {
+  const [account, setAccount] = useState("");
+  const [info, setInfo] = useState({
+    address: "",
+    name: "Unnamed",
+    email: "",
+    verify: false,
+  });
   const [path, setPath] = useState();
   const [copy, setCopy] = useState(false);
   const [share, setShare] = useState(false);
@@ -19,10 +29,31 @@ function Account({ account, info }) {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (account.length === 0) {
+  useEffect(async () => {
+    const web3 = new Web3(window.ethereum);
+    const accounts = await web3.eth.getAccounts();
+    setAccount(accounts[0]);
+
+    if (accounts.length === 0) {
       return navigate("/");
     }
+
+    await axios
+      .get(`${API_URL}/account/${accounts[0]}`)
+      .then((response) => {
+        if (response) {
+          if (response.data != null) {
+            setInfo({
+              ...info,
+              name: response.data.name,
+              email: response.data.email,
+              img: response.data.img,
+              verify: response.data.verify,
+            });
+          }
+        }
+      })
+      .catch((err) => console.log(err));
   }, []);
 
   const copyURL = () => {

@@ -23,13 +23,7 @@ import SettingAccount from "./AccountSettings";
 
 function App() {
   const [web3, setWeb3] = useState(undefined);
-  const [account, setAccount] = useState([]);
-  const [info, setInfo] = useState({
-    name: "Unnamed",
-    email: "",
-    img: "",
-    verify: false,
-  });
+  const [account, setAccount] = useState("");
   const [contract, setContract] = useState([]);
   const [marketContract, setMarketContract] = useState();
   const [network, setNetwork] = useState(97);
@@ -63,21 +57,6 @@ function App() {
         if (accounts.length !== 0) {
           setAccount(accounts[0]);
         }
-
-        await axios
-          .get(`${API_URL}/account/${accounts[0]}`)
-          .then((response) => {
-            if (response) {
-              setInfo({
-                ...info,
-                name: response.data.name,
-                email: response.data.email,
-                img: response.data.img,
-                verify: response.data.verify,
-              });
-            }
-          })
-          .catch((err) => console.log(err));
       }
       return () => {
         componentMounted.current = false;
@@ -138,15 +117,12 @@ function App() {
             <Route path="tickets/:ticketId" element={<TicketItem />} />
             <Route
               path="ticket/create"
-              element={<CreateTicket account={account} verify={info.verify} />}
+              element={<CreateTicket account={account} />}
             />
             <Route path="account/setup" element={<SetUpOrganizer />} />
             <Route path="account/setting" element={<SettingAccount />} />
             <Route path="/confirm/:id" element={<Confirm />} />
-            <Route
-              path="account/*"
-              element={<Account account={account} info={info} />}
-            />
+            <Route path="account/*" element={<Account />} />
             <Route
               path="simple"
               element={<SimpleStorage account={account} contract={contract} />}
