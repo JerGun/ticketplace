@@ -1,4 +1,4 @@
-import { React, Fragment, useState, useEffect } from "react";
+import { React, Fragment, useState, useEffect, useRef } from "react";
 import Web3 from "web3";
 import axios from "axios";
 import { Listbox, Transition } from "@headlessui/react";
@@ -22,11 +22,9 @@ function Tickets() {
   const [tickets, setTickets] = useState([]);
   const [loadingState, setLoadingState] = useState("not-loaded");
 
-  useEffect(() => {
-    loadTickets();
-  }, []);
+  const componentMounted = useRef(true);
 
-  const loadTickets = async () => {
+  useEffect(async () => {
     const web3 = new Web3(window.ethereum);
     const networkId = await web3.eth.net.getId();
     const ticketContract = new web3.eth.Contract(
@@ -58,9 +56,16 @@ function Tickets() {
         return item;
       })
     );
-    setTickets(items);
-    setLoadingState("loaded");
-  };
+    if (componentMounted.current) {
+      setTickets(items);
+      setLoadingState("loaded");
+    }
+
+    return () => {
+      componentMounted.current = false;
+    };
+  }, []);
+
   const handleChange = (event) => {
     let { value } = event.target;
     value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : null;
