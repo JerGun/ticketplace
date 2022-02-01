@@ -1,40 +1,48 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import MigrationsContract from "../contracts/Migrations.json";
 import SimpleStorageContract from "../contracts/SimpleStorage.json";
 import MarketContract from "../contracts/Market.json";
 import Web3 from "web3";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import axios from "axios";
-import { API_URL } from "../config";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+
+import { ReactComponent as Close } from "../assets/icons/close.svg";
 
 import Navbar from "./Navbar";
 import Tickets from "./Tickets";
 import Home from "./Home";
 import Account from "./Account";
 import CreateTicket from "./CreateTicket";
-import { ReactComponent as Close } from "../assets/icons/close.svg";
 import TicketItem from "./TicketItem";
 import CustomScrollbars from "./CustomScrollbars";
 import SimpleStorage from "./SimpleStorage";
 import SetUpOrganizer from "./SetUpOrganizer";
 import Confirm from "./Confirm";
+import { API_URL } from "../config";
 
 function App() {
   const [web3, setWeb3] = useState(undefined);
   const [account, setAccount] = useState([]);
+  const [info, setInfo] = useState({
+    name: "Unnamed",
+    email: "",
+    img: "",
+    verify: false,
+  });
   const [contract, setContract] = useState([]);
   const [marketContract, setMarketContract] = useState();
   const [network, setNetwork] = useState(97);
-  const [verify, setVerify] = useState(false);
 
-  useEffect(() => {
-    const init = async () => {
-      if (window.ethereum) {
-        const web3 = new Web3(window.ethereum);
+  const componentMounted = useRef(true);
 
-        const accounts = await web3.eth.getAccounts();
+  useEffect(async () => {
+    if (window.ethereum) {
+      const web3 = new Web3(window.ethereum);
 
-        const networkId = await web3.eth.net.getId();
+      const accounts = await web3.eth.getAccounts();
+
+      const networkId = await web3.eth.net.getId();
+      if (componentMounted.current) {
         setNetwork(networkId);
         if (networkId === 97) {
           const deployedNetwork = SimpleStorageContract.networks[networkId];
@@ -58,28 +66,23 @@ function App() {
         await axios
           .get(`${API_URL}/account/${accounts[0]}`)
           .then((response) => {
-            setVerify(response.data);
+            if (response) {
+              setInfo({
+                ...info,
+                name: response.data.name,
+                email: response.data.email,
+                img: response.data.img,
+                verify: response.data.verify,
+              });
+            }
           })
           .catch((err) => console.log(err));
       }
-    };
-    init();
+      return () => {
+        componentMounted.current = false;
+      };
+    }
   }, []);
-
-  // useEffect(() => {
-  //   const load = async () => {
-  //     await contract.methods.setX(5).send({ from: accounts[0] });
-  //     const response = await contract.methods.getX().call();
-  //     setStorageValue(response);
-  //   };
-  //   if (
-  //     typeof web3 !== "undefined" &&
-  //     typeof accounts !== "undefined" &&
-  //     typeof contract !== "undefined"
-  //   ) {
-  //     load();
-  //   }
-  // }, [web3, accounts, contract]);
 
   useEffect(() => {
     if (window.ethereum) {
@@ -97,7 +100,7 @@ function App() {
     }
   });
 
-  async function connectWallet() {
+  const connectWallet = async () => {
     if (account.length === 0) {
       const accounts = await window.ethereum.request({
         method: "eth_requestAccounts",
@@ -106,7 +109,7 @@ function App() {
         setAccount(accounts[0]);
       }
     }
-  }
+  };
 
   return (
     <div className="w-full h-screen  bg-gradient-to-b from-indigo-500 to-background">
@@ -135,11 +138,15 @@ function App() {
             <Route
               path="ticket/create"
               element={
-                verify ? <CreateTicket account={account} /> : <SetUpOrganizer />
+                info.verify ? (
+                  <CreateTicket account={account} />
+                ) : (
+                  <SetUpOrganizer />
+                )
               }
             />
             <Route path="/confirm/:id" element={<Confirm />} />
-            <Route path="account/*" element={<Account account={account} />} />
+            <Route path="account/*" element={<Account account={account} info={info}/>} />
             <Route
               path="simple"
               element={<SimpleStorage account={account} contract={contract} />}
