@@ -24,7 +24,7 @@ function Navbar({ connectWallet, account }) {
           <p className="text-4xl">Ticketplace</p>
         </Link>
       </div>
-      <div className="col-span-3 h-full w-full flex items-center">
+      <div className="col-span-3 h-full w-full flex items-center text-white">
         {location.pathname !== "/" && (
           <div className="h-11 w-full space-x-3 px-3 flex items-center rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
             <Search className="h-1/2" />
