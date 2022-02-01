@@ -26,3 +26,4 @@ Others | 10%
 ### Features
 * Connect wallet via MetaMask
 * Setup organizer account
+* Verify email
