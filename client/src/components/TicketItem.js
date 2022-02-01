@@ -23,7 +23,7 @@ function TicketItem() {
 
   const params = useParams();
 
-  function copyURL() {
+  const copyURL = () => {
     navigator.clipboard.writeText(window.location.href);
     setCopy(true);
     setButtonDisabled(true);
@@ -31,7 +31,7 @@ function TicketItem() {
       setCopy(false);
       setButtonDisabled(false);
     }, 2000);
-  }
+  };
 
   return (
     <>

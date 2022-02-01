@@ -91,3 +91,8 @@ input[type="number"] {
   border-radius: 25px;
   background-color: #4ed0f5;
 }
+
+.__react_component_tooltip.show {
+  opacity: 1 !important;
+  border-radius: 10px;
+}
