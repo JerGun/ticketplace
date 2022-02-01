@@ -4,8 +4,9 @@ import SimpleStorageContract from "../contracts/SimpleStorage.json";
 import MarketContract from "../contracts/Market.json";
 import Web3 from "web3";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import axios from "axios";
+import { API_URL } from "../config";
 
-// import "./App.css";
 import Navbar from "./Navbar";
 import Tickets from "./Tickets";
 import Home from "./Home";
@@ -24,6 +25,7 @@ function App() {
   const [contract, setContract] = useState([]);
   const [marketContract, setMarketContract] = useState();
   const [network, setNetwork] = useState(97);
+  const [verify, setVerify] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -52,6 +54,13 @@ function App() {
         if (accounts.length !== 0) {
           setAccount(accounts[0]);
         }
+
+        await axios
+          .get(`${API_URL}/account/${accounts[0]}`)
+          .then((response) => {
+            setVerify(response.data);
+          })
+          .catch((err) => console.log(err));
       }
     };
     init();
@@ -126,8 +135,7 @@ function App() {
             <Route
               path="ticket/create"
               element={
-                // <CreateTicket account={account} />
-                <SetUpOrganizer />
+                verify ? <CreateTicket account={account} /> : <SetUpOrganizer />
               }
             />
             <Route path="/confirm/:id" element={<Confirm />} />

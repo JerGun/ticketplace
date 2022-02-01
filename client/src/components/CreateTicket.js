@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Web3 from "web3";
 import { create as ipfsHttpClient } from "ipfs-http-client";
 import Ticket from "../contracts/Ticket.json";
@@ -10,7 +10,7 @@ import { ReactComponent as Clock } from "../assets/icons/clock.svg";
 
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
 
-function CreateTicket({ account }) {
+function CreateTicket({account}) {
   const [image, setImage] = useState({ preview: "", raw: "" });
   const [formInput, setFormInput] = useState({
     name: "",
@@ -19,6 +19,15 @@ function CreateTicket({ account }) {
   });
   const [fileUrl, setFileUrl] = useState(null);
   const [supply, setSupply] = useState();
+
+  useEffect(async () => {
+    const web3 = new Web3(window.ethereum);
+    const accounts = await web3.eth.getAccounts();
+    setFormInput({
+      ...formInput,
+      address: accounts[0],
+    });
+  }, []);
 
   const handleChange = (e) => {};
 
@@ -81,7 +90,7 @@ function CreateTicket({ account }) {
     }
   };
 
-  async function createSale(url) {
+  const createSale = async (url) => {
     const web3 = new Web3(window.ethereum);
     const networkId = await web3.eth.net.getId();
     let contract = new web3.eth.Contract(
@@ -107,8 +116,8 @@ function CreateTicket({ account }) {
       .createMarketItem(Ticket.networks[networkId].address, tokenId, price)
       .send({ from: account });
     console.log("create", transaction);
-    this.props.history.push.push('/tickets')
-  }
+    this.props.history.push.push("/tickets");
+  };
 
   return (
     <div className="h-fit w-full p-10 bg-background">

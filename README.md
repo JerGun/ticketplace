@@ -22,4 +22,7 @@ Others | 10%
     - [ ] Backend
         * Admin section - approve or reject request form
 - [ ] Signature request
-
+------------------------
+### Features
+* Connect wallet via MetaMask
+* Setup organizer account
