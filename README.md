@@ -1,12 +1,11 @@
-# ticketplace
+# Ticketplace
 Ticketplace is a ticket exchange website. that uses Blockchain technology to solve the problem of ticket fraud.
 
-## **Todo List**
+## **Todo list**
 * Query users from database to check verified email (Frontend - Create ticket)
 
 
 ## Project progress plan
-------------------------
 Section | %
 ------- | -------
 Smart Contract | 35%

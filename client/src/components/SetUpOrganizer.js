@@ -91,7 +91,7 @@ function SetUpOrganizer() {
         </div>
         <button
           type="submit"
-          className="h-11 w-24 flex justify-center items-center rounded-lg font-bold text-white bg-primary"
+          className="h-11 w-24 flex justify-center items-center rounded-lg font-bold text-black bg-primary"
           onClick={handleSubmit}
         >
           Save
