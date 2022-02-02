@@ -6,8 +6,9 @@ import { Dialog, Transition } from "@headlessui/react";
 
 import { ReactComponent as Close } from "../assets/icons/close.svg";
 import { ReactComponent as Email } from "../assets/icons/email.svg";
+import { useNavigate } from "react-router-dom";
 
-function SetUpOrganizer() {
+function AccountSetup() {
   const [account, setAccount] = useState("");
   const [formInput, setFormInput] = useState({
     address: "",
@@ -21,6 +22,8 @@ function SetUpOrganizer() {
   const [emailPattern, setEmailPattern] = useState(false);
   const [submitDisable, setSubmitDisable] = useState(true);
 
+  const navigate = useNavigate();
+
   useEffect(async () => {
     if (window.ethereum) {
       const web3 = new Web3(window.ethereum);
@@ -30,6 +33,16 @@ function SetUpOrganizer() {
         ...formInput,
         address: accounts[0],
       });
+      await axios
+        .get(`${API_URL}/account/${accounts[0]}`)
+        .then((response) => {
+          if (response) {
+            if (response.data.email) {
+              navigate("/account/settings");
+            }
+          }
+        })
+        .catch((err) => console.log(err));
     }
   }, []);
 
@@ -39,20 +52,22 @@ function SetUpOrganizer() {
         ? setSubmitDisable(false)
         : setSubmitDisable(true)
       : setSubmitDisable(true);
-  });
+  }, [formInput.name, formInput.email]);
 
   const handleSubmit = async () => {
     const { name, email } = formInput;
     if (!name || !email) return;
 
     setSendingEmail(true);
+    setSubmitDisable(true);
 
     await axios
       .post(`${API_URL}/email`, formInput)
       .then((response) => {
         setTimeout(() => {
+          setSubmitDisable(false);
           setSendingEmail(false);
-        }, 5000);
+        }, 4000);
         console.log(response.data.msg);
       })
       .catch((err) => console.log(err));
@@ -193,4 +208,4 @@ function SetUpOrganizer() {
   );
 }
 
-export default SetUpOrganizer;
+export default AccountSetup;

@@ -5,13 +5,17 @@ import ReactTooltip from "react-tooltip";
 import Web3 from "web3";
 import axios from "axios";
 import { API_URL } from "../config";
+import { create as ipfsHttpClient } from "ipfs-http-client";
 
 import { ReactComponent as Copy } from "../assets/icons/copy.svg";
 import { ReactComponent as Check } from "../assets/icons/check.svg";
 import { ReactComponent as Setting } from "../assets/icons/setting.svg";
 import { ReactComponent as Share } from "../assets/icons/share.svg";
+import { ReactComponent as Edit } from "../assets/icons/edit.svg";
 
 import Owned from "./Owned";
+
+const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
 
 function Account() {
   const [account, setAccount] = useState("");
@@ -26,6 +30,7 @@ function Account() {
   const [share, setShare] = useState(false);
   const [copyDisabled, setCopyDisabled] = useState();
   const [shareDisabled, setShareDisabled] = useState();
+  const [image, setImage] = useState({ preview: "", raw: "" });
 
   const navigate = useNavigate();
 
@@ -42,19 +47,50 @@ function Account() {
       .get(`${API_URL}/account/${accounts[0]}`)
       .then((response) => {
         if (response) {
-          if (response.data != null) {
-            setInfo({
-              ...info,
-              name: response.data.name,
-              email: response.data.email,
-              img: response.data.img,
-              verify: response.data.verify,
-            });
+          if (response.data) {
+            if (response.data.email) {
+              setInfo({
+                ...info,
+                name: response.data.name,
+                email: response.data.email,
+                verify: response.data.verify,
+              });
+            } else {
+              setInfo({
+                ...info,
+                name: "Unnamed",
+                email: "",
+              });
+            }
+            setImage({ ...image, preview: response.data.img });
           }
         }
       })
       .catch((err) => console.log(err));
   }, []);
+
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    try {
+      const added = await client.add(file);
+      const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+      setImage({
+        preview: url,
+        raw: e.target.files[0],
+      });
+      await axios
+        .put(`${API_URL}/account/update`, {
+          address: account,
+          img: url,
+        })
+        .then((response) => {})
+        .catch((err) => {
+          console.log(err);
+        });
+    } catch (error) {
+      console.log("Error uploading file: ", error);
+    }
+  };
 
   const copyURL = () => {
     navigator.clipboard.writeText(`${window.location.origin}/${account}`);
@@ -95,11 +131,7 @@ function Account() {
                 {share === true ? <Check className="text-white" /> : <Share />}
               </button>
               <Link
-                to={
-                  info.email.length !== 0
-                    ? "/account/settings"
-                    : "/account/setup"
-                }
+                to={info.email.length ? "/account/settings" : "/account/setup"}
                 data-tip="Settings"
                 className="h-11 w-11 p-3 flex justify-center items-center rounded-lg text-white bg-input"
               >
@@ -114,15 +146,40 @@ function Account() {
               />
             </div>
             <div className="h-36 w-36">
-              {info.img ? (
-                <img
-                  src={info.img}
-                  alt="Profile"
-                  className="h-full w-full rounded-full object-cover"
+              <div className="relative h-full w-full">
+                <label
+                  htmlFor="upload-button"
+                  className="absolute h-full w-full rounded-full hover:cursor-pointer"
+                >
+                  {image.preview ? (
+                    <div className="relative h-full w-full group">
+                      <div className="absolute top-0 z-10 h-full w-full p-14 text-white opacity-0 group-hover:opacity-100">
+                        <Edit />
+                      </div>
+                      <div className="h-full w-full rounded-full group-hover:opacity-50">
+                        <img
+                          src={image.preview}
+                          alt="Profile"
+                          className="h-full w-full rounded-full object-cover"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="relative h-full w-full group">
+                      <div className="h-full w-full rounded-full bg-gradient-to-tr from-primary to-sky-200 group-hover:opacity-50"></div>
+                      <div className="absolute top-0 z-10 h-full w-full p-14 text-white opacity-0 group-hover:opacity-100">
+                        <Edit />
+                      </div>
+                    </div>
+                  )}
+                </label>
+                <input
+                  type="file"
+                  id="upload-button"
+                  className="hidden"
+                  onChange={handleImageChange}
                 />
-              ) : (
-                <div className="h-full w-full rounded-full bg-gradient-to-tr from-primary to-sky-200"></div>
-              )}
+              </div>
             </div>
             <p className="text-4xl text-white">{info.name}</p>
             <div className="flex space-x-3 text-text">

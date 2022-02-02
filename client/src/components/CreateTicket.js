@@ -5,11 +5,11 @@ import { create as ipfsHttpClient } from "ipfs-http-client";
 import Ticket from "../contracts/Ticket.json";
 import Market from "../contracts/NFTMarket.json";
 import { API_URL } from "../config";
+import { useNavigate } from "react-router-dom";
 
 import { ReactComponent as Photo } from "../assets/icons/photo.svg";
 import { ReactComponent as Calendar } from "../assets/icons/calendar.svg";
 import { ReactComponent as Clock } from "../assets/icons/clock.svg";
-import { useNavigate } from "react-router-dom";
 
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
 
@@ -34,12 +34,14 @@ function CreateTicket() {
       await axios
         .get(`${API_URL}/account/${accounts[0]}`)
         .then((response) => {
-          if (response.data !== null) {
-            return response.data.email !== 0
+          if (response.data.email) {
+            return response.data.email.length !== 0
               ? !response.data.verify
                 ? navigate("/account/settings")
                 : null
               : navigate("/account/setup");
+          } else {
+            navigate("/account/setup");
           }
         })
         .catch((err) => console.log(err));

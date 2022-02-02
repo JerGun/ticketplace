@@ -8,7 +8,7 @@ import { ReactComponent as Email } from "../assets/icons/email.svg";
 import { ReactComponent as Close } from "../assets/icons/close.svg";
 import { ReactComponent as Check } from "../assets/icons/check.svg";
 
-function SettingAccount() {
+function AccountSettings() {
   const [account, setAccount] = useState();
   const [info, setInfo] = useState({
     address: "",
@@ -80,14 +80,13 @@ function SettingAccount() {
             setSubmitDisable(false);
             setShowModal(false);
             setSendingEmail(false);
-          }, 5000);
+          }, 4000);
         })
         .catch((err) => console.log(err));
     } else {
       await axios
         .put(`${API_URL}/account/update`, formInput)
         .then((response) => {
-          console.log("asd");
           setSubmitDisable(true);
           setShowModal(true);
           setSuccess(true);
@@ -95,10 +94,26 @@ function SettingAccount() {
             setSubmitDisable(false);
             setShowModal(false);
             setSuccess(false);
-          }, 5000);
+          }, 4000);
         })
         .catch((err) => console.log(err));
     }
+  };
+
+  const handleResend = async () => {
+    await axios
+      .put(`${API_URL}/email/update`, formInput)
+      .then((response) => {
+        setSubmitDisable(true);
+        setShowModal(true);
+        setSendingEmail(true);
+        setTimeout(() => {
+          setSubmitDisable(false);
+          setShowModal(false);
+          setSendingEmail(false);
+        }, 4000);
+      })
+      .catch((err) => console.log(err));
   };
 
   const handleNameChange = (e) => {
@@ -209,7 +224,9 @@ function SettingAccount() {
               <p className="text-text">
                 Please check {info.email} and verify your new email address.
                 Still no email after a couple minutes?{" "}
-                <button className="text-primary">Click here to resend.</button>
+                <button className="text-primary" onClick={handleResend}>
+                  Click here to resend.
+                </button>
               </p>
             </div>
           )}
@@ -257,4 +274,4 @@ function SettingAccount() {
   );
 }
 
-export default SettingAccount;
+export default AccountSettings;
