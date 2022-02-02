@@ -12,6 +12,7 @@ import { ReactComponent as Check } from "../assets/icons/check.svg";
 import { ReactComponent as Setting } from "../assets/icons/setting.svg";
 import { ReactComponent as Share } from "../assets/icons/share.svg";
 import { ReactComponent as Edit } from "../assets/icons/edit.svg";
+import { ReactComponent as Verify } from "../assets/icons/verify.svg";
 
 import Owned from "./Owned";
 
@@ -122,6 +123,13 @@ function Account() {
         <div className="h-full w-10/12">
           <div className="relative flex flex-col space-y-5 items-center">
             <div className="absolute flex right-0 space-x-5">
+              <Link
+                to="/verify-request"
+                data-tip="Achieve Verify"
+                className="h-11 w-11 p-3 flex justify-center items-center rounded-lg text-white bg-input"
+              >
+                <Verify />
+              </Link>
               <button
                 data-tip="Share"
                 className="h-11 w-11 flex justify-center items-center rounded-lg bg-input"
@@ -137,6 +145,7 @@ function Account() {
               >
                 <Setting />
               </Link>
+
               <ReactTooltip
                 effect="solid"
                 place="top"

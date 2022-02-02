@@ -34,12 +34,14 @@ function CreateTicket() {
       await axios
         .get(`${API_URL}/account/${accounts[0]}`)
         .then((response) => {
-          if (response.data.email) {
-            return response.data.email.length !== 0
-              ? !response.data.verify
-                ? navigate("/account/settings")
-                : null
-              : navigate("/account/setup");
+          if (response.data) {
+            if (response.data.email) {
+              return response.data.email.length !== 0
+                ? !response.data.verify
+                  ? navigate("/account/settings")
+                  : null
+                : navigate("/account/setup");
+            }
           } else {
             navigate("/account/setup");
           }

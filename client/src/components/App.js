@@ -20,6 +20,7 @@ import SetUpOrganizer from "./AccountSetup";
 import Confirm from "./Confirm";
 import { API_URL } from "../config";
 import SettingAccount from "./AccountSettings";
+import VerifyRequest from "./VerifyRequest";
 
 function App() {
   const [web3, setWeb3] = useState(undefined);
@@ -123,6 +124,7 @@ function App() {
             <Route path="account/settings" element={<SettingAccount />} />
             <Route path="/confirm/:id" element={<Confirm />} />
             <Route path="account/*" element={<Account />} />
+            <Route path="verify-request" element={<VerifyRequest />} />
             <Route
               path="simple"
               element={<SimpleStorage account={account} contract={contract} />}
