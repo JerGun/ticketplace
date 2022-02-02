@@ -120,7 +120,7 @@ function App() {
               element={<CreateTicket account={account} />}
             />
             <Route path="account/setup" element={<SetUpOrganizer />} />
-            <Route path="account/setting" element={<SettingAccount />} />
+            <Route path="account/settings" element={<SettingAccount />} />
             <Route path="/confirm/:id" element={<Confirm />} />
             <Route path="account/*" element={<Account />} />
             <Route

@@ -85,7 +85,9 @@ function Navbar({ connectWallet, account }) {
               {account.length === 0 && <p>Connect wallet</p>}
               <Wallet />
             </Link>
-            {location.pathname === "/account" || location.pathname === "/account/setup" ? (
+            {location.pathname === "/account" ||
+            location.pathname === "/account/setup" ||
+            location.pathname === "/account/settings" ? (
               <span className="absolute h-1 w-full bottom-0 left-0 rounded-t-lg bg-primary"></span>
             ) : null}
           </div>

@@ -9,11 +9,6 @@ import { ReactComponent as Close } from "../assets/icons/close.svg";
 import { ReactComponent as Check } from "../assets/icons/check.svg";
 
 function SettingAccount() {
-  const [formInput, setFormInput] = useState({
-    address: "",
-    name: "",
-    email: "",
-  });
   const [account, setAccount] = useState();
   const [info, setInfo] = useState({
     address: "",
@@ -21,9 +16,17 @@ function SettingAccount() {
     email: "",
     verify: false,
   });
+  const [formInput, setFormInput] = useState({
+    address: "",
+    name: "",
+    email: "",
+  });
   const [sendingEmail, setSendingEmail] = useState(false);
+  const [nameRequired, setNameRequired] = useState(false);
+  const [emailRequired, setEmailRequired] = useState(false);
+  const [emailPattern, setEmailPattern] = useState(false);
+  const [submitDisable, setSubmitDisable] = useState(true);
   const [success, setSuccess] = useState();
-  const [isChange, setIsChange] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
   useEffect(async () => {
@@ -34,25 +37,33 @@ function SettingAccount() {
       await axios
         .get(`${API_URL}/account/${accounts[0]}`)
         .then((response) => {
-          if (response) {
-            setInfo({
-              ...info,
-              name: response.data.name,
-              email: response.data.email,
-              img: response.data.img,
-              verify: response.data.verify,
-            });
-            setFormInput({
-              ...formInput,
-              address: accounts[0],
-              name: response.data.name,
-              email: response.data.email,
-            });
-          }
+          setInfo({
+            ...info,
+            name: response.data.name,
+            email: response.data.email,
+            img: response.data.img,
+            verify: response.data.verify,
+          });
+          setFormInput({
+            ...formInput,
+            address: accounts[0],
+            name: response.data.name,
+            email: response.data.email,
+          });
         })
         .catch((err) => console.log(err));
     }
   }, []);
+
+  useEffect(() => {
+    formInput.name !== info.name && formInput.emai !== info.email
+      ? formInput.name.length > 0 && formInput.email.length > 0
+        ? !nameRequired && !emailRequired && !emailPattern
+          ? setSubmitDisable(false)
+          : setSubmitDisable(true)
+        : setSubmitDisable(true)
+      : setSubmitDisable(true);
+  }, [formInput.name, formInput.email]);
 
   const handleSubmit = async () => {
     const { name, email } = formInput;
@@ -62,9 +73,11 @@ function SettingAccount() {
       await axios
         .put(`${API_URL}/email/update`, formInput)
         .then((response) => {
+          setSubmitDisable(true);
           setShowModal(true);
           setSendingEmail(true);
           setTimeout(() => {
+            setSubmitDisable(false);
             setShowModal(false);
             setSendingEmail(false);
           }, 5000);
@@ -74,9 +87,12 @@ function SettingAccount() {
       await axios
         .put(`${API_URL}/account/update`, formInput)
         .then((response) => {
+          console.log("asd");
+          setSubmitDisable(true);
           setShowModal(true);
           setSuccess(true);
           setTimeout(() => {
+            setSubmitDisable(false);
             setShowModal(false);
             setSuccess(false);
           }, 5000);
@@ -86,19 +102,26 @@ function SettingAccount() {
   };
 
   const handleNameChange = (e) => {
-    if (e.target.value !== info.name) {
-      setIsChange(true);
-    } else {
-      setIsChange(false);
-    }
+    setFormInput({
+      ...formInput,
+      name: e.target.value,
+    });
+    e.target.value.length === 0
+      ? setNameRequired(true)
+      : setNameRequired(false);
   };
 
   const handleEmailChange = (e) => {
-    if (e.target.value !== info.email) {
-      setIsChange(true);
-    } else {
-      setIsChange(false);
-    }
+    const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    setFormInput({
+      ...formInput,
+      email: e.target.value,
+    });
+    e.target.value.length === 0
+      ? (setEmailRequired(true), setEmailPattern(false))
+      : !pattern.test(e.target.value)
+      ? (setEmailRequired(false), setEmailPattern(true))
+      : (setEmailRequired(false), setEmailPattern(false));
   };
 
   const closeModal = () => {
@@ -116,47 +139,68 @@ function SettingAccount() {
           </div>
           <div className="space-y-3">
             <p>Name</p>
-            <div className="h-11 w-1/3 px-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
-              <input
-                type="text"
-                placeholder="Name"
-                value={formInput.name}
-                className="h-full w-full bg-transparent"
-                onChange={(e) => {
-                  setFormInput({
-                    ...formInput,
-                    name: e.target.value,
-                  }),
-                    handleNameChange(e);
-                }}
-              />
+            <div className="space-y-1">
+              <div
+                className={`${nameRequired && "border border-red-400"}
+              h-11 w-1/3 px-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover
+              `}
+              >
+                <input
+                  type="text"
+                  placeholder="Name"
+                  value={formInput.name}
+                  className="h-full w-full bg-transparent"
+                  onChange={handleNameChange}
+                />
+              </div>
+              {nameRequired && (
+                <div className="flex items-center space-x-3 text-sm text-red-400">
+                  <Close className="h-2 w-2" />
+                  <p>Name is required.</p>
+                </div>
+              )}
             </div>
           </div>
           <div className="space-y-3">
             <p>Email</p>
-            <div className="h-11 w-1/3 px-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
-              <input
-                type="text"
-                placeholder="email@email.com"
-                value={formInput.email}
-                className="h-full w-full bg-transparent"
-                onChange={(e) => {
-                  setFormInput({
-                    ...formInput,
-                    email: e.target.value,
-                  }),
-                    handleEmailChange(e);
-                }}
-              />
+            <div className="space-y-1">
+              <div
+                className={`${
+                  (emailRequired && "border border-red-400") ||
+                  (emailPattern && "border border-red-400")
+                }
+              h-11 w-1/3 px-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover
+              `}
+              >
+                <input
+                  type="text"
+                  placeholder="email@email.com"
+                  value={formInput.email}
+                  className="h-full w-full bg-transparent"
+                  onChange={handleEmailChange}
+                />
+              </div>
+              {emailRequired && (
+                <div className="flex items-center space-x-3 text-sm text-red-400">
+                  <Close className="h-2 w-2" />
+                  <p>Email is required.</p>
+                </div>
+              )}
+              {emailPattern && (
+                <div className="flex items-center space-x-3 text-sm text-red-400">
+                  <Close className="h-2 w-2" />
+                  <p>Entered value does not match email format.</p>
+                </div>
+              )}
             </div>
           </div>
           <button
             type="submit"
             className={`${
-              !isChange && "opacity-50"
+              submitDisable && "opacity-50"
             } h-11 w-24 flex justify-center items-center rounded-lg font-bold text-black bg-primary`}
             onClick={handleSubmit}
-            disabled={!isChange, showModal}
+            disabled={submitDisable}
           >
             Save
           </button>

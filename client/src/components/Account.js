@@ -95,7 +95,11 @@ function Account() {
                 {share === true ? <Check className="text-white" /> : <Share />}
               </button>
               <Link
-                to={info.verify ? "/account/setting" : "/account/setup"}
+                to={
+                  info.email.length !== 0
+                    ? "/account/settings"
+                    : "/account/setup"
+                }
                 data-tip="Settings"
                 className="h-11 w-11 p-3 flex justify-center items-center rounded-lg text-white bg-input"
               >
