@@ -1,129 +1,170 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.11;
 
+import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract Market {
-    // public - anyone can call
-    // private - only this contract
-    // internal - only this contract and inheriting contracts
-    // external - only external calls
+contract Market is ReentrancyGuard {
+    using Counters for Counters.Counter;
+    Counters.Counter private _itemIds;
+    Counters.Counter private _itemsSold;
 
-    enum ListingStatus {
-        Active,
-        Sold,
-        Cancelled
+    address payable owner;
+
+    constructor() {
+        owner = payable(msg.sender);
     }
 
-    struct Listing {
-        ListingStatus status;
-        address seller;
-        address token;
+    struct MarketItem {
+        uint256 itemId;
+        address ticketContract;
         uint256 tokenId;
+        address payable seller;
+        address payable owner;
         uint256 price;
+        bool sold;
     }
 
-    event Listed(
-        uint256 listingId,
+    mapping(uint256 => MarketItem) private idToMarketItem;
+
+    event MarketItemCreated(
+        uint256 indexed itemId,
+        address indexed ticketContract,
+        uint256 indexed tokenId,
         address seller,
-        address token,
-        uint256 tokenId,
-        uint256 price
+        address owner,
+        uint256 price,
+        bool sold
     );
 
-    event Sale(
-        uint256 listingId,
-        address buyer,
-        address token,
+    /* Places an item for sale on the marketplace */
+    function createMarketItem(
+        address ticketContract,
         uint256 tokenId,
         uint256 price
-    );
+    ) public payable nonReentrant {
+        require(price > 0, "Price must be at least 1 wei");
 
-    event Cancel(uint256 listingId, address seller);
+        _itemIds.increment();
+        uint256 itemId = _itemIds.current();
 
-    uint256 private _listingId = 0;
-    mapping(uint256 => Listing) private _listing;
-
-    function listToken(
-        address token,
-        uint256 tokenId,
-        uint256 price
-    ) external {
-        IERC721(token).transferFrom(msg.sender, address(this), tokenId);
-
-        Listing memory listing = Listing(
-            ListingStatus.Active,
-            msg.sender,
-            token,
+        idToMarketItem[itemId] = MarketItem(
+            itemId,
+            ticketContract,
             tokenId,
-            price
+            payable(msg.sender),
+            payable(address(0)),
+            price,
+            false
         );
 
-        _listingId++;
+        IERC721(ticketContract).transferFrom(
+            msg.sender,
+            address(this),
+            tokenId
+        );
 
-        _listing[_listingId] = listing;
-
-        emit Listed(_listingId, msg.sender, token, tokenId, price);
+        emit MarketItemCreated(
+            itemId,
+            ticketContract,
+            tokenId,
+            msg.sender,
+            address(0),
+            price,
+            false
+        );
     }
 
-    // fuction can read and write
-    // view - read only
-    // pure - no read, no write
-
-    function getListing(uint256 listingId)
+    /* Creates the sale of a marketplace item */
+    /* Transfers ownership of the item, as well as funds between parties */
+    function createMarketSale(address ticketContract, uint256 itemId)
         public
-        view
-        returns (Listing memory listing)
+        payable
+        nonReentrant
     {
-        return _listing[listingId];
-    }
-
-    function buyToken(uint256 listingId) external payable {
-        Listing storage listing = _listing[listingId];
-
-        require(msg.sender != listing.seller, "Seller cannot be buyer");
+        uint256 price = idToMarketItem[itemId].price;
+        uint256 tokenId = idToMarketItem[itemId].tokenId;
         require(
-            listing.status != ListingStatus.Active,
-            "Listing is not active"
+            msg.value == price,
+            "Please submit the asking price in order to complete the purchase"
         );
 
-        require(msg.value >= listing.price, "Insufficient payment");
-
-        payable(listing.seller).transfer(listing.price);
-        IERC721(listing.token).transferFrom(
+        idToMarketItem[itemId].seller.transfer(msg.value);
+        IERC721(ticketContract).transferFrom(
             address(this),
             msg.sender,
-            listing.tokenId
+            tokenId
         );
-
-        listing.status = ListingStatus.Sold;
-
-        emit Sale(
-            listingId,
-            msg.sender,
-            listing.token,
-            listing.tokenId,
-            listing.price
-        );
+        idToMarketItem[itemId].owner = payable(msg.sender);
+        idToMarketItem[itemId].sold = true;
+        _itemsSold.increment();
+        // payable(owner).transfer(listingPrice);
     }
 
-    function cancel(uint256 listingId) public {
-        Listing storage listing = _listing[listingId];
+    /* Returns all unsold market items */
+    function fetchMarketItems() public view returns (MarketItem[] memory) {
+        uint256 itemCount = _itemIds.current();
+        uint256 unsoldItemCount = _itemIds.current() - _itemsSold.current();
+        uint256 currentIndex = 0;
 
-        require(msg.sender == listing.seller, "Only seller can cancel listing");
-        require(
-            listing.status == ListingStatus.Active,
-            "Listing is not active"
-        );
+        MarketItem[] memory items = new MarketItem[](unsoldItemCount);
+        for (uint256 i = 0; i < itemCount; i++) {
+            if (idToMarketItem[i + 1].owner == address(0)) {
+                uint256 currentId = i + 1;
+                MarketItem storage currentItem = idToMarketItem[currentId];
+                items[currentIndex] = currentItem;
+                currentIndex += 1;
+            }
+        }
+        return items;
+    }
 
-        listing.status = ListingStatus.Cancelled;
+    /* Returns only items that a user has purchased */
+    function fetchMyNFTs() public view returns (MarketItem[] memory) {
+        uint256 totalItemCount = _itemIds.current();
+        uint256 itemCount = 0;
+        uint256 currentIndex = 0;
 
-        IERC721(listing.token).transferFrom(
-            address(this),
-            msg.sender,
-            listing.tokenId
-        );
+        for (uint256 i = 0; i < totalItemCount; i++) {
+            if (idToMarketItem[i + 1].owner == msg.sender) {
+                itemCount += 1;
+            }
+        }
 
-        emit Cancel(listingId, listing.seller);
+        MarketItem[] memory items = new MarketItem[](itemCount);
+        for (uint256 i = 0; i < totalItemCount; i++) {
+            if (idToMarketItem[i + 1].owner == msg.sender) {
+                uint256 currentId = i + 1;
+                MarketItem storage currentItem = idToMarketItem[currentId];
+                items[currentIndex] = currentItem;
+                currentIndex += 1;
+            }
+        }
+        return items;
+    }
+
+    /* Returns only items a user has created */
+    function fetchItemsCreated() public view returns (MarketItem[] memory) {
+        uint256 totalItemCount = _itemIds.current();
+        uint256 itemCount = 0;
+        uint256 currentIndex = 0;
+
+        for (uint256 i = 0; i < totalItemCount; i++) {
+            if (idToMarketItem[i + 1].seller == msg.sender) {
+                itemCount += 1;
+            }
+        }
+
+        MarketItem[] memory items = new MarketItem[](itemCount);
+        for (uint256 i = 0; i < totalItemCount; i++) {
+            if (idToMarketItem[i + 1].seller == msg.sender) {
+                uint256 currentId = i + 1;
+                MarketItem storage currentItem = idToMarketItem[currentId];
+                items[currentIndex] = currentItem;
+                currentIndex += 1;
+            }
+        }
+        return items;
     }
 }

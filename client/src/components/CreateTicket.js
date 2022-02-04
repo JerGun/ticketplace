@@ -18,6 +18,7 @@ function CreateTicket() {
   const [image, setImage] = useState({ preview: "", raw: "" });
   const [formInput, setFormInput] = useState({
     name: "",
+    link: "",
     description: "",
     price: "",
   });
@@ -94,10 +95,11 @@ function CreateTicket() {
   // };
 
   const createTicket = async () => {
-    const { name, description, price } = formInput;
-    if (!name || !description || !price || !fileUrl) return;
+    const { name, link, description, price } = formInput;
+    if (!name || !link || !description || !price || !fileUrl) return;
     const data = JSON.stringify({
       name,
+      link,
       description,
       image: fileUrl,
     });
@@ -137,7 +139,7 @@ function CreateTicket() {
       .createMarketItem(Ticket.networks[networkId].address, tokenId, price)
       .send({ from: account });
     console.log("create", transaction);
-    this.props.history.push.push("/tickets");
+    navigate("/tickets");
   };
 
   return (

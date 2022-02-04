@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import MigrationsContract from "../contracts/Migrations.json";
 import SimpleStorageContract from "../contracts/SimpleStorage.json";
-import MarketContract from "../contracts/Market.json";
 import Web3 from "web3";
 import axios from "axios";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
@@ -26,7 +25,6 @@ function App() {
   const [web3, setWeb3] = useState(undefined);
   const [account, setAccount] = useState("");
   const [contract, setContract] = useState([]);
-  const [marketContract, setMarketContract] = useState();
   const [network, setNetwork] = useState(97);
 
   const componentMounted = useRef(true);
@@ -46,12 +44,7 @@ function App() {
             SimpleStorageContract.abi,
             deployedNetwork.address
           );
-          const Market = new web3.eth.Contract(
-            MarketContract.abi,
-            MarketContract.networks[networkId].address
-          );
           setContract(SimpleStorage);
-          setMarketContract(Market);
         }
 
         setWeb3(web3);
