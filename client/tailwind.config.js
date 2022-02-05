@@ -18,6 +18,9 @@ module.exports = {
         "10.5/12": "87.5%",
         "11/12": "91.67%",
       },
+      padding: {
+        18: "72px",
+      },
       colors: {
         primary: "#4ED0F5",
         background: "#212428",

@@ -86,7 +86,7 @@ function App() {
   };
 
   return (
-    <div className="w-full h-screen  bg-gradient-to-b from-indigo-500 to-background">
+    <div className="w-full h-screen bg-gradient-to-b from-indigo-500 to-background">
       <CustomScrollbars>
         <Router>
           <Navbar connectWallet={connectWallet} account={account} />
@@ -105,24 +105,28 @@ function App() {
               <Close />
             </button>
           </div>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="tickets" element={<Tickets />} />
-            <Route path="tickets/:ticketId" element={<TicketItem />} />
-            <Route
-              path="ticket/create"
-              element={<CreateTicket account={account} />}
-            />
-            <Route path="account/setup" element={<SetUpOrganizer />} />
-            <Route path="account/settings" element={<SettingAccount />} />
-            <Route path="/confirm/:id" element={<Confirm />} />
-            <Route path="account/*" element={<Account />} />
-            <Route path="verify-request" element={<VerifyRequest />} />
-            <Route
-              path="simple"
-              element={<SimpleStorage account={account} contract={contract} />}
-            />
-          </Routes>
+          <div className="h-full pt-18">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="tickets" element={<Tickets />} />
+              <Route path="tickets/:ticketId" element={<TicketItem />} />
+              <Route
+                path="ticket/create"
+                element={<CreateTicket account={account} />}
+              />
+              <Route path="account/setup" element={<SetUpOrganizer />} />
+              <Route path="account/settings" element={<SettingAccount />} />
+              <Route path="/confirm/:id" element={<Confirm />} />
+              <Route path="account/*" element={<Account />} />
+              <Route path="verify-request" element={<VerifyRequest />} />
+              <Route
+                path="simple"
+                element={
+                  <SimpleStorage account={account} contract={contract} />
+                }
+              />
+            </Routes>
+          </div>
         </Router>
       </CustomScrollbars>
     </div>
