@@ -67,7 +67,6 @@ function TicketItem() {
     const history = await axios
       .get(`${API_URL}/event/${params.tokenId}`)
       .then((response) => {
-        console.log(response.data);
         setHistory(response.data.reverse());
       })
       .catch((err) => console.log(err));
@@ -107,9 +106,6 @@ function TicketItem() {
   };
 
   const timeConverter = (timestamp) => {
-    var date = new Date(timestamp * 1000);
-    console.log(date);
-
     var ms = Date.now() - timestamp * 1000;
 
     var unit = 0;
@@ -170,6 +166,11 @@ function TicketItem() {
     }
   };
 
+  const dateConverter = (timestamp) => {
+    var date = new Date(timestamp * 1000);
+    return `${date.toDateString()}, ${date.toLocaleTimeString()}`
+  };
+
   return (
     <>
       <div className="h-full w-full p-10 bg-background">
@@ -218,12 +219,6 @@ function TicketItem() {
                     >
                       <External />
                     </a>
-                    <ReactTooltip
-                      effect="solid"
-                      place="top"
-                      offset={{ top: 2, left: 20 }}
-                      backgroundColor="#353840"
-                    />
                     <button
                       data-tip="Share"
                       className="h-11 w-11 flex justify-center items-center rounded-lg bg-input"
@@ -232,16 +227,12 @@ function TicketItem() {
                     >
                       {copy === true ? (
                         <Check className="text-white" />
-                      ) : (
-                        <Share />
-                      )}
+                        ) : (
+                          <Share />
+                          )}
                     </button>
-                    <ReactTooltip
-                      effect="solid"
-                      place="top"
-                      offset={{ top: 2, left: 20 }}
-                      backgroundColor="#353840"
-                    />
+                    
+                         
                   </div>
                 </div>
                 <div className="flex text-sm space-x-1">
@@ -313,10 +304,20 @@ function TicketItem() {
                     <div className="flex space-x-1 text-text">
                       <p>{history.eventType}</p>
                     </div>
-                    <div className="flex space-x-1 text-text">
+                    <div
+                      className="w-fit flex space-x-1 text-text"
+                      data-tip={dateConverter(history.eventTimestamp)}
+                    >
                       <p>{timeConverter(history.eventTimestamp)}</p>
                     </div>
+                    <ReactTooltip
+                      effect="solid"
+                      place="top"
+                      offset={{ top: 2, left: 0 }}
+                      backgroundColor="#5A5A5C"
+                    />  
                   </div>
+                  
                 ))}
               </div>
             </div>
