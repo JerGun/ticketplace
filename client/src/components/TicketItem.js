@@ -6,6 +6,7 @@ import Web3 from "web3";
 import axios from "axios";
 import Ticket from "../contracts/Ticket.json";
 import Market from "../contracts/NFTMarket.json";
+import { API_URL } from "../config";
 
 import { ReactComponent as Price } from "../assets/icons/price.svg";
 import { ReactComponent as BNB } from "../assets/icons/bnb.svg";
@@ -26,6 +27,7 @@ function TicketItem() {
   const [showAddFundsModal, setShowAddFundsModal] = useState(false);
   const [ticket, setTicket] = useState([]);
   const [loadingState, setLoadingState] = useState("not-loaded");
+  const [history, setHistory] = useState([]);
 
   const params = useParams();
   const location = useLocation();
@@ -43,10 +45,9 @@ function TicketItem() {
       Market.abi,
       Market.networks[networkId].address
     );
-    const data = await marketContract.methods.fetchMarketItems().call();
 
     const tokenUri = await ticketContract.methods
-      .tokenURI(params.ticketId)
+      .tokenURI(params.tokenId)
       .call();
     const meta = await axios.get(tokenUri);
     // let price = i.price.toString();
@@ -60,12 +61,21 @@ function TicketItem() {
       name: meta.data.name,
       link: meta.data.link,
       description: meta.data.description,
+      location: meta.data.location,
     };
+
+    const history = await axios
+      .get(`${API_URL}/event/${params.tokenId}`)
+      .then((response) => {
+        console.log(response.data);
+        setHistory(response.data.reverse());
+      })
+      .catch((err) => console.log(err));
+
     if (componentMounted.current) {
       setTicket(item);
       setLoadingState("loaded");
     }
-
     return () => {
       componentMounted.current = false;
     };
@@ -96,13 +106,77 @@ function TicketItem() {
     console.log(transaction);
   };
 
+  const timeConverter = (timestamp) => {
+    var date = new Date(timestamp * 1000);
+    console.log(date);
+
+    var ms = Date.now() - timestamp * 1000;
+
+    var unit = 0;
+    var MINUTE = 60 * 1000;
+    var HOUR = 60 * 60 * 1000;
+    var DAY = 24 * 60 * 60 * 1000;
+    var MONTH = 30 * 24 * 60 * 60 * 1000;
+    var YEAR = 12 * 30 * 24 * 60 * 60 * 1000;
+
+    if (ms < 2 * MINUTE) {
+      return "a minute ago";
+    }
+    if (ms < HOUR) {
+      while (ms >= MINUTE) {
+        ms -= MINUTE;
+        unit += 1;
+      }
+      return unit + " minutes ago";
+    }
+    if (ms < 2 * HOUR) {
+      return "an hour ago";
+    }
+    if (ms < DAY) {
+      while (ms >= HOUR) {
+        ms -= HOUR;
+        unit += 1;
+      }
+      return unit + " hours ago";
+    }
+    if (ms < 2 * DAY) {
+      return "a day ago";
+    }
+    if (ms < MONTH) {
+      while (ms >= DAY) {
+        ms -= DAY;
+        unit += 1;
+      }
+      return unit + " days ago";
+    }
+    if (ms < 2 * MONTH) {
+      return "a month ago";
+    }
+    if (ms < YEAR) {
+      while (ms >= MONTH) {
+        ms -= MONTH;
+        unit += 1;
+      }
+      return unit + " months ago";
+    }
+    if (ms < 2 * YEAR) {
+      return "a year ago";
+    } else {
+      while (ms >= YEAR) {
+        ms -= YEAR;
+        unit += 1;
+      }
+      return unit + " years ago";
+    }
+  };
+
   return (
     <>
-      <div className="h-fit w-full p-10 bg-background">
+      <div className="h-full w-full p-10 bg-background">
         <div className="h-full mx-28 text-white">
           <div className="h-full w-full flex space-x-5">
             <div className="w-3/12 space-y-5">
-              <div className="h-80 w-full rounded-xl bg-white">
+              <div className="h-80 w-full rounded-xl bg-input">
                 <img
                   src={ticket.image}
                   alt=""
@@ -111,7 +185,7 @@ function TicketItem() {
               </div>
               <div className="h-fit w-full flex justify-between items-center p-3 rounded-lg bg-input">
                 <p>Token ID</p>
-                <p>{params.ticketId}</p>
+                <p>{params.tokenId}</p>
               </div>
               <div className="h-fit w-full p-3 space-y-3 rounded-lg bg-input">
                 <div className="flex items-center space-x-3">
@@ -191,7 +265,7 @@ function TicketItem() {
               <div className="h-fit w-full p-5 space-y-3 rounded-lg bg-input">
                 <div className="flex items-center space-x-3">
                   <Location className="mx-1" />
-                  <p>Centralplaza Chiangmai Airport</p>
+                  <p>{ticket.location}</p>
                 </div>
                 <div className="flex items-center space-x-3">
                   <Calendar className="scale-75" />
@@ -211,13 +285,39 @@ function TicketItem() {
                   <History />
                   <p>History</p>
                 </div>
-                <div className="flex space-x-1 text-text">
+                {/* <div className="flex space-x-1 text-text">
                   <p>Listed for</p>
                   <p className="text-white">1.0 BNB</p>
                   <p>by</p>
                   <p className="text-white">0x4e...06C7 </p>
                   <p>on 16/03/2021 - 15:46</p>
+                </div> */}
+                <div className="grid grid-cols-5 border-2 border-black">
+                  <p>Event</p>
+                  <p>Price</p>
+                  <p>From</p>
+                  <p>To</p>
+                  <p>Date</p>
                 </div>
+                {history.map((history, i) => (
+                  <div className="grid grid-cols-5 border-2 border-black">
+                    <div className="flex space-x-1 text-text">
+                      <p>{history.eventType}</p>
+                    </div>
+                    <div className="flex space-x-1 text-text">
+                      {history.fromAccount && <p>{history.fromAccount.name}</p>}
+                    </div>
+                    <div className="flex space-x-1 text-text">
+                      {history.toAccount && <p>{history.toAccount.name}</p>}
+                    </div>
+                    <div className="flex space-x-1 text-text">
+                      <p>{history.eventType}</p>
+                    </div>
+                    <div className="flex space-x-1 text-text">
+                      <p>{timeConverter(history.eventTimestamp)}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
