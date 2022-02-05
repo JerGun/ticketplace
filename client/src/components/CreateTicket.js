@@ -78,23 +78,7 @@ function CreateTicket() {
     setSupply(value);
   };
 
-  // const handleSubmit = async (e) => {
-  //   const web3 = new Web3(window.ethereum);
-  //   const networkId = await web3.eth.net.getId();
-  //   const contract = new web3.eth.Contract(
-  //     Market.abi,
-  //     Market.networks[networkId].address
-  //   );
-
-  //   console.log(account);
-  //   e.preventDefault();
-
-  //   await contract.methods.listToken(account, 1, 100).send({ from: account });
-  //   const response = await contract.methods.listToken().call();
-  //   console.log(response);
-  // };
-
-  const createTicket = async () => {
+  const handleSubmit = async () => {
     const { name, link, description, price } = formInput;
     if (!name || !link || !description || !price || !fileUrl) return;
     const data = JSON.stringify({
@@ -213,6 +197,12 @@ function CreateTicket() {
                   type="text"
                   placeholder="https://yoursite.com/ticket/details"
                   className="h-full w-full bg-transparent"
+                  onChange={(e) =>
+                    setFormInput({
+                      ...formInput,
+                      link: e.target.value,
+                    })
+                  }
                 />
               </div>
             </div>
@@ -301,7 +291,7 @@ function CreateTicket() {
             </div>
             <button
               type="submit"
-              onClick={createTicket}
+              onClick={handleSubmit}
               className="h-11 w-24 flex justify-center items-center rounded-lg font-bold text-black bg-primary"
             >
               Create

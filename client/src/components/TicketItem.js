@@ -1,7 +1,11 @@
-import { React, Fragment, useState } from "react";
+import { React, Fragment, useState, useEffect, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import ReactTooltip from "react-tooltip";
+import Web3 from "web3";
+import axios from "axios";
+import Ticket from "../contracts/Ticket.json";
+import Market from "../contracts/NFTMarket.json";
 
 import { ReactComponent as Price } from "../assets/icons/price.svg";
 import { ReactComponent as BNB } from "../assets/icons/bnb.svg";
@@ -20,8 +24,52 @@ function TicketItem() {
   const [buttonDisabled, setButtonDisabled] = useState();
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [showAddFundsModal, setShowAddFundsModal] = useState(false);
+  const [ticket, setTicket] = useState([]);
+  const [loadingState, setLoadingState] = useState("not-loaded");
 
   const params = useParams();
+  const location = useLocation();
+  const { itemId } = location.state;
+  const componentMounted = useRef(true);
+
+  useEffect(async () => {
+    const web3 = new Web3(window.ethereum);
+    const networkId = await web3.eth.net.getId();
+    const ticketContract = new web3.eth.Contract(
+      Ticket.abi,
+      Ticket.networks[networkId].address
+    );
+    const marketContract = new web3.eth.Contract(
+      Market.abi,
+      Market.networks[networkId].address
+    );
+    const data = await marketContract.methods.fetchMarketItems().call();
+
+    const tokenUri = await ticketContract.methods
+      .tokenURI(params.ticketId)
+      .call();
+    const meta = await axios.get(tokenUri);
+    // let price = i.price.toString();
+    let item = {
+      // price,
+      // itemId: i.itemId,
+      // tokenId: i.tokenId,
+      // seller: i.seller,
+      // owner: i.owner,
+      image: meta.data.image,
+      name: meta.data.name,
+      link: meta.data.link,
+      description: meta.data.description,
+    };
+    if (componentMounted.current) {
+      setTicket(item);
+      setLoadingState("loaded");
+    }
+
+    return () => {
+      componentMounted.current = false;
+    };
+  }, []);
 
   const copyURL = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -33,31 +81,34 @@ function TicketItem() {
     }, 2000);
   };
 
+  const buyTicket = async () => {
+    const web3 = new Web3(window.ethereum);
+    const networkId = await web3.eth.net.getId();
+    const accounts = await web3.eth.getAccounts();
+
+    const marketContract = new web3.eth.Contract(
+      Market.abi,
+      Market.networks[networkId].address
+    );
+    let transaction = await marketContract.methods
+      .createMarketSale(Ticket.networks[networkId].address, itemId)
+      .send({ from: accounts[0] });
+    console.log(transaction);
+  };
+
   return (
     <>
-      <Transition show={copy}>
-        <Transition.Child
-          as={Fragment}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
-          <Dialog
-            onClose={() => setCopy(false)}
-            className="absolute bottom-10 right-10 py-3 px-6 rounded-lg shadow-lg bg-white"
-          >
-            <p>Copied</p>
-          </Dialog>
-        </Transition.Child>
-      </Transition>
       <div className="h-fit w-full p-10 bg-background">
         <div className="h-full mx-28 text-white">
           <div className="h-full w-full flex space-x-5">
             <div className="w-3/12 space-y-5">
-              <div className="h-80 w-full rounded-xl bg-white"></div>
+              <div className="h-80 w-full rounded-xl bg-white">
+                <img
+                  src={ticket.image}
+                  alt=""
+                  className="h-full w-full object-cover rounded-lg"
+                />
+              </div>
               <div className="h-fit w-full flex justify-between items-center p-3 rounded-lg bg-input">
                 <p>Token ID</p>
                 <p>{params.ticketId}</p>
@@ -73,7 +124,8 @@ function TicketItem() {
                 </div>
                 <button
                   className="h-11 w-full flex justify-center items-center rounded-lg font-bold text-black bg-primary"
-                  onClick={() => setShowCheckoutModal(true)}
+                  // onClick={() => setShowCheckoutModal(true)}
+                  onClick={buyTicket}
                 >
                   Buy for 1.0 BNB
                 </button>
@@ -82,12 +134,12 @@ function TicketItem() {
             <div className="w-full pr-40 space-y-5">
               <div className="w-full space-y-1">
                 <div className="w-full flex justify-between items-center">
-                  <p className="text-3xl">LEO presents Cat Expo</p>
+                  <p className="text-3xl">{ticket.name}</p>
                   <div className="flex space-x-5">
                     <a
                       data-tip="External Link"
                       target={"_blank"}
-                      href="https://www.pawaret.dev"
+                      href={ticket.link}
                       className="h-11 w-11 flex justify-center items-center rounded-lg bg-input"
                     >
                       <External />
@@ -133,46 +185,7 @@ function TicketItem() {
                     <Description />
                     <p>Description</p>
                   </div>
-                  <div className="pr-3">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                    Quisque sodales, neque in ullamcorper ultrices, eros erat
-                    venenatis libero, quis accumsan libero augue in libero.
-                    Pellentesque sollicitudin eu tortor quis fermentum.Lorem
-                    ipsum dolor sit amet, consectetur adipiscing elit. Quisque
-                    sodales, neque in ullamcorper ultrices, eros erat venenatis
-                    libero, quis accumsan libero augue in libero. Pellentesque
-                    sollicitudin eu tortor quis fermentum.Lorem ipsum dolor sit
-                    amet, consectetur adipiscing elit. Quisque sodales, neque in
-                    ullamcorper ultrices, eros erat venenatis libero, quis
-                    accumsan libero augue in libero. Pellentesque sollicitudin
-                    eu tortor quis fermentum.Lorem ipsum dolor sit amet,
-                    consectetur adipiscing elit. Quisque sodales, neque in
-                    ullamcorper ultrices, eros erat venenatis libero, quis
-                    accumsan libero augue in libero. Pellentesque sollicitudin
-                    eu tortor quis fermentum.Lorem ipsum dolor sit amet,
-                    consectetur adipiscing elit. Quisque sodales, neque in
-                    ullamcorper ultrices, eros erat venenatis libero, quis
-                    accumsan libero augue in libero.Lorem ipsum dolor sit amet,
-                    consectetur adipiscing elit. Quisque sodales, neque in
-                    ullamcorper ultrices, eros erat venenatis libero, quis
-                    accumsan libero augue in libero. Pellentesque sollicitudin
-                    eu tortor quis fermentum.Lorem ipsum dolor sit amet,
-                    consectetur adipiscing elit. Quisque sodales, neque in
-                    ullamcorper ultrices, eros erat venenatis libero, quis
-                    accumsan libero augue in libero. Pellentesque sollicitudin
-                    eu tortor quis fermentum.Lorem ipsum dolor sit amet,
-                    consectetur adipiscing elit. Quisque sodales, neque in
-                    ullamcorper ultrices, eros erat venenatis libero, quis
-                    accumsan libero augue in libero. Pellentesque sollicitudin
-                    eu tortor quis fermentum.Lorem ipsum dolor sit amet,
-                    consectetur adipiscing elit. Quisque sodales, neque in
-                    ullamcorper ultrices, eros erat venenatis libero, quis
-                    accumsan libero augue in libero. Pellentesque sollicitudin
-                    eu tortor quis fermentum.Lorem ipsum dolor sit amet,
-                    consectetur adipiscing elit. Quisque sodales, neque in
-                    ullamcorper ultrices, eros erat venenatis libero, quis
-                    accumsan libero augue in libero.
-                  </div>
+                  <div className="pr-3">{ticket.description}</div>
                 </div>
               </div>
               <div className="h-fit w-full p-5 space-y-3 rounded-lg bg-input">
@@ -303,6 +316,24 @@ function TicketItem() {
           </Transition>
         </div>
       </div>
+      <Transition show={copy}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <Dialog
+            onClose={() => setCopy(false)}
+            className="absolute bottom-10 right-10 py-3 px-6 rounded-lg shadow-lg bg-white"
+          >
+            <p>Copied</p>
+          </Dialog>
+        </Transition.Child>
+      </Transition>
     </>
   );
 }

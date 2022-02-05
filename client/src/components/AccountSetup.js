@@ -36,7 +36,7 @@ function AccountSetup() {
       await axios
         .get(`${API_URL}/account/${accounts[0]}`)
         .then((response) => {
-          if (response) {
+          if (response.data) {
             if (response.data.email) {
               navigate("/account/settings");
             }
