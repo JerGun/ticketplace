@@ -20,6 +20,7 @@ function CreateTicket() {
     name: "",
     link: "",
     description: "",
+    location: "",
     price: "",
   });
   const [fileUrl, setFileUrl] = useState(null);
@@ -79,25 +80,27 @@ function CreateTicket() {
   };
 
   const handleSubmit = async () => {
-    const { name, link, description, price } = formInput;
-    if (!name || !link || !description || !price || !fileUrl) return;
+    const { name, link, description, location, price } = formInput;
+    if (!name || !link || !description || !location || !price || !fileUrl)
+      return;
     const data = JSON.stringify({
       name,
       link,
       description,
+      location,
       image: fileUrl,
     });
     try {
       const added = await client.add(data);
       const url = `https://ipfs.infura.io/ipfs/${added.path}`;
 
-      createSale(url);
+      mintToken(url);
     } catch (error) {
       console.log("Error uploading file: ", error);
     }
   };
 
-  const createSale = async (url) => {
+  const mintToken = async (url) => {
     const web3 = new Web3(window.ethereum);
     const networkId = await web3.eth.net.getId();
     let contract = new web3.eth.Contract(
@@ -108,11 +111,27 @@ function CreateTicket() {
     let transaction = await contract.methods
       .createToken(url)
       .send({ from: account });
-    console.log(transaction);
-    let event = transaction.events;
-    let value = event.Transfer.returnValues;
-    let tokenId = value.tokenId;
+    let block = await web3.eth.getBlock(transaction.blockNumber);
+    let returnValues = transaction.events.Transfer.returnValues;
+
     const price = formInput.price;
+
+    let payload = {
+      tokenId: returnValues.tokenId,
+      eventTimestamp: block.timestamp,
+      eventType: "Minted",
+      isMint: true,
+      fromAccount: { address: returnValues.from, name: "NullAddress" },
+      toAccount: { address: returnValues.to },
+      transaction: `https://testnet.bscscan.com/tx/${transaction.transactionHash}`,
+    };
+
+    await axios
+      .post(`${API_URL}/event`, payload)
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((err) => console.log(err));
 
     contract = new web3.eth.Contract(
       Market.abi,
@@ -120,9 +139,31 @@ function CreateTicket() {
     );
 
     transaction = await contract.methods
-      .createMarketItem(Ticket.networks[networkId].address, tokenId, price)
+      .createMarketItem(
+        Ticket.networks[networkId].address,
+        returnValues.tokenId,
+        price
+      )
       .send({ from: account });
-    console.log("create", transaction);
+    block = await web3.eth.getBlock(transaction.blockNumber);
+    returnValues = transaction.events.MarketItemCreated.returnValues;
+
+    payload = {
+      tokenId: returnValues.tokenId,
+      eventTimestamp: block.timestamp,
+      eventType: "List",
+      isMint: false,
+      fromAccount: { address: transaction.from, name: "NullAddress" },
+      transaction: `https://testnet.bscscan.com/tx/${transaction.transactionHash}`,
+    };
+
+    await axios
+      .post(`${API_URL}/event`, payload)
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((err) => console.log(err));
+
     navigate("/tickets");
   };
 
@@ -224,16 +265,16 @@ function CreateTicket() {
               </div>
             </div>
             <div className="space-y-3">
-              <p>Price</p>
+              <p>Location</p>
               <div className="h-11 px-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
                 <input
                   type="text"
-                  placeholder="Price"
+                  placeholder="Location"
                   className="h-full w-full bg-transparent"
                   onChange={(e) =>
                     setFormInput({
                       ...formInput,
-                      price: e.target.value,
+                      location: e.target.value,
                     })
                   }
                 />
@@ -286,6 +327,22 @@ function CreateTicket() {
                   value={supply}
                   onChange={handleChange}
                   className="h-full w-full bg-transparent"
+                />
+              </div>
+            </div>
+            <div className="space-y-3">
+              <p>Price</p>
+              <div className="h-11 px-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
+                <input
+                  type="text"
+                  placeholder="Price"
+                  className="h-full w-full bg-transparent"
+                  onChange={(e) =>
+                    setFormInput({
+                      ...formInput,
+                      price: e.target.value,
+                    })
+                  }
                 />
               </div>
             </div>

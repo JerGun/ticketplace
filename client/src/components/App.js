@@ -109,7 +109,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="tickets" element={<Tickets />} />
-              <Route path="tickets/:ticketId" element={<TicketItem />} />
+              <Route path="tickets/:tokenId" element={<TicketItem />} />
               <Route
                 path="ticket/create"
                 element={<CreateTicket account={account} />}
