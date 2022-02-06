@@ -23,6 +23,7 @@ contract Market is ReentrancyGuard {
         address payable seller;
         address payable owner;
         uint256 price;
+        bool list;
         bool sold;
     }
 
@@ -35,6 +36,7 @@ contract Market is ReentrancyGuard {
         address seller,
         address owner,
         uint256 price,
+        bool list,
         bool sold
     );
 
@@ -54,8 +56,9 @@ contract Market is ReentrancyGuard {
             ticketContract,
             tokenId,
             payable(msg.sender),
-            payable(address(0)),
+            payable(msg.sender),
             price,
+            true,
             false
         );
 
@@ -70,8 +73,9 @@ contract Market is ReentrancyGuard {
             ticketContract,
             tokenId,
             msg.sender,
-            address(0),
+            msg.sender,
             price,
+            true,
             false
         );
     }
@@ -110,7 +114,7 @@ contract Market is ReentrancyGuard {
 
         MarketItem[] memory items = new MarketItem[](unsoldItemCount);
         for (uint256 i = 0; i < itemCount; i++) {
-            if (idToMarketItem[i + 1].owner == address(0)) {
+            if (idToMarketItem[i + 1].list) {
                 uint256 currentId = i + 1;
                 MarketItem storage currentItem = idToMarketItem[currentId];
                 items[currentIndex] = currentItem;
