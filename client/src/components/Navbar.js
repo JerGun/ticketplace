@@ -13,7 +13,7 @@ function Navbar({ connectWallet, account }) {
   return (
     <nav
       className={`${
-        location.pathname === "/" ? "bg-transparent" : "shadow-lg bg-background"
+        location.pathname === "/" ? " bg-indigo-500" : "shadow-lg bg-background"
       } fixed top-0 w-full z-30 h-18 grid grid-cols-8 items-center`}
     >
       <div className="col-span-2 px-5 text-white">

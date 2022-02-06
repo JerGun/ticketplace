@@ -168,7 +168,7 @@ function TicketItem() {
 
   const dateConverter = (timestamp) => {
     var date = new Date(timestamp * 1000);
-    return `${date.toDateString()}, ${date.toLocaleTimeString()}`
+    return `${date.toDateString()}, ${date.toLocaleTimeString()}`;
   };
 
   return (
@@ -227,12 +227,10 @@ function TicketItem() {
                     >
                       {copy === true ? (
                         <Check className="text-white" />
-                        ) : (
-                          <Share />
-                          )}
+                      ) : (
+                        <Share />
+                      )}
                     </button>
-                    
-                         
                   </div>
                 </div>
                 <div className="flex text-sm space-x-1">
@@ -276,49 +274,46 @@ function TicketItem() {
                   <History />
                   <p>History</p>
                 </div>
-                {/* <div className="flex space-x-1 text-text">
-                  <p>Listed for</p>
-                  <p className="text-white">1.0 BNB</p>
-                  <p>by</p>
-                  <p className="text-white">0x4e...06C7 </p>
-                  <p>on 16/03/2021 - 15:46</p>
-                </div> */}
-                <div className="grid grid-cols-5 border-2 border-black">
-                  <p>Event</p>
-                  <p>Price</p>
-                  <p>From</p>
-                  <p>To</p>
-                  <p>Date</p>
-                </div>
-                {history.map((history, i) => (
-                  <div className="grid grid-cols-5 border-2 border-black">
-                    <div className="flex space-x-1 text-text">
-                      <p>{history.eventType}</p>
-                    </div>
-                    <div className="flex space-x-1 text-text">
-                      {history.fromAccount && <p>{history.fromAccount.name}</p>}
-                    </div>
-                    <div className="flex space-x-1 text-text">
-                      {history.toAccount && <p>{history.toAccount.name}</p>}
-                    </div>
-                    <div className="flex space-x-1 text-text">
-                      <p>{history.eventType}</p>
-                    </div>
-                    <div
-                      className="w-fit flex space-x-1 text-text"
-                      data-tip={dateConverter(history.eventTimestamp)}
-                    >
-                      <p>{timeConverter(history.eventTimestamp)}</p>
-                    </div>
-                    <ReactTooltip
-                      effect="solid"
-                      place="top"
-                      offset={{ top: 2, left: 0 }}
-                      backgroundColor="#5A5A5C"
-                    />  
+
+                <div className="rounded-lg border-2 border-background">
+                  <div className="grid grid-cols-5 p-3">
+                    <p>Event</p>
+                    <p>Price</p>
+                    <p>From</p>
+                    <p>To</p>
+                    <p>Date</p>
                   </div>
-                  
-                ))}
+                  {history.map((history, i) => (
+                    <div className="grid grid-cols-5 divider-x-b p-3 text-white">
+                      <div className="flex space-x-1">
+                        <p>{history.eventType}</p>
+                      </div>
+                      <div className="flex space-x-1">
+                        <p>{history.eventType}</p>
+                      </div>
+                      <div className="flex space-x-1">
+                        {history.fromAccount && (
+                          <p>{history.fromAccount.name}</p>
+                        )}
+                      </div>
+                      <div className="flex space-x-1">
+                        {history.toAccount && <p>{history.toAccount.name}</p>}
+                      </div>
+                      <div
+                        className="w-fit flex space-x-1"
+                        data-tip={dateConverter(history.eventTimestamp)}
+                      >
+                        <p>{timeConverter(history.eventTimestamp)}</p>
+                      </div>
+                      <ReactTooltip
+                        effect="solid"
+                        place="top"
+                        offset={{ top: 2, left: 0 }}
+                        backgroundColor="#5A5A5C"
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

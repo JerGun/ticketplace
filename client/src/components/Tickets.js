@@ -105,7 +105,7 @@ function Tickets() {
                           className={`
                                     ${
                                       active && "bg-background"
-                                    } group flex rounded-xl items-center space-x-5 w-full px-5 py-2 text-lg`}
+                                    } group flex rounded-lg items-center space-x-5 w-full px-5 py-2 text-lg`}
                         >
                           <div className="flex flex-col items-start">
                             <p className={active ? "text-white" : "text-input"}>

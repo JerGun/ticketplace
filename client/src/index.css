@@ -54,6 +54,20 @@ input[type="number"] {
   background-color: #c0c3c6;
 }
 
+.divider-x-b {
+  position: relative;
+}
+.divider-x-b:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #212428;
+}
+
 .divider-y {
   position: relative;
 }
@@ -83,7 +97,7 @@ input[type="number"] {
 }
 
 ::-webkit-scrollbar {
-  width: 7px;
+  width: 6px;
   background: transparent;
 }
 
@@ -95,4 +109,23 @@ input[type="number"] {
 .__react_component_tooltip.show {
   opacity: 1 !important;
   border-radius: 10px;
+}
+
+.nice-dates-day:before {
+  background-color: #4ed0f5 !important;
+}
+
+.nice-dates-day.-selected {
+  color: #fff !important;
+}
+
+.nice-dates-day.-selected:hover:after {
+  background-color: #333 !important;
+}
+
+.nice-dates-day.-today {
+  color: #4ed0f5;
+}
+
+.nice-dates-popover {
 }
