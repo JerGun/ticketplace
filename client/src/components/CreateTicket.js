@@ -3,7 +3,7 @@ import Web3 from "web3";
 import axios from "axios";
 import { create as ipfsHttpClient } from "ipfs-http-client";
 import Ticket from "../contracts/Ticket.json";
-import Market from "../contracts/NFTMarket.json";
+import Market from "../contracts/Market.json";
 import { API_URL } from "../config";
 import { useNavigate } from "react-router-dom";
 import { enGB } from "date-fns/locale";
@@ -12,8 +12,7 @@ import "react-nice-dates/build/style.css";
 
 import { ReactComponent as Photo } from "../assets/icons/photo.svg";
 import { ReactComponent as Calendar } from "../assets/icons/calendar.svg";
-import { ReactComponent as Clock } from "../assets/icons/clock.svg";
-import { Dialog, Listbox, Popover, Transition } from "@headlessui/react";
+import { Listbox, Transition } from "@headlessui/react";
 import CustomScrollbars from "./CustomScrollbars";
 
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
@@ -82,7 +81,6 @@ function CreateTicket() {
   const [endDate, setEndDate] = useState();
   const [startTime, setStartTime] = useState("Start Time");
   const [endTime, setEndTime] = useState("End Time");
-  const [timeDialog, setTimeDialog] = useState(false);
   const [fileUrl, setFileUrl] = useState(null);
   const [supply, setSupply] = useState();
 
@@ -141,12 +139,27 @@ function CreateTicket() {
 
   const handleSubmit = async () => {
     const { name, link, description, location, price } = formInput;
-    if (!name || !link || !description || !location || !price || !fileUrl)
+    if (
+      !name ||
+      !link ||
+      !description ||
+      !startDate ||
+      !endDate ||
+      !startTime ||
+      !endTime ||
+      !location ||
+      !price ||
+      !fileUrl
+    )
       return;
     const data = JSON.stringify({
       name,
       link,
       description,
+      startDate,
+      endDate,
+      startTime,
+      endTime,
       location,
       image: fileUrl,
     });
@@ -168,9 +181,7 @@ function CreateTicket() {
       Ticket.networks[networkId].address
     );
 
-    let transaction = await contract.methods
-      .createToken(url)
-      .send({ from: account });
+    let transaction = await contract.methods.mint(url).send({ from: account });
     let block = await web3.eth.getBlock(transaction.blockNumber);
     let returnValues = transaction.events.Transfer.returnValues;
 
@@ -183,14 +194,11 @@ function CreateTicket() {
       isMint: true,
       fromAccount: { address: returnValues.from, name: "NullAddress" },
       toAccount: { address: returnValues.to },
-      transactionHash: transaction.transactionHash,
+      transaction: transaction.transactionHash,
     };
 
     await axios
       .post(`${API_URL}/event`, payload)
-      .then((response) => {
-        console.log(response);
-      })
       .catch((err) => console.log(err));
 
     contract = new web3.eth.Contract(
@@ -205,6 +213,7 @@ function CreateTicket() {
         price
       )
       .send({ from: account });
+    console.log(transaction);
     block = await web3.eth.getBlock(transaction.blockNumber);
     returnValues = transaction.events.MarketItemCreated.returnValues;
 
@@ -219,9 +228,6 @@ function CreateTicket() {
 
     await axios
       .post(`${API_URL}/event`, payload)
-      .then((response) => {
-        console.log(response);
-      })
       .catch((err) => console.log(err));
 
     navigate("/tickets");
