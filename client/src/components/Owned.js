@@ -2,7 +2,7 @@ import { React, useState, useEffect } from "react";
 import Web3 from "web3";
 import axios from "axios";
 import Ticket from "../contracts/Ticket.json";
-import Market from "../contracts/NFTMarket.json";
+import Market from "../contracts/Market.json";
 
 function Owned() {
   const [tickets, setTickets] = useState([]);

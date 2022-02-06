@@ -4,7 +4,8 @@ import axios from "axios";
 import { Dialog, Listbox, Transition } from "@headlessui/react";
 import QueryNavLink from "./QueryNavLink";
 import Ticket from "../contracts/Ticket.json";
-import Market from "../contracts/NFTMarket.json";
+import Market from "../contracts/Market.json";
+import { API_URL } from "../config";
 
 import { ReactComponent as Info } from "../assets/icons/info.svg";
 import { ReactComponent as Cart } from "../assets/icons/cart.svg";
@@ -24,6 +25,7 @@ function Tickets() {
   const [tickets, setTickets] = useState([]);
   const [loadingState, setLoadingState] = useState("not-loaded");
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [event, setEvent] = useState();
 
   const componentMounted = useRef(true);
 
@@ -39,7 +41,7 @@ function Tickets() {
       Market.networks[networkId].address
     );
     const data = await marketContract.methods.fetchMarketItems().call();
-
+    let payload = { tokenList: [] };
     const items = await Promise.all(
       data.map(async (i) => {
         const tokenUri = await ticketContract.methods
@@ -58,10 +60,19 @@ function Tickets() {
           link: meta.data.link,
           description: meta.data.description,
         };
+        payload.tokenList.push(i.tokenId);
         return item;
       })
     );
     console.log(items);
+
+    await axios
+      .post(`${API_URL}/event/mint`, payload)
+      .then((response) => {
+        setEvent(response.data);
+      })
+      .catch((err) => console.log(err));
+
     if (componentMounted.current) {
       setTickets(items);
       setLoadingState("loaded");
@@ -75,6 +86,12 @@ function Tickets() {
   const handleChange = (event) => {
     let { value } = event.target;
     value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : null;
+  };
+
+  const getMinter = (tokenId) => {
+    return event.filter((el) => {
+      return el.tokenId === tokenId;
+    })[0].name;
   };
 
   return (
@@ -147,16 +164,18 @@ function Tickets() {
         </div>
       </div>
       <div className="h-full w-10/12 p-10">
-        <div className="h-full w-full space-x-10 flex flex-wrap justify-center">
-          {!tickets ? (
+        {tickets.length === 0 ? (
+          <div className="h-full w-full flex justify-center items-center text-3xl">
             <p>No items to display</p>
-          ) : (
-            tickets.map((ticket, i) => (
+          </div>
+        ) : (
+          <div className="h-auto w-full grid grid-cols-2 gap-5 pb-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            {tickets.map((ticket, i) => (
               <QueryNavLink
                 to={`/tickets/${ticket.tokenId}`}
                 key={i}
                 itemId={ticket.itemId}
-                className="relative h-fit w-56 p-3 pb-10 space-y-3 rounded-lg shadow-lg float-right bg-modal-button"
+                className="relative h-fit w-full p-3 pb-10 space-y-3 rounded-lg shadow-lg float-right bg-modal-button"
               >
                 <div className="h-72 w-full rounded-lg">
                   <img
@@ -166,7 +185,15 @@ function Tickets() {
                   />
                 </div>
                 <div className="w-full flex flex-col items-start">
-                  <p className="text-text">Cat Radio</p>
+                  <div>
+                    <a
+                      href="/0xBdbfAee2d9E9a47e7Db5b919be0d202c0f949733"
+                      className="text-text hover:text-white"
+                    >
+                      {getMinter(ticket.tokenId)}
+                    </a>
+                  </div>
+
                   <div className="w-full flex justify-between items-center text-left">
                     <p className="w-10/12 truncate">{ticket.name}</p>
                     <button
@@ -182,9 +209,9 @@ function Tickets() {
                   <Cart className="h-7 w-7" />
                 </button>
               </QueryNavLink>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
       <Transition
         show={showCheckoutModal}

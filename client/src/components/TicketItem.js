@@ -5,7 +5,7 @@ import ReactTooltip from "react-tooltip";
 import Web3 from "web3";
 import axios from "axios";
 import Ticket from "../contracts/Ticket.json";
-import Market from "../contracts/NFTMarket.json";
+import Market from "../contracts/Market.json";
 import { API_URL } from "../config";
 
 import { ReactComponent as Price } from "../assets/icons/price.svg";
