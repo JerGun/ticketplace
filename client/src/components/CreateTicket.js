@@ -222,7 +222,7 @@ function CreateTicket() {
       eventTimestamp: block.timestamp,
       eventType: "List",
       isMint: false,
-      fromAccount: { address: transaction.from, name: "NullAddress" },
+      fromAccount: { address: returnValues.seller, name: "NullAddress" },
       transaction: transaction.transactionHash,
     };
 

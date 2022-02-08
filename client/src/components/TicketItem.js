@@ -31,7 +31,6 @@ function TicketItem() {
 
   const params = useParams();
   const location = useLocation();
-  const { itemId } = location.state;
   const componentMounted = useRef(true);
 
   useEffect(async () => {
@@ -46,28 +45,49 @@ function TicketItem() {
       Market.networks[networkId].address
     );
 
+    const data = await marketContract.methods.fetchItem(params.tokenId).call();
     const tokenUri = await ticketContract.methods
       .tokenURI(params.tokenId)
       .call();
     const meta = await axios.get(tokenUri);
-    // let price = i.price.toString();
+
     let item = {
-      // price,
-      // itemId: i.itemId,
-      // tokenId: i.tokenId,
-      // seller: i.seller,
-      // owner: i.owner,
+      price: data[0].price,
+      itemId: data[0].itemId,
+      tokenId: data[0].tokenId,
+      seller: data[0].seller,
+      owner: data[0].owner,
       image: meta.data.image,
       name: meta.data.name,
       link: meta.data.link,
       description: meta.data.description,
       location: meta.data.location,
+      startDate: formatDate(new Date(meta.data.startDate)),
+      endDate: formatDate(new Date(meta.data.endDate)),
+      startTime: meta.data.startTime,
+      endTime: meta.data.endTime,
     };
 
-    const history = await axios
+    await axios
       .get(`${API_URL}/event/${params.tokenId}`)
       .then((response) => {
         setHistory(response.data.reverse());
+      })
+      .catch((err) => console.log(err));
+
+    await axios
+      .get(`${API_URL}/ticket/${params.tokenId}`)
+      .then((user) => {
+        item.organizedName = user.data.name;
+        item.organizedAddress = user.data.address;
+      })
+      .catch((err) => console.log(err));
+
+    await axios
+      .get(`${API_URL}/account/${item.owner}`)
+      .then((user) => {
+        if (user) item.ownerName = user.data.name;
+        else item.ownerName = item.owner.slice(2, 9).toUpperCase();
       })
       .catch((err) => console.log(err));
 
@@ -100,7 +120,7 @@ function TicketItem() {
       Market.networks[networkId].address
     );
     let transaction = await marketContract.methods
-      .createMarketSale(Ticket.networks[networkId].address, itemId)
+      .createMarketSale(Ticket.networks[networkId].address, params.itemId)
       .send({ from: accounts[0] });
     console.log(transaction);
   };
@@ -171,6 +191,18 @@ function TicketItem() {
     return `${date.toDateString()}, ${date.toLocaleTimeString()}`;
   };
 
+  const padTo2Digits = (num) => {
+    return num.toString().padStart(2, "0");
+  };
+
+  const formatDate = (date) => {
+    return [
+      padTo2Digits(date.getDate()),
+      padTo2Digits(date.getMonth() + 1),
+      date.getFullYear(),
+    ].join("/");
+  };
+
   return (
     <>
       <div className="h-full w-full p-10 bg-background">
@@ -195,14 +227,14 @@ function TicketItem() {
                 </div>
                 <div className="flex space-x-5">
                   <BNB />
-                  <p className="text-4xl font-bold">1.0 BNB</p>
+                  <p className="text-4xl font-bold">{ticket.price} BNB</p>
                 </div>
                 <button
                   className="h-11 w-full flex justify-center items-center rounded-lg font-bold text-black bg-primary"
                   // onClick={() => setShowCheckoutModal(true)}
                   onClick={buyTicket}
                 >
-                  Buy for 1.0 BNB
+                  Buy for {ticket.price} BNB
                 </button>
               </div>
             </div>
@@ -234,12 +266,12 @@ function TicketItem() {
                   </div>
                 </div>
                 <div className="flex text-sm space-x-1">
-                  <p className="text-text">Organized by </p>
-                  <p className="text-primary">Cat Radio</p>
+                  <p className="text-text">Organized by</p>
+                  <p className="text-primary">{ticket.organizedName}</p>
                 </div>
                 <div className="flex text-sm space-x-1">
                   <p className="text-text">Owned by</p>
-                  <p>0x4e...06C7</p>
+                  <p>{ticket.ownerName}</p>
                 </div>
               </div>
               <div className="h-fit w-full py-5 pl-5 pr-3 rounded-lg bg-input">
@@ -258,15 +290,15 @@ function TicketItem() {
                 </div>
                 <div className="flex items-center space-x-3">
                   <Calendar className="scale-75" />
-                  <p>16/05/2021</p>
+                  <p>{ticket.startDate}</p>
+                  <Clock className="scale-75" />
+                  <p>{ticket.startTime}</p>
                 </div>
                 <div className="flex items-center space-x-3">
+                  <Calendar className="scale-75" />
+                  <p>{ticket.endDate}</p>
                   <Clock className="scale-75" />
-                  <div className="flex space-x-2">
-                    <p>15:00</p>
-                    <p>-</p>
-                    <p>18:00</p>
-                  </div>
+                  <p>{ticket.endTime}</p>
                 </div>
               </div>
               <div className="h-fit w-full p-5 space-y-3 rounded-lg bg-input">
@@ -284,27 +316,46 @@ function TicketItem() {
                     <p>Date</p>
                   </div>
                   {history.map((history, i) => (
-                    <div className="grid grid-cols-5 divider-x-b p-3 text-white">
+                    <div
+                      key={i}
+                      className="grid grid-cols-5 divider-x-b p-3 text-white"
+                    >
                       <div className="flex space-x-1">
                         <p>{history.eventType}</p>
                       </div>
                       <div className="flex space-x-1">
                         <p>{history.eventType}</p>
                       </div>
-                      <div className="flex space-x-1">
-                        {history.fromAccount && (
+                      {history.fromAccount ? (
+                        <a
+                          href={history.fromAccount.address}
+                          className="flex space-x-1 text-primary"
+                        >
                           <p>{history.fromAccount.name}</p>
-                        )}
-                      </div>
-                      <div className="flex space-x-1">
-                        {history.toAccount && <p>{history.toAccount.name}</p>}
-                      </div>
-                      <div
-                        className="w-fit flex space-x-1"
+                        </a>
+                      ) : (
+                        <div></div>
+                      )}
+                      {history.toAccount ? (
+                        <a
+                          href={history.toAccount.address}
+                          className="flex space-x-1 text-primary"
+                        >
+                          <p>{history.toAccount.name}</p>
+                        </a>
+                      ) : (
+                        <div></div>
+                      )}
+                      <a
+                        href={`https://testnet.bscscan.com/tx/${history.transaction}`}
+                        target="_blank"
+                        className={`${
+                          history.transaction && "text-primary"
+                        } w-fit flex space-x-1`}
                         data-tip={dateConverter(history.eventTimestamp)}
                       >
                         <p>{timeConverter(history.eventTimestamp)}</p>
-                      </div>
+                      </a>
                       <ReactTooltip
                         effect="solid"
                         place="top"

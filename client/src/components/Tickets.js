@@ -174,7 +174,6 @@ function Tickets() {
               <QueryNavLink
                 to={`/tickets/${ticket.tokenId}`}
                 key={i}
-                itemId={ticket.itemId}
                 className="relative h-fit w-full p-3 pb-10 space-y-3 rounded-lg shadow-lg float-right bg-modal-button"
               >
                 <div className="h-72 w-full rounded-lg">

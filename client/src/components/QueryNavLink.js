@@ -1,10 +1,10 @@
 import React from "react";
 import { useLocation, NavLink } from "react-router-dom";
 
-function QueryNavLink({ to, itemId, ...props }) {
+function QueryNavLink({ to, ...props }) {
   let location = useLocation();
   return (
-    <NavLink to={to + location.search} {...props} state={{ itemId: itemId }} />
+    <NavLink to={to + location.search} {...props} />
   );
 }
 
