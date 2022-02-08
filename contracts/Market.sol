@@ -106,6 +106,22 @@ contract Market is ReentrancyGuard {
         // payable(owner).transfer(listingPrice);
     }
 
+    function fetchItem(uint256 tokenId) public view returns (MarketItem[] memory) {
+        uint256 itemCount = _itemIds.current();
+        uint256 currentIndex = 0;
+
+        MarketItem[] memory items = new MarketItem[](1);
+        for (uint256 i = 0; i < itemCount; i++) {
+            if (idToMarketItem[i + 1].tokenId == tokenId) {
+                uint256 currentId = i + 1;
+                MarketItem storage currentItem = idToMarketItem[currentId];
+                items[currentIndex] = currentItem;
+                currentIndex += 1;
+            }
+        }
+        return items;
+    }
+
     /* Returns all unsold market items */
     function fetchMarketItems() public view returns (MarketItem[] memory) {
         uint256 itemCount = _itemIds.current();
