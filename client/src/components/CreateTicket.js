@@ -68,7 +68,9 @@ const time = [
 ];
 
 function CreateTicket() {
+  const [web3, setWeb3] = useState();
   const [account, setAccount] = useState("");
+  const [networkId, setNetworkId] = useState();
   const [image, setImage] = useState({ preview: "", raw: "" });
   const [formInput, setFormInput] = useState({
     name: "",
@@ -90,7 +92,10 @@ function CreateTicket() {
     if (window.ethereum) {
       const web3 = new Web3(window.ethereum);
       const accounts = await web3.eth.getAccounts();
+      const network = await web3.eth.net.getId();
+      setWeb3(web3);
       setAccount(accounts[0]);
+      setNetworkId(network);
       await axios
         .get(`${API_URL}/account/${accounts[0]}`)
         .then((response) => {
@@ -109,8 +114,6 @@ function CreateTicket() {
         .catch((err) => console.log(err));
     }
   }, []);
-
-  const handleChange = (e) => {};
 
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
@@ -177,14 +180,13 @@ function CreateTicket() {
       const url = `https://ipfs.infura.io/ipfs/${added.path}`;
 
       mintToken(url);
+      createMarketItem();
     } catch (error) {
       console.log("Error uploading file: ", error);
     }
   };
 
   const mintToken = async (url) => {
-    const web3 = new Web3(window.ethereum);
-    const networkId = await web3.eth.net.getId();
     let contract = new web3.eth.Contract(
       Ticket.abi,
       Ticket.networks[networkId].address
@@ -193,8 +195,6 @@ function CreateTicket() {
     let transaction = await contract.methods.mint(url).send({ from: account });
     let block = await web3.eth.getBlock(transaction.blockNumber);
     let returnValues = transaction.events.Transfer.returnValues;
-
-    const price = formInput.price;
 
     let payload = {
       tokenId: returnValues.tokenId,
@@ -211,37 +211,38 @@ function CreateTicket() {
       .post(`${API_URL}/event`, payload)
       .catch((err) => console.log(err));
 
-    contract = new web3.eth.Contract(
+    navigate("/tickets");
+  };
+
+  const createMarketItem = async () => {
+    let contract = new web3.eth.Contract(
       Market.abi,
       Market.networks[networkId].address
     );
 
-    transaction = await contract.methods
+    let transaction = await contract.methods
       .createMarketItem(
         Ticket.networks[networkId].address,
         returnValues.tokenId,
         price
       )
       .send({ from: account });
-    console.log(transaction);
-    block = await web3.eth.getBlock(transaction.blockNumber);
-    returnValues = transaction.events.MarketItemCreated.returnValues;
+    let block = await web3.eth.getBlock(transaction.blockNumber);
+    let returnValues = transaction.events.MarketItemCreated.returnValues;
 
-    payload = {
+    let payload = {
       tokenId: returnValues.tokenId,
       eventTimestamp: block.timestamp,
       eventType: "List",
       isMint: false,
       fromAccount: { address: returnValues.seller, name: "NullAddress" },
-      price: price,
+      price: formInput.price,
       transaction: transaction.transactionHash,
     };
 
     await axios
       .post(`${API_URL}/event`, payload)
       .catch((err) => console.log(err));
-
-    navigate("/tickets");
   };
 
   return (
