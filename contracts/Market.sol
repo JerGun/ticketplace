@@ -22,6 +22,7 @@ contract Market is ReentrancyGuard {
         uint256 tokenId;
         address payable seller;
         address payable owner;
+        address minter;
         uint256 price;
         bool list;
         bool sold;
@@ -35,6 +36,7 @@ contract Market is ReentrancyGuard {
         uint256 indexed tokenId,
         address seller,
         address owner,
+        address minter,
         uint256 price,
         bool list,
         bool sold
@@ -57,6 +59,7 @@ contract Market is ReentrancyGuard {
             tokenId,
             payable(msg.sender),
             payable(msg.sender),
+            msg.sender,
             price,
             true,
             false
@@ -72,6 +75,7 @@ contract Market is ReentrancyGuard {
             itemId,
             ticketContract,
             tokenId,
+            msg.sender,
             msg.sender,
             msg.sender,
             price,
@@ -106,7 +110,11 @@ contract Market is ReentrancyGuard {
         // payable(owner).transfer(listingPrice);
     }
 
-    function fetchItem(uint256 tokenId) public view returns (MarketItem[] memory) {
+    function fetchItem(uint256 tokenId)
+        public
+        view
+        returns (MarketItem[] memory)
+    {
         uint256 itemCount = _itemIds.current();
         uint256 currentIndex = 0;
 
@@ -141,7 +149,7 @@ contract Market is ReentrancyGuard {
     }
 
     /* Returns only items that a user has purchased */
-    function fetchMyNFTs() public view returns (MarketItem[] memory) {
+    function fetchOwnedItems() public view returns (MarketItem[] memory) {
         uint256 totalItemCount = _itemIds.current();
         uint256 itemCount = 0;
         uint256 currentIndex = 0;
@@ -165,20 +173,20 @@ contract Market is ReentrancyGuard {
     }
 
     /* Returns only items a user has created */
-    function fetchItemsCreated() public view returns (MarketItem[] memory) {
+    function fetchItemsCreated(address account) public view returns (MarketItem[] memory) {
         uint256 totalItemCount = _itemIds.current();
         uint256 itemCount = 0;
         uint256 currentIndex = 0;
 
         for (uint256 i = 0; i < totalItemCount; i++) {
-            if (idToMarketItem[i + 1].seller == msg.sender) {
+            if (idToMarketItem[i + 1].minter == account) {
                 itemCount += 1;
             }
         }
 
         MarketItem[] memory items = new MarketItem[](itemCount);
         for (uint256 i = 0; i < totalItemCount; i++) {
-            if (idToMarketItem[i + 1].seller == msg.sender) {
+            if (idToMarketItem[i + 1].minter == account) {
                 uint256 currentId = i + 1;
                 MarketItem storage currentItem = idToMarketItem[currentId];
                 items[currentIndex] = currentItem;
@@ -187,4 +195,14 @@ contract Market is ReentrancyGuard {
         }
         return items;
     }
+
+     function inspectSender() public view returns(address) {
+        return msg.sender;
+    }
+
+     function inspectItemMinter() public view returns(address) {
+        return idToMarketItem[1].minter;
+    }
+
+
 }
