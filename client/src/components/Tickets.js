@@ -41,6 +41,7 @@ function Tickets() {
       Market.networks[networkId].address
     );
     const data = await marketContract.methods.fetchMarketItems().call();
+    console.log(data);
     let payload = { tokenList: [] };
     const items = await Promise.all(
       data.map(async (i) => {
@@ -48,9 +49,8 @@ function Tickets() {
           .tokenURI(i.tokenId)
           .call();
         const meta = await axios.get(tokenUri);
-        let price = i.price.toString();
         let item = {
-          price,
+          price: i.price.toString(),
           itemId: i.itemId,
           tokenId: i.tokenId,
           seller: i.seller,
@@ -204,7 +204,7 @@ function Tickets() {
                   </div>
                   <p className="text-lg">{ticket.price} BNB</p>
                 </div>
-                <button className="absolute bottom-5 right-5 text-primary">
+                <button className="absolute bottom-5 right-5 z-10 text-primary">
                   <Cart className="h-7 w-7" />
                 </button>
               </QueryNavLink>

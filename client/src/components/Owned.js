@@ -3,6 +3,9 @@ import Web3 from "web3";
 import axios from "axios";
 import Ticket from "../contracts/Ticket.json";
 import Market from "../contracts/Market.json";
+import QueryNavLink from "./QueryNavLink";
+
+import { ReactComponent as Info } from "../assets/icons/info.svg";
 
 function Owned() {
   const [tickets, setTickets] = useState([]);
@@ -15,6 +18,7 @@ function Owned() {
   const loadTickets = async () => {
     const web3 = new Web3(window.ethereum);
     const networkId = await web3.eth.net.getId();
+    const accounts = await web3.eth.getAccounts();
     const ticketContract = new web3.eth.Contract(
       Ticket.abi,
       Ticket.networks[networkId].address
@@ -23,22 +27,35 @@ function Owned() {
       Market.abi,
       Market.networks[networkId].address
     );
-    const data = await marketContract.methods.fetchMyNFTs().call();
+    const data = await marketContract.methods
+      .fetchItemsCreated(accounts[0])
+      .call();
 
     console.log(data);
+    let payload = { tokenList: [] };
     const items = await Promise.all(
       data.map(async (i) => {
-        const tokenURI = await ticketContract.tokenURI(i.tokenURI);
-        const meta = await axios.get(tokenURI);
+        const tokenUri = await ticketContract.methods
+          .tokenURI(i.tokenId)
+          .call();
+        const meta = await axios.get(tokenUri);
         let item = {
-          tokenId: i.tokenId.toNumber(),
+          price: i.price.toString(),
+          itemId: i.itemId,
+          tokenId: i.tokenId,
           seller: i.seller,
           owner: i.owner,
           image: meta.data.image,
+          name: meta.data.name,
+          link: meta.data.link,
+          description: meta.data.description,
         };
+        payload.tokenList.push(i.tokenId);
         return item;
       })
     );
+    console.log(items);
+
     setTickets(items);
     setLoadingState("loaded");
   };
@@ -48,16 +65,36 @@ function Owned() {
   return (
     <div className="flex justify-center">
       <div className="p-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
+        <div className="h-auto w-full grid grid-cols-2 gap-5 pb-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {tickets.map((ticket, i) => (
-            <div key={i} className="border shadow rounded-xl overflow-hidden">
-              <img src={ticket.image} className="rounded" />
-              <div className="p-4 bg-black">
-                <p className="text-2xl font-bold text-white">
-                  Price - {ticket.price} Eth
-                </p>
+            <QueryNavLink
+              to={`/tickets/${ticket.tokenId}`}
+              key={i}
+              className="relative h-fit w-full p-3 pb-10 space-y-3 rounded-lg shadow-lg float-right bg-modal-button"
+            >
+              <div className="h-72 w-full rounded-lg">
+                <img
+                  src={ticket.image}
+                  alt=""
+                  className="h-full w-full object-cover rounded-lg"
+                />
               </div>
-            </div>
+              <div className="w-full flex flex-col items-start">
+                <div className="w-full flex justify-between items-center text-left">
+                  <p className="w-10/12 truncate">{ticket.name}</p>
+                  <button
+                    className="absolute z-20 p-3 right-0"
+                    // onClick={() => setShowCheckoutModal(true)}
+                  >
+                    <Info />
+                  </button>
+                </div>
+                <p className="text-lg">{ticket.price} BNB</p>
+              </div>
+              <button className="absolute bottom-5 right-5 z-10 text-primary">
+                {/* <Cart className="h-7 w-7" /> */}
+              </button>
+            </QueryNavLink>
           ))}
         </div>
       </div>

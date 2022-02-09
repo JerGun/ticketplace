@@ -47,24 +47,22 @@ function Account() {
     await axios
       .get(`${API_URL}/account/${accounts[0]}`)
       .then((response) => {
-        if (response) {
-          if (response.data) {
-            if (response.data.email) {
-              setInfo({
-                ...info,
-                name: response.data.name,
-                email: response.data.email,
-                verify: response.data.verify,
-              });
-            } else {
-              setInfo({
-                ...info,
-                name: "Unnamed",
-                email: "",
-              });
-            }
-            setImage({ ...image, preview: response.data.img });
+        if (response.data) {
+          if (response.data.email) {
+            setInfo({
+              ...info,
+              name: response.data.name,
+              email: response.data.email,
+              verify: response.data.verify,
+            });
+          } else {
+            setInfo({
+              ...info,
+              name: "Unnamed",
+              email: "",
+            });
           }
+          setImage({ ...image, preview: response.data.img });
         }
       })
       .catch((err) => console.log(err));
@@ -84,7 +82,6 @@ function Account() {
           address: account,
           img: url,
         })
-        .then((response) => {})
         .catch((err) => {
           console.log(err);
         });
@@ -239,7 +236,7 @@ function Account() {
               <span className="h-1 w-full divider-x"></span>
             </div>
           </div>
-          <div className="h-full flex justify-center items-center text-3xl text-white">
+          <div className="h-full flex justify-center text-white">
             <Routes>
               <Route path="" element={<p>No items to display</p>} />
               <Route path=":owned" element={<Owned />} />

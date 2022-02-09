@@ -131,10 +131,19 @@ function CreateTicket() {
     setImage({ preview: "", raw: "" });
   };
 
-  const handleNumberChange = (e) => {
+  const handleSupplyChange = (e) => {
     let { value } = e.target;
     value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : null;
     setSupply(value);
+  };
+
+  const handlePriceChange = (e) => {
+    let { value } = e.target;
+    value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : null;
+    setFormInput({
+      ...formInput,
+      price: value,
+    });
   };
 
   const handleSubmit = async () => {
@@ -194,6 +203,7 @@ function CreateTicket() {
       isMint: true,
       fromAccount: { address: returnValues.from, name: "NullAddress" },
       toAccount: { address: returnValues.to },
+      price: "",
       transaction: transaction.transactionHash,
     };
 
@@ -223,6 +233,7 @@ function CreateTicket() {
       eventType: "List",
       isMint: false,
       fromAccount: { address: returnValues.seller, name: "NullAddress" },
+      price: price,
       transaction: transaction.transactionHash,
     };
 
@@ -521,25 +532,23 @@ function CreateTicket() {
                   placeholder="1"
                   min="1"
                   value={supply}
-                  onChange={handleChange}
+                  onChange={handleSupplyChange}
                   className="h-full w-full bg-transparent"
                 />
               </div>
             </div>
             <div className="space-y-3">
               <p>Price</p>
-              <div className="h-11 px-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
+              <div className="h-11 px-3 flex items-center space-x-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
                 <input
-                  type="text"
-                  placeholder="Price"
-                  className="h-full w-full bg-transparent"
-                  onChange={(e) =>
-                    setFormInput({
-                      ...formInput,
-                      price: e.target.value,
-                    })
-                  }
+                  type="number"
+                  placeholder="1"
+                  min="1"
+                  value={formInput.price}
+                  className="price h-full w-full bg-transparent"
+                  onChange={handlePriceChange}
                 />
+                {formInput.price && <p>BNB</p>}
               </div>
             </div>
             <button
