@@ -1,8 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import MigrationsContract from "../contracts/Migrations.json";
-import SimpleStorageContract from "../contracts/SimpleStorage.json";
 import Web3 from "web3";
-import axios from "axios";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import { ReactComponent as Close } from "../assets/icons/close.svg";
@@ -17,14 +14,13 @@ import CustomScrollbars from "./CustomScrollbars";
 import SimpleStorage from "./SimpleStorage";
 import SetUpOrganizer from "./AccountSetup";
 import Confirm from "./Confirm";
-import { API_URL } from "../config";
 import SettingAccount from "./AccountSettings";
 import VerifyRequest from "./VerifyRequest";
+import ListTicket from "./ListTicket";
 
 function App() {
-  const [web3, setWeb3] = useState(undefined);
+  const [web3, setWeb3] = useState();
   const [account, setAccount] = useState("");
-  const [contract, setContract] = useState([]);
   const [network, setNetwork] = useState(97);
 
   const componentMounted = useRef(true);
@@ -32,21 +28,10 @@ function App() {
   useEffect(async () => {
     if (window.ethereum) {
       const web3 = new Web3(window.ethereum);
-
       const accounts = await web3.eth.getAccounts();
-
       const networkId = await web3.eth.net.getId();
       if (componentMounted.current) {
         setNetwork(networkId);
-        if (networkId === 97) {
-          const deployedNetwork = SimpleStorageContract.networks[networkId];
-          const SimpleStorage = new web3.eth.Contract(
-            SimpleStorageContract.abi,
-            deployedNetwork.address
-          );
-          setContract(SimpleStorage);
-        }
-
         setWeb3(web3);
         if (accounts.length !== 0) {
           setAccount(accounts[0]);
@@ -60,8 +45,6 @@ function App() {
 
   useEffect(() => {
     if (window.ethereum) {
-      const web3 = new Web3(window.ethereum);
-
       window.ethereum.on("accountsChanged", function (accounts) {
         setAccount("");
         window.location.reload();
@@ -109,10 +92,14 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="tickets" element={<Tickets />} />
-              <Route path="tickets/:tokenId" element={<TicketItem />} />
+              <Route path="ticket/:tokenId" element={<TicketItem />} />
               <Route
                 path="ticket/create"
-                element={<CreateTicket account={account} />}
+                element={<CreateTicket/>}
+              />
+              <Route
+                path="ticket/:tokenId/sell"
+                element={<ListTicket />}
               />
               <Route path="account/setup" element={<SetUpOrganizer />} />
               <Route path="account/settings" element={<SettingAccount />} />
@@ -122,7 +109,7 @@ function App() {
               <Route
                 path="simple"
                 element={
-                  <SimpleStorage account={account} contract={contract} />
+                  <SimpleStorage account={account} />
                 }
               />
             </Routes>

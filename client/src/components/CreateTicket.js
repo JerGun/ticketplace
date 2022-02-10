@@ -199,9 +199,7 @@ function CreateTicket() {
       mintToken(url, formInput.supply)
         .then((result) => {
           console.log(result);
-          createMarketItem(result.tokenId)
-            .then(navigate("/tickets"))
-            .catch((err) => console.log(err));
+          navigate("/account/created");
         })
         .catch((err) => console.log(err));
     } catch (err) {
@@ -236,7 +234,7 @@ function CreateTicket() {
 
   const createMarketItem = async (tokenId) => {
     let transaction = await ticketContract.methods
-      .createMarketItem(tokenId, 1, 1)
+      .createMarketItem(tokenId, formInput.price, formInput.supply)
       .send({ from: account });
     let block = await web3.eth.getBlock(transaction.blockNumber);
     let returnValues = transaction.events.MarketItemCreated.returnValues;

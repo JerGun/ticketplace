@@ -55,6 +55,7 @@ function TicketItem() {
     const data = await ticketContract.methods
       .fetchMarketItem(params.tokenId)
       .call();
+      console.log(data);
     if (data[0].tokenId === "0") setHasData(false);
     else setHasData(true);
 

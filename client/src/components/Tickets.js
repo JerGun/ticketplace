@@ -167,7 +167,7 @@ function Tickets() {
           <div className="h-auto w-full grid grid-cols-2 gap-5 pb-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {tickets.map((ticket, i) => (
               <QueryNavLink
-                to={`/tickets/${ticket.tokenId}`}
+                to={`/ticket/${ticket.tokenId}`}
                 key={i}
                 className="relative h-fit w-full p-3 pb-10 space-y-3 rounded-lg shadow-lg float-right bg-modal-button"
               >
