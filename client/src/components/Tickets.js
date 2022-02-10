@@ -4,7 +4,6 @@ import axios from "axios";
 import { Dialog, Listbox, Transition } from "@headlessui/react";
 import QueryNavLink from "./QueryNavLink";
 import Ticket from "../contracts/Ticket.json";
-import Market from "../contracts/Market.json";
 import { API_URL } from "../config";
 
 import { ReactComponent as Info } from "../assets/icons/info.svg";
@@ -36,17 +35,13 @@ function Tickets() {
       Ticket.abi,
       Ticket.networks[networkId].address
     );
-    const marketContract = new web3.eth.Contract(
-      Market.abi,
-      Market.networks[networkId].address
-    );
-    const data = await marketContract.methods.fetchMarketItems().call();
+    const data = await ticketContract.methods.fetchMarketItems().call();
     console.log(data);
     let payload = { tokenList: [] };
     const items = await Promise.all(
       data.map(async (i) => {
         const tokenUri = await ticketContract.methods
-          .tokenURI(i.tokenId)
+          .uri(i.tokenId)
           .call();
         const meta = await axios.get(tokenUri);
         let item = {

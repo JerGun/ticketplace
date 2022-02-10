@@ -5,7 +5,6 @@ import ReactTooltip from "react-tooltip";
 import Web3 from "web3";
 import axios from "axios";
 import Ticket from "../contracts/Ticket.json";
-import Market from "../contracts/Market.json";
 import CustomScrollbars from "./CustomScrollbars";
 import { API_URL } from "../config";
 
@@ -22,6 +21,10 @@ import { ReactComponent as Close } from "../assets/icons/close.svg";
 import { ReactComponent as Check } from "../assets/icons/check.svg";
 
 function TicketItem() {
+  const [web3, setWeb3] = useState();
+  const [account, setAccount] = useState("");
+  const [networkId, setNetworkId] = useState();
+  const [ticketContract, setTicketContract] = useState();
   const [copy, setCopy] = useState(false);
   const [buttonDisabled, setButtonDisabled] = useState();
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
@@ -37,34 +40,37 @@ function TicketItem() {
 
   useEffect(async () => {
     const web3 = new Web3(window.ethereum);
+    const accounts = await web3.eth.getAccounts();
     const networkId = await web3.eth.net.getId();
     const ticketContract = new web3.eth.Contract(
       Ticket.abi,
       Ticket.networks[networkId].address
     );
-    const marketContract = new web3.eth.Contract(
-      Market.abi,
-      Market.networks[networkId].address
-    );
 
-    const data = await marketContract.methods.fetchItem(params.tokenId).call();
+    setWeb3(web3);
+    setAccount(accounts[0]);
+    setNetworkId(networkId);
+    setTicketContract(ticketContract);
+
+    const data = await ticketContract.methods
+      .fetchMarketItem(params.tokenId)
+      .call();
     if (data[0].tokenId === "0") setHasData(false);
     else setHasData(true);
 
-    const tokenUri = await ticketContract.methods
-      .tokenURI(params.tokenId)
-      .call();
+    const tokenUri = await ticketContract.methods.uri(params.tokenId).call();
     const meta = await axios.get(tokenUri);
-
+ 
     let item = {
-      price: data[0].price,
-      itemId: data[0].itemId,
-      tokenId: data[0].tokenId,
-      seller: data[0].seller,
-      owner: data[0].owner,
+      itemId: data.itemId,
+      tokenId: data.tokenId,
+      seller: data.seller,
+      owner: data.owner,
       image: meta.data.image,
       name: meta.data.name,
       link: meta.data.link,
+      price: data.price,
+      quantity: meta.data.supply,
       description: meta.data.description,
       location: meta.data.location,
       startDate: formatDate(new Date(meta.data.startDate)),
@@ -119,20 +125,20 @@ function TicketItem() {
     }, 2000);
   };
 
-  const buyTicket = async () => {
-    const web3 = new Web3(window.ethereum);
-    const networkId = await web3.eth.net.getId();
-    const accounts = await web3.eth.getAccounts();
+  // const buyTicket = async () => {
+  //   const web3 = new Web3(window.ethereum);
+  //   const networkId = await web3.eth.net.getId();
+  //   const accounts = await web3.eth.getAccounts();
 
-    const marketContract = new web3.eth.Contract(
-      Market.abi,
-      Market.networks[networkId].address
-    );
-    let transaction = await marketContract.methods
-      .createMarketSale(Ticket.networks[networkId].address, params.itemId)
-      .send({ from: accounts[0] });
-    console.log(transaction);
-  };
+  //   const marketContract = new web3.eth.Contract(
+  //     Market.abi,
+  //     Market.networks[networkId].address
+  //   );
+  //   let transaction = await marketContract.methods
+  //     .createMarketSale(Ticket.networks[networkId].address, params.itemId)
+  //     .send({ from: accounts[0] });
+  //   console.log(transaction);
+  // };
 
   const timeConverter = (timestamp) => {
     var ms = Date.now() - timestamp * 1000;
@@ -246,7 +252,6 @@ function TicketItem() {
                   <button
                     className="h-11 w-full flex justify-center items-center rounded-lg font-bold text-black bg-primary"
                     // onClick={() => setShowCheckoutModal(true)}
-                    onClick={buyTicket}
                   >
                     Buy for {ticket.price} BNB
                   </button>
@@ -348,7 +353,7 @@ function TicketItem() {
                             <p className="text-text">{history.price}</p>
                           </div>
                           <div className="flex space-x-1">
-                            <p className="text-text">{history.price}</p>
+                            <p className="text-text">{history.quantity}</p>
                           </div>
                           {history.fromAccount ? (
                             <a

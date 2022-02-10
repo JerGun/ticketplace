@@ -1,13 +1,12 @@
 import { React, useState, useEffect } from "react";
 import Web3 from "web3";
 import axios from "axios";
-import Ticket from "../contracts/Ticket.json";
-import Market from "../contracts/Market.json";
+import Tickets from "../contracts/Ticket.json";
 import QueryNavLink from "./QueryNavLink";
 
 import { ReactComponent as Info } from "../assets/icons/info.svg";
 
-function Owned() {
+function Created() {
   const [tickets, setTickets] = useState([]);
   const [loadingState, setLoadingState] = useState();
 
@@ -20,29 +19,22 @@ function Owned() {
     const networkId = await web3.eth.net.getId();
     const accounts = await web3.eth.getAccounts();
     const ticketContract = new web3.eth.Contract(
-      Ticket.abi,
-      Ticket.networks[networkId].address
+      Tickets.abi,
+      Tickets.networks[networkId].address
     );
-    const marketContract = new web3.eth.Contract(
-      Market.abi,
-      Market.networks[networkId].address
-    );
-    const data = await marketContract.methods
+    const data = await ticketContract.methods
       .fetchItemsCreated(accounts[0])
       .call();
-      const sender = await marketContract.methods
-      .inspectSender()
-      .call();
+    const sender = await ticketContract.methods.inspectSender().call();
     console.log(data, sender);
     let payload = { tokenList: [] };
     const items = await Promise.all(
       data.map(async (i) => {
         const tokenUri = await ticketContract.methods
-          .tokenURI(i.tokenId)
+          .uri(i.tokenId)
           .call();
         const meta = await axios.get(tokenUri);
         let item = {
-          price: i.price.toString(),
           itemId: i.itemId,
           tokenId: i.tokenId,
           seller: i.seller,
@@ -103,4 +95,4 @@ function Owned() {
     </div>
   );
 }
-export default Owned;
+export default Created;

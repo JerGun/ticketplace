@@ -3,12 +3,12 @@ import Web3 from "web3";
 import axios from "axios";
 import { create as ipfsHttpClient } from "ipfs-http-client";
 import Ticket from "../contracts/Ticket.json";
-import Market from "../contracts/Market.json";
 import { API_URL } from "../config";
 import { useNavigate } from "react-router-dom";
 import { enGB } from "date-fns/locale";
 import { DateRangePicker, START_DATE, END_DATE } from "react-nice-dates";
 import "react-nice-dates/build/style.css";
+// import { NFTStorage } from 'https://cdn.jsdelivr.net/npm/nft.storage/dist/bundle.esm.min.js'
 
 import { ReactComponent as Photo } from "../assets/icons/photo.svg";
 import { ReactComponent as Calendar } from "../assets/icons/calendar.svg";
@@ -71,12 +71,14 @@ function CreateTicket() {
   const [web3, setWeb3] = useState();
   const [account, setAccount] = useState("");
   const [networkId, setNetworkId] = useState();
+  const [ticketContract, setTicketContract] = useState();
   const [image, setImage] = useState({ preview: "", raw: "" });
   const [formInput, setFormInput] = useState({
     name: "",
     link: "",
     description: "",
     location: "",
+    supply: "",
     price: "",
   });
   const [startDate, setStartDate] = useState();
@@ -84,7 +86,6 @@ function CreateTicket() {
   const [startTime, setStartTime] = useState("Start Time");
   const [endTime, setEndTime] = useState("End Time");
   const [fileUrl, setFileUrl] = useState(null);
-  const [supply, setSupply] = useState();
 
   const navigate = useNavigate();
 
@@ -92,10 +93,15 @@ function CreateTicket() {
     if (window.ethereum) {
       const web3 = new Web3(window.ethereum);
       const accounts = await web3.eth.getAccounts();
-      const network = await web3.eth.net.getId();
+      const networkId = await web3.eth.net.getId();
+      const ticketContract = new web3.eth.Contract(
+        Ticket.abi,
+        Ticket.networks[networkId].address
+      );
       setWeb3(web3);
       setAccount(accounts[0]);
-      setNetworkId(network);
+      setNetworkId(networkId);
+      setTicketContract(ticketContract);
       await axios
         .get(`${API_URL}/account/${accounts[0]}`)
         .then((response) => {
@@ -118,6 +124,14 @@ function CreateTicket() {
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     try {
+      // const apiKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDk4NmY3ZDQ3ODg3MzM4NjdCOTdjYmM1Y2FGZDUyNjJkM0NBZGFFOUMiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTY0NDQ5ODA3MjE4MiwibmFtZSI6IlRpY2tldHBsYWNlIn0.sz3J-knyz81J0THO_kKYjg7B0yD5raE2qF51sSuge3w";
+      // const client = new NFTStorage({ token: apiKey });
+      // const metadata = await client.store({
+      //   name: "Pinpie",
+      //   description: "Pin is not delicious beef!",
+      //   image: new File([file], "pinpie.jpg", { type: "image/jpg" }),
+      // });
+      // console.log(metadata.url);
       const added = await client.add(file);
       const url = `https://ipfs.infura.io/ipfs/${added.path}`;
       setFileUrl(url);
@@ -137,7 +151,10 @@ function CreateTicket() {
   const handleSupplyChange = (e) => {
     let { value } = e.target;
     value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : null;
-    setSupply(value);
+    setFormInput({
+      ...formInput,
+      supply: value,
+    });
   };
 
   const handlePriceChange = (e) => {
@@ -179,25 +196,29 @@ function CreateTicket() {
       const added = await client.add(data);
       const url = `https://ipfs.infura.io/ipfs/${added.path}`;
 
-      mintToken(url);
-      createMarketItem();
-    } catch (error) {
-      console.log("Error uploading file: ", error);
+      mintToken(url, formInput.supply)
+        .then((result) => {
+          console.log(result);
+          createMarketItem(result.tokenId)
+            .then(navigate("/tickets"))
+            .catch((err) => console.log(err));
+        })
+        .catch((err) => console.log(err));
+    } catch (err) {
+      console.log("Error uploading file: ", err);
     }
   };
 
-  const mintToken = async (url) => {
-    let contract = new web3.eth.Contract(
-      Ticket.abi,
-      Ticket.networks[networkId].address
-    );
-
-    let transaction = await contract.methods.mint(url).send({ from: account });
+  const mintToken = async (url, supply) => {
+    let transaction = await ticketContract.methods
+      .mintToken(url, supply)
+      .send({ from: account });
     let block = await web3.eth.getBlock(transaction.blockNumber);
-    let returnValues = transaction.events.Transfer.returnValues;
+    let returnValues = transaction.events.TransferSingle.returnValues;
+    console.log(transaction);
 
     let payload = {
-      tokenId: returnValues.tokenId,
+      tokenId: returnValues.id,
       eventTimestamp: block.timestamp,
       eventType: "Minted",
       isMint: true,
@@ -210,32 +231,23 @@ function CreateTicket() {
     await axios
       .post(`${API_URL}/event`, payload)
       .catch((err) => console.log(err));
-
-    navigate("/tickets");
+    return payload;
   };
 
-  const createMarketItem = async () => {
-    let contract = new web3.eth.Contract(
-      Market.abi,
-      Market.networks[networkId].address
-    );
-
-    let transaction = await contract.methods
-      .createMarketItem(
-        Ticket.networks[networkId].address,
-        returnValues.tokenId,
-        price
-      )
+  const createMarketItem = async (tokenId) => {
+    let transaction = await ticketContract.methods
+      .createMarketItem(tokenId, 1, 1)
       .send({ from: account });
     let block = await web3.eth.getBlock(transaction.blockNumber);
     let returnValues = transaction.events.MarketItemCreated.returnValues;
+    console.log(transaction);
 
     let payload = {
       tokenId: returnValues.tokenId,
       eventTimestamp: block.timestamp,
       eventType: "List",
       isMint: false,
-      fromAccount: { address: returnValues.seller, name: "NullAddress" },
+      fromAccount: { address: returnValues.seller },
       price: formInput.price,
       transaction: transaction.transactionHash,
     };
@@ -532,7 +544,7 @@ function CreateTicket() {
                   type="number"
                   placeholder="1"
                   min="1"
-                  value={supply}
+                  value={formInput.supply}
                   onChange={handleSupplyChange}
                   className="h-full w-full bg-transparent"
                 />

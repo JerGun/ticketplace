@@ -15,6 +15,7 @@ import { ReactComponent as Edit } from "../assets/icons/edit.svg";
 import { ReactComponent as Verify } from "../assets/icons/verify.svg";
 
 import Owned from "./Owned";
+import Created from "./Created";
 
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
 
@@ -239,7 +240,8 @@ function Account() {
           <div className="h-full flex justify-center text-white">
             <Routes>
               <Route path="" element={<p>No items to display</p>} />
-              <Route path=":owned" element={<Owned />} />
+              <Route path=":owned" element={<Created />} />
+              <Route path=":create" element={<Created />} />
             </Routes>
           </div>
         </div>
