@@ -11,13 +11,24 @@ contract Ticket is ERC1155 {
     Counters.Counter private _itemsSold;
     address payable owner;
 
-    struct CreatedItem {
+    // struct OwnedItem {
+    //     uint256 tokenId;
+    //     uint256 supply;
+    // }
+
+    // struct CreatedItem {
+    //     uint256 tokenId;
+    //     uint256 supply;
+    // }
+
+    struct Item {
         uint256 tokenId;
         uint256 supply;
     }
 
-    // mapping(address => OwnedItem[]) public ownedTokens;
-    mapping(address => CreatedItem[]) public createdTokens;
+    mapping(address => Item[]) public ownedTokens;
+    mapping(address => Item[]) public createdTokens;
+    mapping(address => Item[]) public ListTokens;
 
     constructor() ERC1155("https://ipfs.infura.io") {
         owner = payable(msg.sender);
@@ -70,7 +81,7 @@ contract Ticket is ERC1155 {
 
         _mint(msg.sender, newItemId, supply, "");
         setTokenUri(newItemId, tokenUri);
-        createdTokens[msg.sender].push(CreatedItem(newItemId, supply));
+        createdTokens[msg.sender].push(Item(newItemId, supply));
         return newItemId;
     }
 
@@ -94,6 +105,8 @@ contract Ticket is ERC1155 {
             false
         );
 
+        ListTokens[msg.sender].push(Item(tokenId, supply));
+
         safeTransferFrom(msg.sender, address(this), tokenId, supply, "");
 
         emit MarketItemCreated(
@@ -107,12 +120,21 @@ contract Ticket is ERC1155 {
         );
     }
 
-    function fetchItemsCreated(address account)
+    function fetchCreatedItems(address account)
         public
         view
-        returns (CreatedItem[] memory)
+        returns (Item[] memory)
     {
-        CreatedItem[] memory items = createdTokens[account];
+        Item[] memory items = createdTokens[account];
+        return items;
+    }
+
+    function fetchOwnedItems(address account)
+        public
+        view
+        returns (Item[] memory)
+    {
+        Item[] memory items = ownedTokens[account];
         return items;
     }
 
