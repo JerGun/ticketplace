@@ -167,7 +167,7 @@ function CreateTicket() {
   };
 
   const handleSubmit = async () => {
-    const { name, link, description, location, price } = formInput;
+    const { name, link, description, location, supply } = formInput;
     if (
       !name ||
       !link ||
@@ -177,7 +177,7 @@ function CreateTicket() {
       !startTime ||
       !endTime ||
       !location ||
-      !price ||
+      !supply ||
       !fileUrl
     )
       return;
@@ -223,6 +223,7 @@ function CreateTicket() {
       fromAccount: { address: returnValues.from, name: "NullAddress" },
       toAccount: { address: returnValues.to },
       price: "",
+      supply: supply,
       transaction: transaction.transactionHash,
     };
 
@@ -246,7 +247,7 @@ function CreateTicket() {
       eventType: "List",
       isMint: false,
       fromAccount: { address: returnValues.seller },
-      price: formInput.price,
+      // price: formInput.price,
       transaction: transaction.transactionHash,
     };
 
@@ -548,7 +549,7 @@ function CreateTicket() {
                 />
               </div>
             </div>
-            <div className="space-y-3">
+            {/* <div className="space-y-3">
               <p>Price</p>
               <div className="h-11 px-3 flex items-center space-x-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
                 <input
@@ -561,7 +562,7 @@ function CreateTicket() {
                 />
                 {formInput.price && <p>BNB</p>}
               </div>
-            </div>
+            </div> */}
             <button
               type="submit"
               onClick={handleSubmit}
