@@ -1,12 +1,12 @@
 import { React, Fragment, useState, useEffect, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import ReactTooltip from "react-tooltip";
 import Web3 from "web3";
 import axios from "axios";
 import Ticket from "../contracts/Ticket.json";
-import CustomScrollbars from "./CustomScrollbars";
 import { API_URL } from "../config";
+import formatter from "../formatter";
 
 import { ReactComponent as Price } from "../assets/icons/price.svg";
 import { ReactComponent as BNB } from "../assets/icons/bnb.svg";
@@ -33,6 +33,7 @@ function TicketItem() {
   const [loadingState, setLoadingState] = useState("not-loaded");
   const [history, setHistory] = useState([]);
   const [hasData, setHasData] = useState();
+  const [status, setStatus] = useState();
 
   const params = useParams();
   const location = useLocation();
@@ -46,36 +47,60 @@ function TicketItem() {
       Ticket.abi,
       Ticket.networks[networkId].address
     );
-
     setWeb3(web3);
     setAccount(accounts[0]);
     setNetworkId(networkId);
     setTicketContract(ticketContract);
 
-    const data = await ticketContract.methods
-      .fetchMarketItem(params.tokenId)
+    const createdItems = await ticketContract.methods
+      .fetchCreatedItems(accounts[0])
       .call();
-      console.log(data);
-    if (data[0].tokenId === "0") setHasData(false);
+
+    const listedItems = await ticketContract.methods
+      .fetchListedItems(accounts[0])
+      .call();
+
+    const createdItemsFilter = createdItems.filter(
+      (item) => item.tokenId === params.tokenId
+    );
+    const ListedItemsFilter = listedItems.filter(
+      (item) => item.tokenId === params.tokenId
+    );
+
+    console.log(createdItems, listedItems);
+    let data;
+    let status;
+
+    if (ListedItemsFilter.length > 0) {
+      status = "Listed";
+      data = ListedItemsFilter[0];
+    } else if (createdItemsFilter.length > 0) {
+      status = "Created";
+      data = createdItemsFilter[0];
+    }
+
+    console.log(data, status);
+    if (data[0].tokenId === "0" || data.length < 1) setHasData(false);
     else setHasData(true);
 
     const tokenUri = await ticketContract.methods.uri(params.tokenId).call();
     const meta = await axios.get(tokenUri);
- 
+    console.log(meta);
     let item = {
       itemId: data.itemId,
       tokenId: data.tokenId,
       seller: data.seller,
       owner: data.owner,
+      minter: data.minter,
       image: meta.data.image,
       name: meta.data.name,
       link: meta.data.link,
       price: data.price,
-      quantity: meta.data.supply,
+      supply: data.supply,
       description: meta.data.description,
       location: meta.data.location,
-      startDate: formatDate(new Date(meta.data.startDate)),
-      endDate: formatDate(new Date(meta.data.endDate)),
+      startDate: formatter.formatDate(new Date(meta.data.startDate)),
+      endDate: formatter.formatDate(new Date(meta.data.endDate)),
       startTime: meta.data.startTime,
       endTime: meta.data.endTime,
     };
@@ -94,7 +119,7 @@ function TicketItem() {
     await axios
       .get(`${API_URL}/ticket/${params.tokenId}`)
       .then((user) => {
-        item.organizedName = user.data.name;
+        item.organizedName = item.minter === account ? "you" : user.data.name;
         item.organizedAddress = user.data.address;
       })
       .catch((err) => console.log(err));
@@ -102,12 +127,14 @@ function TicketItem() {
     await axios
       .get(`${API_URL}/account/${item.owner}`)
       .then((user) => {
-        if (user) item.ownerName = user.data.name;
+        if (user)
+          item.ownerName = item.owner === account ? "you" : user.data.name;
         else item.ownerName = item.owner.slice(2, 9).toUpperCase();
       })
       .catch((err) => console.log(err));
 
     if (componentMounted.current) {
+      setStatus(status);
       setTicket(item);
       setLoadingState("loaded");
     }
@@ -141,84 +168,6 @@ function TicketItem() {
   //   console.log(transaction);
   // };
 
-  const timeConverter = (timestamp) => {
-    var ms = Date.now() - timestamp * 1000;
-
-    var unit = 0;
-    var MINUTE = 60 * 1000;
-    var HOUR = 60 * 60 * 1000;
-    var DAY = 24 * 60 * 60 * 1000;
-    var MONTH = 30 * 24 * 60 * 60 * 1000;
-    var YEAR = 12 * 30 * 24 * 60 * 60 * 1000;
-
-    if (ms < 2 * MINUTE) {
-      return "a minute ago";
-    }
-    if (ms < HOUR) {
-      while (ms >= MINUTE) {
-        ms -= MINUTE;
-        unit += 1;
-      }
-      return unit + " minutes ago";
-    }
-    if (ms < 2 * HOUR) {
-      return "an hour ago";
-    }
-    if (ms < DAY) {
-      while (ms >= HOUR) {
-        ms -= HOUR;
-        unit += 1;
-      }
-      return unit + " hours ago";
-    }
-    if (ms < 2 * DAY) {
-      return "a day ago";
-    }
-    if (ms < MONTH) {
-      while (ms >= DAY) {
-        ms -= DAY;
-        unit += 1;
-      }
-      return unit + " days ago";
-    }
-    if (ms < 2 * MONTH) {
-      return "a month ago";
-    }
-    if (ms < YEAR) {
-      while (ms >= MONTH) {
-        ms -= MONTH;
-        unit += 1;
-      }
-      return unit + " months ago";
-    }
-    if (ms < 2 * YEAR) {
-      return "a year ago";
-    } else {
-      while (ms >= YEAR) {
-        ms -= YEAR;
-        unit += 1;
-      }
-      return unit + " years ago";
-    }
-  };
-
-  const dateConverter = (timestamp) => {
-    var date = new Date(timestamp * 1000);
-    return `${date.toDateString()}, ${date.toLocaleTimeString()}`;
-  };
-
-  const padTo2Digits = (num) => {
-    return num.toString().padStart(2, "0");
-  };
-
-  const formatDate = (date) => {
-    return [
-      padTo2Digits(date.getDate()),
-      padTo2Digits(date.getMonth() + 1),
-      date.getFullYear(),
-    ].join("/");
-  };
-
   return (
     <>
       {!hasData ? (
@@ -241,22 +190,40 @@ function TicketItem() {
                   <p>Token ID</p>
                   <p>{params.tokenId}</p>
                 </div>
-                <div className="h-fit w-full p-3 space-y-3 rounded-lg bg-input">
-                  <div className="flex items-center space-x-3">
-                    <Price />
-                    <p>Price</p>
+                {status === "Created" && (
+                  <div className="h-fit w-full p-3 space-y-3 rounded-lg bg-input">
+                    <button
+                      className="h-11 w-full flex justify-center items-center rounded-lg font-bold text-white bg-hover-light"
+                      // onClick={() => setShowCheckoutModal(true)}
+                    >
+                      Edit
+                    </button>
+                    <Link
+                      to={"sell"}
+                      className="h-11 w-full flex justify-center items-center rounded-lg font-bold text-black bg-primary"
+                    >
+                      Sell
+                    </Link>
                   </div>
-                  <div className="flex space-x-5">
-                    <BNB />
-                    <p className="text-4xl font-bold">{ticket.price} BNB</p>
+                )}
+                {status === "Listed" && (
+                  <div className="h-fit w-full p-3 space-y-3 rounded-lg bg-input">
+                    <div className="flex items-center space-x-3">
+                      <Price />
+                      <p>Price</p>
+                    </div>
+                    <div className="flex space-x-5">
+                      <BNB />
+                      <p className="text-4xl font-bold">{ticket.price} BNB</p>
+                    </div>
+                    <button
+                      className="h-11 w-full flex justify-center items-center rounded-lg font-bold text-black bg-primary"
+                      // onClick={() => setShowCheckoutModal(true)}
+                    >
+                      Buy for {ticket.price} BNB
+                    </button>
                   </div>
-                  <button
-                    className="h-11 w-full flex justify-center items-center rounded-lg font-bold text-black bg-primary"
-                    // onClick={() => setShowCheckoutModal(true)}
-                  >
-                    Buy for {ticket.price} BNB
-                  </button>
-                </div>
+                )}
               </div>
               <div className="w-full pr-40 space-y-5">
                 <div className="w-full space-y-1">
@@ -287,11 +254,20 @@ function TicketItem() {
                   </div>
                   <div className="flex text-sm space-x-1">
                     <p className="text-text">Organized by</p>
-                    <p className="text-primary">{ticket.organizedName}</p>
+                    <a href="#" className="text-primary">
+                      {ticket.organizedName}
+                    </a>
                   </div>
-                  <div className="flex text-sm space-x-1">
-                    <p className="text-text">Owned by</p>
-                    <p>{ticket.ownerName}</p>
+                  <div className="flex text-sm space-x-5">
+                    <div className="inline-flex space-x-1">
+                      <p className="text-text">Owned by</p>
+                      <a href="#">{ticket.ownerName}</a>
+                    </div>
+                    <div className="inline-flex space-x-1">
+                      <p className="text-text">Quantity</p>
+                      <p>{ticket.supply}</p>
+                      <p className="text-text">total</p>
+                    </div>
                   </div>
                 </div>
                 <div className="h-fit w-full py-5 pl-5 pr-3 rounded-lg bg-input">
@@ -354,7 +330,7 @@ function TicketItem() {
                             <p className="text-text">{history.price}</p>
                           </div>
                           <div className="flex space-x-1">
-                            <p className="text-text">{history.quantity}</p>
+                            <p className="text-text">{history.supply}</p>
                           </div>
                           {history.fromAccount ? (
                             <a
@@ -382,9 +358,13 @@ function TicketItem() {
                             className={`${
                               history.transaction && "text-primary"
                             } w-fit flex space-x-1 text-text`}
-                            data-tip={dateConverter(history.eventTimestamp)}
+                            data-tip={formatter.dateConverter(
+                              history.eventTimestamp
+                            )}
                           >
-                            <p>{timeConverter(history.eventTimestamp)}</p>
+                            <p>
+                              {formatter.timeConverter(history.eventTimestamp)}
+                            </p>
                           </a>
                           <ReactTooltip
                             effect="solid"

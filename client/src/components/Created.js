@@ -3,8 +3,9 @@ import Web3 from "web3";
 import axios from "axios";
 import Tickets from "../contracts/Ticket.json";
 import QueryNavLink from "./QueryNavLink";
+import formatter from "../formatter";
 
-import { ReactComponent as Info } from "../assets/icons/info.svg";
+import { ReactComponent as More } from "../assets/icons/more.svg";
 
 function Created() {
   const [tickets, setTickets] = useState([]);
@@ -23,28 +24,24 @@ function Created() {
       Tickets.networks[networkId].address
     );
     const data = await ticketContract.methods
-      .fetchItemsCreated(accounts[0])
+      .fetchCreatedItems(accounts[0])
       .call();
-    const sender = await ticketContract.methods.inspectSender().call();
-    console.log(data, sender);
-    let payload = { tokenList: [] };
+    console.log(data);
     const items = await Promise.all(
       data.map(async (i) => {
-        const tokenUri = await ticketContract.methods
-          .uri(i.tokenId)
-          .call();
+        const tokenUri = await ticketContract.methods.uri(i.tokenId).call();
         const meta = await axios.get(tokenUri);
+        console.log(meta);
         let item = {
-          itemId: i.itemId,
           tokenId: i.tokenId,
-          seller: i.seller,
-          owner: i.owner,
+          supply: i.supply,
           image: meta.data.image,
           name: meta.data.name,
           link: meta.data.link,
+          startDate: formatter.formatDate(new Date(meta.data.startDate)),
+          endDate: formatter.formatDate(new Date(meta.data.endDate)),
           description: meta.data.description,
         };
-        payload.tokenList.push(i.tokenId);
         return item;
       })
     );
@@ -61,34 +58,28 @@ function Created() {
       <div className="p-4">
         <div className="h-auto w-full grid grid-cols-2 gap-5 pb-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {tickets.map((ticket, i) => (
-            <QueryNavLink
-              to={`/tickets/${ticket.tokenId}`}
-              key={i}
-              className="relative h-fit w-full p-3 pb-10 space-y-3 rounded-lg shadow-lg float-right bg-modal-button"
-            >
-              <div className="h-72 w-full rounded-lg">
-                <img
-                  src={ticket.image}
-                  alt=""
-                  className="h-full w-full object-cover rounded-lg"
-                />
-              </div>
-              <div className="w-full flex flex-col items-start">
-                <div className="w-full flex justify-between items-center text-left">
-                  <p className="w-10/12 truncate">{ticket.name}</p>
-                  <button
-                    className="absolute z-20 p-3 right-0"
-                    // onClick={() => setShowCheckoutModal(true)}
-                  >
-                    <Info />
-                  </button>
+            <div className="relative h-fit w-full rounded-lg shadow-lg float-right bg-modal-button">
+              <QueryNavLink to={`/ticket/${ticket.tokenId}`} key={i}>
+                <div className="p-3 space-y-3 shadow-lg">
+                  <div className="h-72 w-full">
+                    <img
+                      src={ticket.image}
+                      alt=""
+                      className="h-full w-full object-cover rounded-lg"
+                    />
+                  </div>
+                  <div className="w-full flex flex-col items-start">
+                    <p className="text-sm text-text">{ticket.supply} total</p>
+                    <p className="w-9/12 truncate">{ticket.name}</p>
+                  </div>
                 </div>
-                <p className="text-lg">{ticket.price} BNB</p>
+              </QueryNavLink>
+              <div className="px-3 py-1 flex items-center text-text">
+                <button className="scale-75 hover:text-white">
+                  <More />
+                </button>
               </div>
-              <button className="absolute bottom-5 right-5 z-10 text-primary">
-                {/* <Cart className="h-7 w-7" /> */}
-              </button>
-            </QueryNavLink>
+            </div>
           ))}
         </div>
       </div>
