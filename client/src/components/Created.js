@@ -58,8 +58,8 @@ function Created() {
       <div className="p-4">
         <div className="h-auto w-full grid grid-cols-2 gap-5 pb-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {tickets.map((ticket, i) => (
-            <div className="relative h-fit w-full rounded-lg shadow-lg float-right bg-modal-button">
-              <QueryNavLink to={`/ticket/${ticket.tokenId}`} key={i}>
+            <div key={i} className="relative h-fit w-full rounded-lg shadow-lg float-right bg-modal-button">
+              <QueryNavLink to={`/ticket/${ticket.tokenId}`}>
                 <div className="p-3 space-y-3 shadow-lg">
                   <div className="h-72 w-full">
                     <img
@@ -69,7 +69,7 @@ function Created() {
                     />
                   </div>
                   <div className="w-full flex flex-col items-start">
-                    <p className="text-sm text-text">{ticket.supply} total</p>
+                    <p className="text-text">{ticket.supply} total</p>
                     <p className="w-9/12 truncate">{ticket.name}</p>
                   </div>
                 </div>

@@ -30,10 +30,11 @@ function TicketItem() {
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [showAddFundsModal, setShowAddFundsModal] = useState(false);
   const [ticket, setTicket] = useState([]);
-  const [loadingState, setLoadingState] = useState("not-loaded");
+  const [loadingState, setLoadingState] = useState(false);
   const [history, setHistory] = useState([]);
-  const [hasData, setHasData] = useState();
   const [status, setStatus] = useState();
+  const [listing, setListing] = useState();
+  const [lister, setLister] = useState();
 
   const params = useParams();
   const location = useLocation();
@@ -67,11 +68,14 @@ function TicketItem() {
       (item) => item.tokenId === params.tokenId
     );
 
-    console.log(createdItems, listedItems);
     let data;
     let status;
+    let payload = { address: [] };
 
-    if (ListedItemsFilter.length > 0) {
+    if (
+      ListedItemsFilter.length > 0 &&
+      ListedItemsFilter[0].minter === accounts[0]
+    ) {
       status = "Listed";
       data = ListedItemsFilter[0];
     } else if (createdItemsFilter.length > 0) {
@@ -79,13 +83,31 @@ function TicketItem() {
       data = createdItemsFilter[0];
     }
 
-    console.log(data, status);
-    if (data[0].tokenId === "0" || data.length < 1) setHasData(false);
-    else setHasData(true);
+    const listingData = await ticketContract.methods
+      .fetchMarketItem(params.tokenId)
+      .call();
+
+    let sortListing = [...listingData];
+
+    listingData.map(async (i) => {
+      payload.address.push(i.seller);
+    });
+
+    console.log(payload);
+    sortListing.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+    axios
+      .post(`${API_URL}/accountsByAddress`, payload)
+      .then((user) => {
+        console.log(user.data);
+        setLister(user.data);
+      })
+      .catch((err) => console.log(err));
+
+    console.log(listingData);
 
     const tokenUri = await ticketContract.methods.uri(params.tokenId).call();
     const meta = await axios.get(tokenUri);
-    console.log(meta);
+    console.log(status, { data: data, meta: meta, listingData: listingData });
     let item = {
       itemId: data.itemId,
       tokenId: data.tokenId,
@@ -104,6 +126,7 @@ function TicketItem() {
       startTime: meta.data.startTime,
       endTime: meta.data.endTime,
     };
+    console.log(item);
 
     await axios
       .get(`${API_URL}/event/${params.tokenId}`)
@@ -119,24 +142,29 @@ function TicketItem() {
     await axios
       .get(`${API_URL}/ticket/${params.tokenId}`)
       .then((user) => {
-        item.organizedName = item.minter === account ? "you" : user.data.name;
+        item.organizedName =
+          item.minter === accounts[0] ? "you" : user.data.name;
         item.organizedAddress = user.data.address;
       })
       .catch((err) => console.log(err));
 
-    await axios
-      .get(`${API_URL}/account/${item.owner}`)
-      .then((user) => {
-        if (user)
-          item.ownerName = item.owner === account ? "you" : user.data.name;
-        else item.ownerName = item.owner.slice(2, 9).toUpperCase();
-      })
-      .catch((err) => console.log(err));
+    if (item.owner.length === 1) {
+      await axios
+        .get(`${API_URL}/account/${item.owner}`)
+        .then((user) => {
+          if (user)
+            item.ownerName =
+              item.owner[0] === accounts[0] ? "you" : user.data.name;
+          else item.ownerName = item.owner.slice(2, 9).toUpperCase();
+        })
+        .catch((err) => console.log(err));
+    }
 
     if (componentMounted.current) {
+      setLoadingState(true);
       setStatus(status);
       setTicket(item);
-      setLoadingState("loaded");
+      setListing(sortListing);
     }
     return () => {
       componentMounted.current = false;
@@ -170,7 +198,7 @@ function TicketItem() {
 
   return (
     <>
-      {!hasData ? (
+      {!loadingState ? (
         <div className="fixed h-full w-full flex justify-center items-center text-white">
           <p>Not found</p>
         </div>
@@ -254,17 +282,25 @@ function TicketItem() {
                   </div>
                   <div className="flex text-sm space-x-1">
                     <p className="text-text">Organized by</p>
-                    <a href="#" className="text-primary">
+                    <a href={ticket.organizedAddress} className="text-primary">
                       {ticket.organizedName}
                     </a>
                   </div>
                   <div className="flex text-sm space-x-5">
+                    {ticket.owner && ticket.owner.length === 1 && (
+                      <div className="inline-flex space-x-1">
+                        <p className="text-text">{ticket.supply} owned by</p>
+                        <a href={ticket.owner}>{ticket.ownerName}</a>
+                      </div>
+                    )}
+                    {ticket.owner && ticket.owner.length > 1 && (
+                      <div className="inline-flex space-x-1">
+                        <p className="text-text">Owned by</p>
+                        <a href={ticket.owner}>{ticket.owner.length} owners</a>
+                      </div>
+                    )}
                     <div className="inline-flex space-x-1">
-                      <p className="text-text">Owned by</p>
-                      <a href="#">{ticket.ownerName}</a>
-                    </div>
-                    <div className="inline-flex space-x-1">
-                      <p className="text-text">Quantity</p>
+                      <p className="text-text">Supply</p>
                       <p>{ticket.supply}</p>
                       <p className="text-text">total</p>
                     </div>
@@ -301,6 +337,65 @@ function TicketItem() {
                 </div>
                 <div className="h-fit w-full rounded-lg bg-input">
                   <div className="flex items-center p-5 space-x-3">
+                    <Price />
+                    <p>Listings</p>
+                  </div>
+                  <div className="rounded-b-lg divider-x-b">
+                    <div className="grid grid-cols-6 pl-5 py-1 bg-black bg-opacity-20">
+                      <p>Unit Price</p>
+                      <p>USD Unit Price</p>
+                      <p>Quantity</p>
+                      <p>From</p>
+                    </div>
+                    {listing && (
+                      <div
+                        className={`${
+                          listing.length > 5 && "overflow-auto"
+                        } h-full max-h-60`}
+                      >
+                        {listing.map((listing, i) => (
+                          <div
+                            key={i}
+                            className="grid grid-cols-5 divider-x-b pl-5 py-3 text-white"
+                          >
+                            <div className="flex space-x-1">
+                              <p className="text-text">{listing.price}</p>
+                            </div>
+                            <div className="flex space-x-1">
+                              <p className="text-text">{history.price}</p>
+                            </div>
+                            <div className="flex space-x-1">
+                              <p className="text-text">{listing.quantity}</p>
+                            </div>
+                            {listing.seller ? (
+                              <a
+                                href={listing.seller}
+                                className="flex space-x-1 text-primary"
+                              >
+                                <p>
+                                  {lister.filter(
+                                    (user) => user.address === listing.seller
+                                  ).length > 0
+                                    ? lister.filter(
+                                        (user) =>
+                                          user.address === listing.seller
+                                      )[0].name
+                                    : listing.seller.slice(2, 9).toUpperCase()}
+                                </p>
+                              </a>
+                            ) : (
+                              <div></div>
+                            )}
+                            
+                          </div>
+                        ))}
+                        <div className="w-full divider-x-b"></div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="h-fit w-full rounded-lg bg-input">
+                  <div className="flex items-center p-5 space-x-3">
                     <History />
                     <p>History</p>
                   </div>
@@ -330,7 +425,7 @@ function TicketItem() {
                             <p className="text-text">{history.price}</p>
                           </div>
                           <div className="flex space-x-1">
-                            <p className="text-text">{history.supply}</p>
+                            <p className="text-text">{history.quantity}</p>
                           </div>
                           {history.fromAccount ? (
                             <a

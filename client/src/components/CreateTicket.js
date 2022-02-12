@@ -157,15 +157,6 @@ function CreateTicket() {
     });
   };
 
-  const handlePriceChange = (e) => {
-    let { value } = e.target;
-    value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : null;
-    setFormInput({
-      ...formInput,
-      price: value,
-    });
-  };
-
   const handleSubmit = async () => {
     const { name, link, description, location, supply } = formInput;
     if (
@@ -223,7 +214,7 @@ function CreateTicket() {
       fromAccount: { address: returnValues.from, name: "NullAddress" },
       toAccount: { address: returnValues.to },
       price: "",
-      supply: supply,
+      quantity: supply,
       transaction: transaction.transactionHash,
     };
 
@@ -231,29 +222,6 @@ function CreateTicket() {
       .post(`${API_URL}/event`, payload)
       .catch((err) => console.log(err));
     return payload;
-  };
-
-  const createMarketItem = async (tokenId) => {
-    let transaction = await ticketContract.methods
-      .createMarketItem(tokenId, formInput.price, formInput.supply)
-      .send({ from: account });
-    let block = await web3.eth.getBlock(transaction.blockNumber);
-    let returnValues = transaction.events.MarketItemCreated.returnValues;
-    console.log(transaction);
-
-    let payload = {
-      tokenId: returnValues.tokenId,
-      eventTimestamp: block.timestamp,
-      eventType: "List",
-      isMint: false,
-      fromAccount: { address: returnValues.seller },
-      // price: formInput.price,
-      transaction: transaction.transactionHash,
-    };
-
-    await axios
-      .post(`${API_URL}/event`, payload)
-      .catch((err) => console.log(err));
   };
 
   return (
