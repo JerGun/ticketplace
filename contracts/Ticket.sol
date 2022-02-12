@@ -24,11 +24,13 @@ contract Ticket is ERC1155 {
     struct Item {
         uint256 tokenId;
         uint256 supply;
+        address owner;
+        address minter;
     }
 
     mapping(address => Item[]) public ownedTokens;
     mapping(address => Item[]) public createdTokens;
-    mapping(address => Item[]) public ListTokens;
+    mapping(address => Item[]) public listedTokens;
 
     constructor() ERC1155("https://ipfs.infura.io") {
         owner = payable(msg.sender);
@@ -81,7 +83,9 @@ contract Ticket is ERC1155 {
 
         _mint(msg.sender, newItemId, supply, "");
         setTokenUri(newItemId, tokenUri);
-        createdTokens[msg.sender].push(Item(newItemId, supply));
+        createdTokens[msg.sender].push(
+            Item(newItemId, supply, msg.sender, msg.sender)
+        );
         return newItemId;
     }
 
@@ -105,7 +109,9 @@ contract Ticket is ERC1155 {
             false
         );
 
-        ListTokens[msg.sender].push(Item(tokenId, supply));
+        listedTokens[msg.sender].push(
+            Item(tokenId, supply, msg.sender, msg.sender)
+        );
 
         safeTransferFrom(msg.sender, address(this), tokenId, supply, "");
 
@@ -135,6 +141,15 @@ contract Ticket is ERC1155 {
         returns (Item[] memory)
     {
         Item[] memory items = ownedTokens[account];
+        return items;
+    }
+
+    function fetchListedItems(address account)
+        public
+        view
+        returns (Item[] memory)
+    {
+        Item[] memory items = listedTokens[account];
         return items;
     }
 
