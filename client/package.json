@@ -5,6 +5,7 @@
   "private": true,
   "dependencies": {
     "@headlessui/react": "^1.4.3",
+    "@lottiefiles/react-lottie-player": "^3.4.1",
     "@tailwindcss/line-clamp": "^0.3.1",
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
@@ -19,6 +20,7 @@
     "react-app-rewired": "^2.1.11",
     "react-custom-scrollbars": "^4.2.1",
     "react-dom": "^17.0.2",
+    "react-fade-in": "^2.0.1",
     "react-nice-dates": "^3.1.0",
     "react-router-dom": "^6.2.1",
     "react-scripts": "5.0.0",
