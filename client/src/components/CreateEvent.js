@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { enGB } from "date-fns/locale";
 import { DateRangePicker, START_DATE, END_DATE } from "react-nice-dates";
 import "react-nice-dates/build/style.css";
+import formatter from "../formatter";
 
 import { ReactComponent as Photo } from "../assets/icons/photo.svg";
 import { ReactComponent as Calendar } from "../assets/icons/calendar.svg";
@@ -79,8 +80,8 @@ function CreateEvent() {
     description: "",
     location: "",
   });
-  const [startDate, setStartDate] = useState();
-  const [endDate, setEndDate] = useState();
+  const [tempStartDate, setTempStartDate] = useState();
+  const [tempEndDate, setTempEndDate] = useState();
   const [startTime, setStartTime] = useState("Start Time");
   const [endTime, setEndTime] = useState("End Time");
   const [fileUrl, setFileUrl] = useState(null);
@@ -138,14 +139,16 @@ function CreateEvent() {
     const { name, link, description, location, supply } = formInput;
     if (
       !name ||
-      !startDate ||
-      !endDate ||
+      !tempStartDate ||
+      !tempEndDate ||
       !startTime ||
       !endTime ||
       !location ||
       !fileUrl
     )
       return;
+    let startDate = formatter.formatDate(new Date(tempStartDate));
+    let endDate = formatter.formatDate(new Date(tempEndDate));
     const data = JSON.stringify({
       name,
       link,
@@ -161,11 +164,13 @@ function CreateEvent() {
       const added = await client.add(data);
       const url = `https://ipfs.infura.io/ipfs/${added.path}`;
 
-      mintToken(url)
-        .then((result) => {
-          console.log(result);
-        })
-        .catch((err) => console.log(err));
+      console.log(data);
+      // mintToken(url)
+      //   .then((result) => {
+      //     console.log(result);
+      //     navigate("/account/created");
+      //   })
+      //   .catch((err) => console.log(err));
     } catch (err) {
       console.log("Error uploading file: ", err);
     }
@@ -197,7 +202,7 @@ function CreateEvent() {
   };
 
   return (
-    <div className="h-fit w-full p-10 bg-background">
+    <div className="h-full w-full p-10 bg-background">
       <div className="h-full mx-28 text-white">
         <p className="text-4xl font-bold py-5">Create new event</p>
         <div className="h-full w-full flex space-x-20">
@@ -294,10 +299,10 @@ function CreateEvent() {
               </div>
             </div>
             <DateRangePicker
-              startDate={startDate}
-              endDate={endDate}
-              onStartDateChange={setStartDate}
-              onEndDateChange={setEndDate}
+              startDate={tempStartDate}
+              endDate={tempEndDate}
+              onStartDateChange={setTempStartDate}
+              onEndDateChange={setTempEndDate}
               minimumDate={new Date()}
               minimumLength={1}
               format="dd MMM yyyy"

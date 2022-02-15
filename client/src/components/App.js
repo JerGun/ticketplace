@@ -8,6 +8,7 @@ import Navbar from "./Navbar";
 import Tickets from "./Tickets";
 import Home from "./Home";
 import Account from "./Account";
+import CreateEvent from "./CreateEvent";
 import CreateTicket from "./CreateTicket";
 import TicketItem from "./TicketItem";
 import CustomScrollbars from "./CustomScrollbars";
@@ -17,6 +18,8 @@ import Confirm from "./Confirm";
 import SettingAccount from "./AccountSettings";
 import VerifyRequest from "./VerifyRequest";
 import ListTicket from "./ListTicket";
+import Events from "./Events";
+import EventItem from "./EventItem";
 
 function App() {
   const [web3, setWeb3] = useState();
@@ -93,14 +96,12 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="tickets" element={<Tickets />} />
               <Route path="ticket/:tokenId" element={<TicketItem />} />
-              <Route
-                path="ticket/create"
-                element={<CreateTicket/>}
-              />
-              <Route
-                path="ticket/:tokenId/sell"
-                element={<ListTicket />}
-              />
+              {/* <Route path="ticket/create" element={<CreateTicket />} /> */}
+              <Route path="event/create" element={<CreateEvent />} />
+              <Route path="event/:eventId/ticket/create" element={<CreateTicket />} />
+              <Route path="ticket/:tokenId/sell" element={<ListTicket />} />
+              <Route path="events" element={<Events />} />
+              <Route path="event/:eventId" element={<EventItem />} />
               <Route path="account/setup" element={<SetUpOrganizer />} />
               <Route path="account/settings" element={<SettingAccount />} />
               <Route path="/confirm/:id" element={<Confirm />} />
@@ -108,9 +109,7 @@ function App() {
               <Route path="verify-request" element={<VerifyRequest />} />
               <Route
                 path="simple"
-                element={
-                  <SimpleStorage account={account} />
-                }
+                element={<SimpleStorage account={account} />}
               />
             </Routes>
           </div>

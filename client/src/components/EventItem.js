@@ -6,13 +6,17 @@ import QueryNavLink from "./QueryNavLink";
 import Event from "../contracts/Event.json";
 import { API_URL } from "../config";
 import Loading from "./Loading";
+import { useParams } from "react-router-dom";
 
-import { ReactComponent as Info } from "../assets/icons/info.svg";
 import { ReactComponent as Cart } from "../assets/icons/cart.svg";
 import { ReactComponent as Down } from "../assets/icons/down.svg";
 import { ReactComponent as Close } from "../assets/icons/close.svg";
 import { ReactComponent as BNB } from "../assets/icons/bnb.svg";
-import { useParams } from "react-router-dom";
+import { ReactComponent as Edit } from "../assets/icons/edit.svg";
+import { ReactComponent as Calendar } from "../assets/icons/calendar.svg";
+import { ReactComponent as External } from "../assets/icons/external.svg";
+import { ReactComponent as Location } from "../assets/icons/location.svg";
+import { ReactComponent as Ticket } from "../assets/icons/ticket.svg";
 
 const listOption = [
   { title: "Recently Listed", value: "recently" },
@@ -47,6 +51,11 @@ function EventItem() {
       name: eventMeta.data.name,
       link: eventMeta.data.link,
       description: eventMeta.data.description,
+      location: eventMeta.data.location,
+      startDate: eventMeta.data.startDate,
+      endDate: eventMeta.data.endDate,
+      startTime: eventMeta.data.startTime,
+      endTime: eventMeta.data.endTime,
     };
 
     const ticketsData = await eventContract.methods
@@ -99,21 +108,64 @@ function EventItem() {
         </div>
       ) : (
         <>
-          <div className="sticky w-full flex flex-col items-center text-white bg-background shadow-lg">
-            <img
-              src={event.image}
-              alt=""
-              className="h-64 w-full object-cover"
-            />
-            <div className="py-3 space-y-3 text-center">
-              <p className="text-4xl">{event.name}</p>
-              <div className="flex space-x-1">
-                <p>Created by</p>
-                <p className="text-primary">{event.name}</p>
+          <div className="sticky w-full flex justify-center text-white shadow-lg">
+            <div className="absolute h-full w-full pb-1 opacity-50">
+              <img
+                src={event.image}
+                alt=""
+                className=" h-full w-full object-cover blur-sm"
+              />
+            </div>
+            <div className="h-full w-9/12 py-10 z-10 flex items-center">
+              <div className="h-96 w-4/12">
+                <img
+                  src={event.image}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
               </div>
-              <div className="text-center text-2xl">
-                <p>{tickets.length}</p>
-                <p>{tickets.length < 2 ? "ticket" : "tickets"}</p>
+              <div className="relative h-96 w-full px-20 flex items-center bg-modal-button bg-opacity-95">
+                <div className="absolute flex space-x-5 top-5 right-5">
+                  <button
+                    data-tip="Share"
+                    className="h-11 w-11 flex justify-center items-center rounded-lg bg-hover"
+                    // onClick={copyURL}
+                  >
+                    <Edit className="scale-50" />
+                  </button>
+                  <a
+                    data-tip="External Link"
+                    target={"_blank"}
+                    href={event.link}
+                    className="h-11 w-11 flex justify-center items-center rounded-lg bg-hover"
+                  >
+                    <External />
+                  </a>
+                </div>
+                <div className="w-fit space-y-3 text-left">
+                  <div>
+                    <div className="flex space-x-1">
+                      <p>Created by</p>
+                      <p className="text-primary">{event.name}</p>
+                    </div>
+                    <p className="text-4xl">{event.name}</p>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Calendar className="h-6 w-6" />
+                    <p>
+                      {event.startDate} at {event.startTime} - {event.endDate}{" "}
+                      at {event.endTime}
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Location className="h-6 w-6" />
+                    <p>{event.location}</p>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Ticket className="h-6 w-6" />
+                    <p>{tickets.length} {tickets.length < 2 ? "ticket" : "tickets"}</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
