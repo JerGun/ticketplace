@@ -61,10 +61,10 @@ function Navbar({ connectWallet, account }) {
           {account.length !== 0 && (
             <div className="relative h-full w-fit flex items-center hover:text-white">
               <Link
-                to="/ticket/create"
+                to="/event/create"
                 className="h-full w-full px-5 flex items-center"
               >
-                Create Ticket
+                Create Event
               </Link>
               {location.pathname === "/ticket/create" ? (
                 <span className="absolute h-1 w-full bottom-0 left-0 rounded-t-lg bg-primary"></span>

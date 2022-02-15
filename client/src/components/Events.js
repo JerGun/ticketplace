@@ -3,7 +3,6 @@ import Web3 from "web3";
 import axios from "axios";
 import Event from "../contracts/Event.json";
 import QueryNavLink from "./QueryNavLink";
-import formatter from "../formatter";
 
 import { ReactComponent as More } from "../assets/icons/more.svg";
 
@@ -42,8 +41,8 @@ function Created() {
           image: meta.data.image,
           name: meta.data.name,
           link: meta.data.link,
-          startDate: formatter.formatDate(new Date(meta.data.startDate)),
-          endDate: formatter.formatDate(new Date(meta.data.endDate)),
+          startDate: meta.data.startDate,
+          endDate: meta.data.endDate,
           description: meta.data.description,
         };
         return item;
