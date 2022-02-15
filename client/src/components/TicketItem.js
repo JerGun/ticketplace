@@ -7,6 +7,7 @@ import axios from "axios";
 import Ticket from "../contracts/Ticket.json";
 import { API_URL } from "../config";
 import formatter from "../formatter";
+import Loading from "./Loading";
 
 import { ReactComponent as Price } from "../assets/icons/price.svg";
 import { ReactComponent as BNB } from "../assets/icons/bnb.svg";
@@ -30,11 +31,11 @@ function TicketItem() {
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [showAddFundsModal, setShowAddFundsModal] = useState(false);
   const [ticket, setTicket] = useState([]);
-  const [loadingState, setLoadingState] = useState(false);
   const [history, setHistory] = useState([]);
   const [status, setStatus] = useState();
   const [listing, setListing] = useState();
   const [lister, setLister] = useState();
+  const [loadingState, setLoadingState] = useState(false);
 
   const params = useParams();
   const location = useLocation();
@@ -121,8 +122,8 @@ function TicketItem() {
       supply: data.supply,
       description: meta.data.description,
       location: meta.data.location,
-      startDate: formatter.formatDate(new Date(meta.data.startDate)),
-      endDate: formatter.formatDate(new Date(meta.data.endDate)),
+      startDate: meta.data.startDate,
+      endDate: meta.data.endDate,
       startTime: meta.data.startTime,
       endTime: meta.data.endTime,
     };
@@ -199,8 +200,8 @@ function TicketItem() {
   return (
     <>
       {!loadingState ? (
-        <div className="fixed h-full w-full flex justify-center items-center text-white">
-          <p>Not found</p>
+        <div className="h-full w-full flex justify-center items-center">
+          <Loading loading={loadingState} />
         </div>
       ) : (
         <div className="h-auto w-full p-10 bg-background">
@@ -341,7 +342,7 @@ function TicketItem() {
                     <p>Listings</p>
                   </div>
                   <div className="rounded-b-lg divider-x-b">
-                    <div className="grid grid-cols-6 pl-5 py-1 bg-black bg-opacity-20">
+                    <div className="grid grid-cols-5 pl-5 py-1 bg-black bg-opacity-20">
                       <p>Unit Price</p>
                       <p>USD Unit Price</p>
                       <p>Quantity</p>
@@ -386,7 +387,6 @@ function TicketItem() {
                             ) : (
                               <div></div>
                             )}
-                            
                           </div>
                         ))}
                         <div className="w-full divider-x-b"></div>
