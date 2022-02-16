@@ -5,6 +5,7 @@ import Event from "../contracts/Event.json";
 import QueryNavLink from "./QueryNavLink";
 
 import { ReactComponent as More } from "../assets/icons/more.svg";
+import { Link } from "react-router-dom";
 
 function Created() {
   const [events, setEvents] = useState([]);
@@ -65,7 +66,7 @@ function Created() {
               key={i}
               className="h-fit w-full rounded-lg shadow-lg float-right bg-modal-button"
             >
-              <QueryNavLink to={`/event/${event.tokenId}`}>
+              <Link to={`/event/${event.tokenId}`}>
                 <div className="p-3 space-y-3 shadow-lg">
                   <div className="h-72 w-full">
                     <img
@@ -79,7 +80,7 @@ function Created() {
                     <p className="w-9/12 truncate">{event.name}</p>
                   </div>
                 </div>
-              </QueryNavLink>
+              </Link>
               <div className="px-3 py-2 flex items-center text-text">
                 <button className="scale-75 hover:text-white">
                   <More />
