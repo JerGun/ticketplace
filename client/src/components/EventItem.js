@@ -31,22 +31,24 @@ function EventItem() {
   const [loadingState, setLoadingState] = useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [event, setEvent] = useState();
+  const [owner, setOwner] = useState(false);
 
   const params = useParams();
   const componentMounted = useRef(true);
 
   useEffect(async () => {
     const web3 = new Web3(window.ethereum);
+    const accounts = await web3.eth.getAccounts();
     const networkId = await web3.eth.net.getId();
     const eventContract = new web3.eth.Contract(
       Event.abi,
       Event.networks[networkId].address
     );
 
-    const eventUri = await eventContract.methods.uri(params.eventId).call();
     const event = await eventContract.methods.fetchEvent(params.eventId).call();
+    const eventUri = await eventContract.methods.uri(params.eventId).call();
     const eventMeta = await axios.get(eventUri);
-    console.log(event);
+    console.log(event,eventMeta.data);
     let eventItem = {
       image: eventMeta.data.image,
       name: eventMeta.data.name,
@@ -88,6 +90,7 @@ function EventItem() {
       })
     );
     console.log(items);
+    if (event.owner === accounts[0]) setOwner(true);
 
     if (componentMounted.current) {
       setTickets(items);
@@ -131,28 +134,28 @@ function EventItem() {
               </div>
               <div className="relative h-96 w-full px-20 flex items-center bg-modal-button bg-opacity-95">
                 <div className="absolute flex space-x-5 top-5 right-5">
-                  <Link
+                  {owner && <Link
                     to={`/event/${params.eventId}`}
                     data-tip="Share"
                     className="h-11 w-11 flex justify-center items-center rounded-lg shadow-md bg-hover hover:bg-hover-light"
                   >
                     <Edit className="scale-50" />
-                  </Link>
-                  <a
+                  </Link>}
+                  {event.link && <a
                     data-tip="External Link"
                     target={"_blank"}
                     href={event.link}
                     className="h-11 w-11 flex justify-center items-center rounded-lg shadow-md bg-hover hover:bg-hover-light"
                   >
                     <External />
-                  </a>
-                  <Link
+                  </a>}
+                  {owner && <Link
                     to={`/event/${params.eventId}/ticket/create`}
                     data-tip="Share"
                     className="h-11 w-fit px-5 flex justify-center items-center font-bold rounded-lg shadow-md text-black bg-primary hover:bg-primary-light"
                   >
                     <p>Add ticket</p>
-                  </Link>
+                  </Link>}
                 </div>
                 <div className="w-fit space-y-10 text-left">
                   <div>
@@ -270,7 +273,7 @@ function EventItem() {
                       key={i}
                       className="h-fit w-full rounded-lg shadow-lg float-right bg-modal-button"
                     >
-                      <Link to={`/ticket/${ticket.tokenId}`}>
+                      <Link to={`ticket/${ticket.tokenId}`}>
                         <div className="p-3 space-y-3 shadow-lg">
                           <div className="h-72 w-full">
                             <img
@@ -284,11 +287,15 @@ function EventItem() {
                               {ticket.startDate} - {ticket.endDate}
                             </p>
                             <p className="w-10/12 truncate">{ticket.name}</p>
-                            <p className="text-lg">{ticket.price} BNB</p>
+                            <div className="w-full flex justify-between items-center">
+                              <p className="text-lg">{ticket.price} BNB</p>
+                              <p className="text-sm text-text">~ THB</p>
+                            </div>
                           </div>
                         </div>
                       </Link>
-                      <div className="px-3 py-2 flex items-center text-text">
+                      <div className="px-3 py-2 flex items-center space-x-5 justify-between text-text">
+                        <p className="w-full text-sm truncate">Token ID: {ticket.tokenId}</p>
                         <button className="py-2 text-primary">
                           <Cart />
                         </button>
