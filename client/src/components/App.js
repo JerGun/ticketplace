@@ -95,7 +95,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="tickets" element={<Tickets />} />
-              <Route path="ticket/:tokenId" element={<TicketItem />} />
+              <Route path="event/:eventId/ticket/:ticketId" element={<TicketItem />} />
               {/* <Route path="ticket/create" element={<CreateTicket />} /> */}
               <Route path="event/create" element={<CreateEvent />} />
               <Route
