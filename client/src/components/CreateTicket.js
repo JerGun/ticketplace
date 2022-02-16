@@ -163,8 +163,9 @@ function CreateTicket() {
     const { name, link, description, location, quantity, price } = formInput;
     if (
       !name ||
-      !startDate ||
-      !endDate ||
+      !description ||
+      !tempStartDate ||
+      !tempEndDate ||
       !startTime ||
       !endTime ||
       !location ||
@@ -189,7 +190,7 @@ function CreateTicket() {
       const added = await client.add(data);
       const url = `https://ipfs.infura.io/ipfs/${added.path}`;
 
-      mintToken(url, formInput.quantity)
+      mintToken(url, quantity, price)
         .then((result) => {
           console.log(result);
           navigate(`/event/${params.eventId}`);
@@ -200,9 +201,9 @@ function CreateTicket() {
     }
   };
 
-  const mintToken = async (url, quantity) => {
+  const mintToken = async (url, quantity, price) => {
     let transaction = await eventContract.methods
-      .mintTicket(url, params.eventId, quantity)
+      .mintTicket(url, params.eventId, quantity, price)
       .send({ from: account });
     let block = await web3.eth.getBlock(transaction.blockNumber);
     let returnValues = transaction.events.TransferSingle.returnValues;
@@ -314,7 +315,10 @@ function CreateTicket() {
               </div>
             </div>
             <div className="space-y-3">
-              <p>Description</p>
+              <div className="flex space-x-1">
+                <p>Description</p>
+                <p className="text-red-500">*</p>
+              </div>
               <div className="h-fit px-3 py-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
                 <textarea
                   type="text"

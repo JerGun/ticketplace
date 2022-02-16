@@ -165,7 +165,7 @@ function CreateEvent() {
       mintToken(url)
         .then((result) => {
           console.log(result);
-          navigate("/account/created");
+          navigate(`/event/${result.tokenId}`);
         })
         .catch((err) => console.log(err));
     } catch (err) {

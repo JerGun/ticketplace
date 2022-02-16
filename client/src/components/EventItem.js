@@ -73,6 +73,7 @@ function EventItem() {
           tokenId: i.tokenId,
           seller: i.seller,
           owner: i.owner,
+          price: i.price,
           image: meta.data.image,
           name: meta.data.name,
           link: meta.data.link,
@@ -260,7 +261,7 @@ function EventItem() {
             <div className="h-full w-10/12 p-10">
               {tickets.length === 0 ? (
                 <div className="h-full w-full flex justify-center items-center text-3xl">
-                  <p>No items to display</p>
+                  <p>No tickets to display</p>
                 </div>
               ) : (
                 <div className="h-auto w-full grid grid-cols-2 gap-5 pb-10 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
