@@ -23,6 +23,7 @@ module.exports = {
       },
       colors: {
         primary: "#4ED0F5",
+        "primary-light": "#8EE6FF",
         background: "#212428",
         input: "#353840",
         hover: "#48494F",

@@ -72,33 +72,36 @@ function App() {
   };
 
   return (
-    <div className="w-full h-screen bg-background">
-      <CustomScrollbars>
-        <Router>
-          <Navbar connectWallet={connectWallet} account={account} />
-          <div
-            className={
-              network !== 97
-                ? "absolute h-12 w-full flex justify-center items-center space-x-3 bg-alert"
-                : "hidden"
-            }
-          >
-            <p>
-              Your wallet is connected to other network. To use Ticketplace,
-              please switch to BSC Testnet network.
-            </p>
-            <button>
-              <Close />
-            </button>
-          </div>
-          <div className="h-full pt-18">
+    <div className="w-full h-screen bg-background overflow-hidden">
+      <Router>
+        <Navbar connectWallet={connectWallet} account={account} />
+        <div
+          className={
+            network !== 97
+              ? "absolute h-12 w-full flex justify-center items-center space-x-3 bg-alert"
+              : "hidden"
+          }
+        >
+          <p>
+            Your wallet is connected to other network. To use Ticketplace,
+            please switch to BSC Testnet network.
+          </p>
+          <button>
+            <Close />
+          </button>
+        </div>
+        <CustomScrollbars>
+          <div className="h-full">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="tickets" element={<Tickets />} />
               <Route path="ticket/:tokenId" element={<TicketItem />} />
               {/* <Route path="ticket/create" element={<CreateTicket />} /> */}
               <Route path="event/create" element={<CreateEvent />} />
-              <Route path="event/:eventId/ticket/create" element={<CreateTicket />} />
+              <Route
+                path="event/:eventId/ticket/create"
+                element={<CreateTicket />}
+              />
               <Route path="ticket/:tokenId/sell" element={<ListTicket />} />
               <Route path="events" element={<Events />} />
               <Route path="event/:eventId" element={<EventItem />} />
@@ -113,8 +116,8 @@ function App() {
               />
             </Routes>
           </div>
-        </Router>
-      </CustomScrollbars>
+        </CustomScrollbars>
+      </Router>
     </div>
   );
 }

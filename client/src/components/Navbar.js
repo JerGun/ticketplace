@@ -14,7 +14,7 @@ function Navbar({ connectWallet, account }) {
     <nav
       className={`${
         location.pathname === "/" ? " bg-indigo-500" : "shadow-lg bg-background"
-      } fixed top-0 w-full z-30 h-18 grid grid-cols-8 items-center`}
+      } sticky top-0 w-full z-30 h-18 grid grid-cols-8 items-center`}
     >
       <div className="col-span-2 px-5 text-white">
         <Link to="/" className="flex items-center space-x-5">
@@ -73,7 +73,7 @@ function Navbar({ connectWallet, account }) {
           )}
           <div className="relative h-full w-fit hover:text-white">
             <Link
-              to={account.length !== 0 ? "/account" : ""}
+              to={account.length !== 0 && "/account"}
               className="h-full flex items-center space-x-3 px-5"
               onClick={() => {
                 connectWallet();
