@@ -4,7 +4,7 @@ import { Link, useLocation, useParams } from "react-router-dom";
 import ReactTooltip from "react-tooltip";
 import Web3 from "web3";
 import axios from "axios";
-import Ticket from "../contracts/Ticket.json";
+import Event from "../contracts/Event.json";
 import { API_URL } from "../config";
 import formatter from "../formatter";
 import Loading from "./Loading";
@@ -25,7 +25,7 @@ function TicketItem() {
   const [web3, setWeb3] = useState();
   const [account, setAccount] = useState("");
   const [networkId, setNetworkId] = useState();
-  const [ticketContract, setTicketContract] = useState();
+  const [eventContract, setEventContract] = useState();
   const [copy, setCopy] = useState(false);
   const [buttonDisabled, setButtonDisabled] = useState();
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
@@ -33,7 +33,6 @@ function TicketItem() {
   const [ticket, setTicket] = useState([]);
   const [history, setHistory] = useState([]);
   const [status, setStatus] = useState();
-  const [listing, setListing] = useState();
   const [lister, setLister] = useState();
   const [loadingState, setLoadingState] = useState(false);
 
@@ -45,57 +44,19 @@ function TicketItem() {
     const web3 = new Web3(window.ethereum);
     const accounts = await web3.eth.getAccounts();
     const networkId = await web3.eth.net.getId();
-    const ticketContract = new web3.eth.Contract(
-      Ticket.abi,
-      Ticket.networks[networkId].address
+    const eventContract = new web3.eth.Contract(
+      Event.abi,
+      Event.networks[networkId].address
     );
     setWeb3(web3);
     setAccount(accounts[0]);
     setNetworkId(networkId);
-    setTicketContract(ticketContract);
+    setEventContract(eventContract);
 
-    const createdItems = await ticketContract.methods
-      .fetchCreatedItems(accounts[0])
-      .call();
-
-    const listedItems = await ticketContract.methods
-      .fetchListedItems(accounts[0])
-      .call();
-
-    const createdItemsFilter = createdItems.filter(
-      (item) => item.tokenId === params.tokenId
-    );
-    const ListedItemsFilter = listedItems.filter(
-      (item) => item.tokenId === params.tokenId
-    );
-
-    let data;
     let status;
     let payload = { address: [] };
 
-    if (
-      ListedItemsFilter.length > 0 &&
-      ListedItemsFilter[0].minter === accounts[0]
-    ) {
-      status = "Listed";
-      data = ListedItemsFilter[0];
-    } else if (createdItemsFilter.length > 0) {
-      status = "Created";
-      data = createdItemsFilter[0];
-    }
-
-    const listingData = await ticketContract.methods
-      .fetchMarketItem(params.tokenId)
-      .call();
-
-    let sortListing = [...listingData];
-
-    listingData.map(async (i) => {
-      payload.address.push(i.seller);
-    });
-
     console.log(payload);
-    sortListing.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
     axios
       .post(`${API_URL}/accountsByAddress`, payload)
       .then((user) => {
@@ -104,22 +65,26 @@ function TicketItem() {
       })
       .catch((err) => console.log(err));
 
-    console.log(listingData);
-
-    const tokenUri = await ticketContract.methods.uri(params.tokenId).call();
-    const meta = await axios.get(tokenUri);
-    console.log(status, { data: data, meta: meta, listingData: listingData });
+    const ticket = await eventContract.methods
+      .fetchTicket(params.tokenId)
+      .call();
+    const event = await eventContract.methods
+      .fetchEvent(ticket.eventTokenId)
+      .call();
+    const ticketUri = await eventContract.methods.uri(params.tokenId).call();
+    const meta = await axios.get(ticketUri);
+    console.log(status, { data: ticket, meta: meta });
     let item = {
-      itemId: data.itemId,
-      tokenId: data.tokenId,
-      seller: data.seller,
-      owner: data.owner,
-      minter: data.minter,
+      // itemId: data.itemId,
+      tokenId: ticket.tokenId,
+      seller: ticket.seller,
+      owner: ticket.owner,
+      minter: ticket.minter,
       image: meta.data.image,
       name: meta.data.name,
       link: meta.data.link,
-      price: data.price,
-      supply: data.supply,
+      price: ticket.price,
+      supply: ticket.supply,
       description: meta.data.description,
       location: meta.data.location,
       startDate: meta.data.startDate,
@@ -127,7 +92,6 @@ function TicketItem() {
       startTime: meta.data.startTime,
       endTime: meta.data.endTime,
     };
-    console.log(item);
 
     await axios
       .get(`${API_URL}/event/${params.tokenId}`)
@@ -144,28 +108,26 @@ function TicketItem() {
       .get(`${API_URL}/ticket/${params.tokenId}`)
       .then((user) => {
         item.organizedName =
-          item.minter === accounts[0] ? "you" : user.data.name;
+          event.owner === accounts[0] ? "you" : user.data.name;
         item.organizedAddress = user.data.address;
       })
       .catch((err) => console.log(err));
 
-    if (item.owner.length === 1) {
-      await axios
-        .get(`${API_URL}/account/${item.owner}`)
-        .then((user) => {
-          if (user)
-            item.ownerName =
-              item.owner[0] === accounts[0] ? "you" : user.data.name;
-          else item.ownerName = item.owner.slice(2, 9).toUpperCase();
-        })
-        .catch((err) => console.log(err));
-    }
+    await axios
+      .get(`${API_URL}/account/${item.owner}`)
+      .then((user) => {
+        if (user)
+          item.ownerName = item.owner === accounts[0] ? "you" : user.data.name;
+        else item.ownerName = item.owner.slice(2, 9).toUpperCase();
+      })
+      .catch((err) => console.log(err));
+
+    console.log(item, accounts[0]);
 
     if (componentMounted.current) {
       setLoadingState(true);
       setStatus(status);
       setTicket(item);
-      setListing(sortListing);
     }
     return () => {
       componentMounted.current = false;
@@ -204,7 +166,7 @@ function TicketItem() {
           <Loading loading={loadingState} />
         </div>
       ) : (
-        <div className="h-auto w-full p-10 bg-background">
+        <div className="h-auto w-full p-10 pb-32 bg-background">
           <div className="h-full mx-28 text-white">
             <div className="h-full w-full flex space-x-5">
               <div className="w-3/12 space-y-5">
@@ -259,14 +221,16 @@ function TicketItem() {
                   <div className="w-full flex justify-between items-center">
                     <p className="text-3xl">{ticket.name}</p>
                     <div className="flex space-x-5">
-                      <a
-                        data-tip="External Link"
-                        target={"_blank"}
-                        href={ticket.link}
-                        className="h-11 w-11 flex justify-center items-center rounded-lg bg-input"
-                      >
-                        <External />
-                      </a>
+                      {ticket.link && (
+                        <a
+                          data-tip="External Link"
+                          target={"_blank"}
+                          href={ticket.link}
+                          className="h-11 w-11 flex justify-center items-center rounded-lg bg-input"
+                        >
+                          <External />
+                        </a>
+                      )}
                       <button
                         data-tip="Share"
                         className="h-11 w-11 flex justify-center items-center rounded-lg bg-input"
@@ -288,23 +252,15 @@ function TicketItem() {
                     </a>
                   </div>
                   <div className="flex text-sm space-x-5">
-                    {ticket.owner && ticket.owner.length === 1 && (
-                      <div className="inline-flex space-x-1">
-                        <p className="text-text">{ticket.supply} owned by</p>
-                        <a href={ticket.owner}>{ticket.ownerName}</a>
-                      </div>
-                    )}
-                    {ticket.owner && ticket.owner.length > 1 && (
-                      <div className="inline-flex space-x-1">
-                        <p className="text-text">Owned by</p>
-                        <a href={ticket.owner}>{ticket.owner.length} owners</a>
-                      </div>
-                    )}
                     <div className="inline-flex space-x-1">
+                      <p className="text-text">Owned by</p>
+                      <a href={ticket.owner}>{ticket.ownerName}</a>
+                    </div>
+                    {/* <div className="inline-flex space-x-1">
                       <p className="text-text">Supply</p>
                       <p>{ticket.supply}</p>
                       <p className="text-text">total</p>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
                 <div className="h-fit w-full py-5 pl-5 pr-3 rounded-lg bg-input">
@@ -324,19 +280,19 @@ function TicketItem() {
                   <div className="flex items-center space-x-3">
                     <Calendar className="scale-75" />
                     <p>Start at date</p>
-                    <p className="text-text">{ticket.startDate}</p>
-                    <Clock className="scale-75" />
-                    <p className="text-text">{ticket.startTime}</p>
+                    <p className="text-text">
+                      {ticket.startDate} at {ticket.startTime}
+                    </p>
                   </div>
                   <div className="flex items-center space-x-3">
                     <Calendar className="scale-75" />
                     <p>End at date</p>
-                    <p className="text-text">{ticket.endDate}</p>
-                    <Clock className="scale-75" />
-                    <p className="text-text">{ticket.endTime}</p>
+                    <p className="text-text">
+                      {ticket.endDate} at {ticket.endTime}
+                    </p>
                   </div>
                 </div>
-                <div className="h-fit w-full rounded-lg bg-input">
+                {/* <div className="h-fit w-full rounded-lg bg-input">
                   <div className="flex items-center p-5 space-x-3">
                     <Price />
                     <p>Listings</p>
@@ -393,7 +349,7 @@ function TicketItem() {
                       </div>
                     )}
                   </div>
-                </div>
+                </div> */}
                 <div className="h-fit w-full rounded-lg bg-input">
                   <div className="flex items-center p-5 space-x-3">
                     <History />
