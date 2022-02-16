@@ -77,7 +77,6 @@ function CreateEvent() {
   const [formInput, setFormInput] = useState({
     name: "",
     link: "",
-    description: "",
     location: "",
   });
   const [tempStartDate, setTempStartDate] = useState();
@@ -136,7 +135,7 @@ function CreateEvent() {
   };
 
   const handleSubmit = async () => {
-    const { name, link, description, location, supply } = formInput;
+    const { name, link, location } = formInput;
     if (
       !name ||
       !tempStartDate ||
@@ -152,7 +151,6 @@ function CreateEvent() {
     const data = JSON.stringify({
       name,
       link,
-      description,
       startDate,
       endDate,
       startTime,
@@ -164,13 +162,12 @@ function CreateEvent() {
       const added = await client.add(data);
       const url = `https://ipfs.infura.io/ipfs/${added.path}`;
 
-      console.log(data);
-      // mintToken(url)
-      //   .then((result) => {
-      //     console.log(result);
-      //     navigate("/account/created");
-      //   })
-      //   .catch((err) => console.log(err));
+      mintToken(url)
+        .then((result) => {
+          console.log(result);
+          navigate("/account/created");
+        })
+        .catch((err) => console.log(err));
     } catch (err) {
       console.log("Error uploading file: ", err);
     }
@@ -205,6 +202,10 @@ function CreateEvent() {
     <div className="h-full w-full p-10 bg-background">
       <div className="h-full mx-28 text-white">
         <p className="text-4xl font-bold py-5">Create new event</p>
+        <div className="flex space-x-1 py-3 items-center">
+          <p className="text-red-500">*</p>
+          <p className="text-text text-sm">Required fields</p>
+        </div>
         <div className="h-full w-full flex space-x-20">
           <div className="h-full w-3/12">
             <p>Image</p>
@@ -245,7 +246,10 @@ function CreateEvent() {
           </div>
           <div className="w-1/2 space-y-10">
             <div className="space-y-3">
-              <p>Event name</p>
+              <div className="flex space-x-1">
+                <p>Event name</p>
+                <p className="text-red-500">*</p>
+              </div>
               <div className="h-11 px-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
                 <input
                   type="text"
@@ -281,7 +285,7 @@ function CreateEvent() {
                 />
               </div>
             </div>
-            <div className="space-y-3">
+            {/* <div className="space-y-3">
               <p>Description</p>
               <div className="h-fit px-3 py-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
                 <textarea
@@ -297,7 +301,7 @@ function CreateEvent() {
                   }
                 />
               </div>
-            </div>
+            </div> */}
             <DateRangePicker
               startDate={tempStartDate}
               endDate={tempEndDate}
@@ -314,7 +318,10 @@ function CreateEvent() {
                     <div className="w-full flex justify-between">
                       <div className="flex items-center space-x-3">
                         <Calendar />
-                        <p>Start at date</p>
+                        <div className="flex space-x-1">
+                          <p>Start at date</p>
+                          <p className="text-red-500">*</p>
+                        </div>
                       </div>
                       <input
                         type="button"
@@ -387,7 +394,10 @@ function CreateEvent() {
                     <div className="w-full flex justify-between">
                       <div className="flex items-center space-x-3">
                         <Calendar />
-                        <p>End at date</p>
+                        <div className="flex space-x-1">
+                          <p>End at date</p>
+                          <p className="text-red-500">*</p>
+                        </div>
                       </div>
                       <input
                         className={
@@ -461,7 +471,10 @@ function CreateEvent() {
               )}
             </DateRangePicker>
             <div className="space-y-3">
-              <p>Location</p>
+              <div className="flex space-x-1">
+                <p>Location</p>
+                <p className="text-red-500">*</p>
+              </div>
               <div className="h-11 px-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
                 <input
                   type="text"
