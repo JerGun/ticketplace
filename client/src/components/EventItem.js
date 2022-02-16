@@ -6,7 +6,7 @@ import QueryNavLink from "./QueryNavLink";
 import Event from "../contracts/Event.json";
 import { API_URL } from "../config";
 import Loading from "./Loading";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import { ReactComponent as Cart } from "../assets/icons/cart.svg";
 import { ReactComponent as Down } from "../assets/icons/down.svg";
@@ -44,8 +44,9 @@ function EventItem() {
     );
 
     const eventUri = await eventContract.methods.uri(params.eventId).call();
+    const event = await eventContract.methods.fetchEvent(params.eventId).call();
     const eventMeta = await axios.get(eventUri);
-    console.log(eventMeta);
+    console.log(event);
     let eventItem = {
       image: eventMeta.data.image,
       name: eventMeta.data.name,
@@ -68,7 +69,6 @@ function EventItem() {
         const tokenUri = await eventContract.methods.uri(i.tokenId).call();
         const meta = await axios.get(tokenUri);
         let item = {
-          //   price: i.price.toString(),
           itemId: i.itemId,
           tokenId: i.tokenId,
           seller: i.seller,
@@ -77,6 +77,10 @@ function EventItem() {
           name: meta.data.name,
           link: meta.data.link,
           description: meta.data.description,
+          startDate: meta.data.startDate,
+          endDate: meta.data.endDate,
+          startTime: meta.data.startTime,
+          endTime: meta.data.endTime,
         };
         payload.tokenList.push(i.tokenId);
         return item;
@@ -107,13 +111,13 @@ function EventItem() {
           <Loading loading={loadingState} />
         </div>
       ) : (
-        <>
-          <div className="sticky w-full flex justify-center text-white shadow-lg">
+        <div className="sticky">
+          <div className="relative w-full flex justify-center text-white shadow-lg">
             <div className="absolute h-full w-full pb-1 opacity-50">
               <img
                 src={event.image}
                 alt=""
-                className=" h-full w-full object-cover blur-sm"
+                className="h-full w-full object-cover blur-sm"
               />
             </div>
             <div className="h-full w-9/12 py-10 z-10 flex items-center">
@@ -126,23 +130,30 @@ function EventItem() {
               </div>
               <div className="relative h-96 w-full px-20 flex items-center bg-modal-button bg-opacity-95">
                 <div className="absolute flex space-x-5 top-5 right-5">
-                  <button
+                  <Link
+                    to={`/event/${params.eventId}`}
                     data-tip="Share"
-                    className="h-11 w-11 flex justify-center items-center rounded-lg bg-hover"
-                    // onClick={copyURL}
+                    className="h-11 w-11 flex justify-center items-center rounded-lg shadow-md bg-hover hover:bg-hover-light"
                   >
                     <Edit className="scale-50" />
-                  </button>
+                  </Link>
                   <a
                     data-tip="External Link"
                     target={"_blank"}
                     href={event.link}
-                    className="h-11 w-11 flex justify-center items-center rounded-lg bg-hover"
+                    className="h-11 w-11 flex justify-center items-center rounded-lg shadow-md bg-hover hover:bg-hover-light"
                   >
                     <External />
                   </a>
+                  <Link
+                    to={`/event/${params.eventId}/ticket/create`}
+                    data-tip="Share"
+                    className="h-11 w-fit px-5 flex justify-center items-center font-bold rounded-lg shadow-md text-black bg-primary hover:bg-primary-light"
+                  >
+                    <p>Add ticket</p>
+                  </Link>
                 </div>
-                <div className="w-fit space-y-3 text-left">
+                <div className="w-fit space-y-10 text-left">
                   <div>
                     <div className="flex space-x-1">
                       <p>Created by</p>
@@ -150,27 +161,32 @@ function EventItem() {
                     </div>
                     <p className="text-4xl">{event.name}</p>
                   </div>
-                  <div className="flex items-center space-x-3">
-                    <Calendar className="h-6 w-6" />
-                    <p>
-                      {event.startDate} at {event.startTime} - {event.endDate}{" "}
-                      at {event.endTime}
-                    </p>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <Location className="h-6 w-6" />
-                    <p>{event.location}</p>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <Ticket className="h-6 w-6" />
-                    <p>{tickets.length} {tickets.length < 2 ? "ticket" : "tickets"}</p>
+                  <div className="space-y-5">
+                    <div className="flex items-center space-x-3">
+                      <Calendar className="h-6 w-6" />
+                      <p>
+                        {event.startDate} at {event.startTime} - {event.endDate}{" "}
+                        at {event.endTime}
+                      </p>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <Location className="h-6 w-6" />
+                      <p>{event.location}</p>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <Ticket className="h-6 w-6" />
+                      <p>
+                        {tickets.length}{" "}
+                        {tickets.length < 2 ? "ticket" : "tickets"}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
           <div className="h-full w-full flex justify-end text-white bg-background">
-            <div className="h-full w-2/12 p-5 space-y-10 left-0 flex flex-col items-center shadow-lg bg-modal-button">
+            <div className="sticky top-0 h-screen min-h-full w-2/12 p-5 space-y-10 shadow-lg bg-modal-button">
               <div className="w-full space-y-3">
                 <p className="w-full text-2xl font-bold">Sort by</p>
                 <Listbox value={sortBy} onChange={setSortBy}>
@@ -247,13 +263,13 @@ function EventItem() {
                   <p>No items to display</p>
                 </div>
               ) : (
-                <div className="h-auto w-full grid grid-cols-2 gap-5 pb-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                <div className="h-auto w-full grid grid-cols-2 gap-5 pb-10 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                   {tickets.map((ticket, i) => (
                     <div
                       key={i}
                       className="h-fit w-full rounded-lg shadow-lg float-right bg-modal-button"
                     >
-                      <QueryNavLink to={`/ticket/${ticket.tokenId}`}>
+                      <Link to={`/ticket/${ticket.tokenId}`}>
                         <div className="p-3 space-y-3 shadow-lg">
                           <div className="h-72 w-full">
                             <img
@@ -263,11 +279,14 @@ function EventItem() {
                             />
                           </div>
                           <div className="w-full flex flex-col items-start">
+                            <p className="text-sm text-primary">
+                              {ticket.startDate} - {ticket.endDate}
+                            </p>
                             <p className="w-10/12 truncate">{ticket.name}</p>
                             <p className="text-lg">{ticket.price} BNB</p>
                           </div>
                         </div>
-                      </QueryNavLink>
+                      </Link>
                       <div className="px-3 py-2 flex items-center text-text">
                         <button className="py-2 text-primary">
                           <Cart />
@@ -364,8 +383,8 @@ function EventItem() {
                 </div>
               </Dialog>
             </Transition>
-          </div>{" "}
-        </>
+          </div>
+        </div>
       )}
     </>
   );
