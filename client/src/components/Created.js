@@ -3,13 +3,14 @@ import Web3 from "web3";
 import axios from "axios";
 import Event from "../contracts/Event.json";
 import { Link } from "react-router-dom";
+import Loading from "./Loading";
 
 import { ReactComponent as More } from "../assets/icons/more.svg";
 import { ReactComponent as Location } from "../assets/icons/location.svg";
 
 function Created() {
   const [events, setEvents] = useState([]);
-  const [loadingState, setLoadingState] = useState();
+  const [loadingState, setLoadingState] = useState(false);
 
   useEffect(() => {
     loadTickets();
@@ -54,51 +55,59 @@ function Created() {
     console.log(items);
 
     setEvents(items);
-    setLoadingState("loaded");
+    setLoadingState(true);
   };
 
-  if (loadingState === "loaded" && !events.length)
-    return <h1 className="py-10 px-20 text-3xl">No assets owned</h1>;
+  if (loadingState && events.length === 0)
+    return <h1 className="py-10 px-20 text-3xl">No assets created</h1>;
   return (
-    <div className="flex justify-center">
-      <div className="p-4">
-        <div className="h-auto w-full grid grid-cols-2 gap-5 pb-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          {events.map((event, i) => (
-            <div
-              key={i}
-              className="h-fit w-full rounded-lg shadow-lg float-right bg-modal-button"
-            >
-              <Link to={`/event/${event.tokenId}`}>
-                <div className="p-3 space-y-3 shadow-lg">
-                  <div className="h-72 w-full">
-                    <img
-                      src={event.image}
-                      alt=""
-                      className="h-full w-full object-cover rounded-lg"
-                    />
-                  </div>
-                  <div className="w-full flex flex-col items-start space-y-1">
-                    <p className="text-sm text-primary">
-                      {event.startDate} - {event.endDate}
-                    </p>
-                    <p className="w-9/12 truncate">{event.name}</p>
-                    <div className="w-9/12 flex items-center truncate space-x-1">
-                      <Location className="h-4 w-4" />
-                      <p>{event.location}</p>
+    <>
+      {!loadingState ? (
+        <div className="h-full w-full flex justify-center">
+          <Loading loading={loadingState} />
+        </div>
+      ) : (
+        <div className="flex justify-center">
+          <div className="p-4">
+            <div className="h-auto w-full grid grid-cols-2 gap-5 pb-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              {events.map((event, i) => (
+                <div
+                  key={i}
+                  className="h-fit w-full rounded-lg shadow-lg float-right bg-modal-button"
+                >
+                  <Link to={`/event/${event.tokenId}`}>
+                    <div className="p-3 space-y-3 shadow-lg">
+                      <div className="h-72 w-full">
+                        <img
+                          src={event.image}
+                          alt=""
+                          className="h-full w-full object-cover rounded-lg"
+                        />
+                      </div>
+                      <div className="w-full flex flex-col items-start space-y-1">
+                        <p className="text-sm text-primary">
+                          {event.startDate} - {event.endDate}
+                        </p>
+                        <p className="w-9/12 truncate">{event.name}</p>
+                        <div className="w-9/12 flex items-center truncate space-x-1">
+                          <Location className="h-4 w-4" />
+                          <p>{event.location}</p>
+                        </div>
+                      </div>
                     </div>
+                  </Link>
+                  <div className="px-3 py-2 flex items-center text-text">
+                    <button className="scale-75 hover:text-white">
+                      <More />
+                    </button>
                   </div>
                 </div>
-              </Link>
-              <div className="px-3 py-2 flex items-center text-text">
-                <button className="scale-75 hover:text-white">
-                  <More />
-                </button>
-              </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 }
 export default Created;
