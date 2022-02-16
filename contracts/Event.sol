@@ -24,7 +24,9 @@ contract Event is ERC1155 {
 
     struct TicketItem {
         uint256 tokenId;
+        uint256 eventTokenId;
         address payable owner;
+        uint256 price;
     }
 
     struct MarketItem {
@@ -58,26 +60,65 @@ contract Event is ERC1155 {
 
         _mint(msg.sender, newItemId, 1, "");
         setTokenUri(newItemId, tokenUri);
-        createdEvents[msg.sender].push(
-            EventItem(newItemId, payable(msg.sender))
-        );
+        eventToken[newItemId] = EventItem(newItemId, payable(msg.sender));
+        createdEvents[msg.sender].push(eventToken[newItemId]);
     }
 
     function mintTicket(
         string memory tokenUri,
         uint256 eventTokenId,
-        uint256 supply
+        uint256 quantity,
+        uint256 price
     ) public {
-        for (uint256 i = 0; i < supply; i++) {
+        for (uint256 i = 0; i < quantity; i++) {
             _tokenIds.increment();
             uint256 newItemId = _tokenIds.current();
 
             _mint(msg.sender, newItemId, 1, "");
             setTokenUri(newItemId, tokenUri);
-            ticketsInEvent[eventTokenId].push(
-                TicketItem(newItemId, payable(msg.sender))
+            ticketToken[newItemId] = TicketItem(
+                newItemId,
+                eventTokenId,
+                payable(msg.sender),
+                price
             );
+            ticketsInEvent[eventTokenId].push(ticketToken[newItemId]);
+            createMarketItem(newItemId, price);
         }
+    }
+
+    function createMarketItem(uint256 tokenId, uint256 price) public payable {
+        require(price > 0, "Price must be at least 1 wei");
+        _itemIds.increment();
+        uint256 itemId = _itemIds.current();
+
+        ticketInMarket[itemId] = MarketItem(
+            itemId,
+            tokenId,
+            payable(msg.sender),
+            payable(msg.sender),
+            price,
+            false
+        );
+
+        safeTransferFrom(msg.sender, address(this), tokenId, 1, "");
+    }
+
+    function fetchMarketItems() public view returns (MarketItem[] memory) {
+        uint256 itemCount = _itemIds.current();
+        uint256 unsoldItemCount = _itemIds.current() - _itemsSold.current();
+        uint256 currentIndex = 0;
+
+        MarketItem[] memory items = new MarketItem[](unsoldItemCount);
+        for (uint256 i = 0; i < itemCount; i++) {
+            if (!ticketInMarket[i + 1].sold) {
+                uint256 currentId = i + 1;
+                MarketItem storage currentItem = ticketInMarket[currentId];
+                items[currentIndex] = currentItem;
+                currentIndex += 1;
+            }
+        }
+        return items;
     }
 
     function fetchCreatedEvents(address account)
@@ -114,5 +155,34 @@ contract Event is ERC1155 {
     {
         TicketItem memory item = ticketToken[tokenId];
         return item;
+    }
+
+    function onERC1155Received(
+        address,
+        address,
+        uint256,
+        uint256,
+        bytes memory
+    ) public virtual returns (bytes4) {
+        return this.onERC1155Received.selector;
+    }
+
+    function onERC1155BatchReceived(
+        address,
+        address,
+        uint256[] memory,
+        uint256[] memory,
+        bytes memory
+    ) public virtual returns (bytes4) {
+        return this.onERC1155BatchReceived.selector;
+    }
+
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes memory
+    ) public virtual returns (bytes4) {
+        return this.onERC721Received.selector;
     }
 }
