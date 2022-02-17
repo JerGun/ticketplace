@@ -2,15 +2,16 @@ const padTo2Digits = (num) => {
     return num.toString().padStart(2, "0");
   };
   
-exports.timeConverter = (timestamp) => {
-  var ms = Date.now() - timestamp * 1000;
+exports.timeConverter = (date) => {
+  let ms = Date.now() - new Date(date);
+  // var ms = Date.now() - timestamp * 1000;
 
-  var unit = 0;
-  var MINUTE = 60 * 1000;
-  var HOUR = 60 * 60 * 1000;
-  var DAY = 24 * 60 * 60 * 1000;
-  var MONTH = 30 * 24 * 60 * 60 * 1000;
-  var YEAR = 12 * 30 * 24 * 60 * 60 * 1000;
+  let unit = 0;
+  let MINUTE = 60 * 1000;
+  let HOUR = 60 * 60 * 1000;
+  let DAY = 24 * 60 * 60 * 1000;
+  let MONTH = 30 * 24 * 60 * 60 * 1000;
+  let YEAR = 12 * 30 * 24 * 60 * 60 * 1000;
 
   if (ms < 2 * MINUTE) {
     return "a minute ago";
@@ -63,9 +64,10 @@ exports.timeConverter = (timestamp) => {
 }
 };
 
-exports.dateConverter = (timestamp) => {
-  var date = new Date(timestamp * 1000);
-  return `${date.toDateString()}, ${date.toLocaleTimeString()}`;
+exports.dateConverter = (date) => {
+  let newDate = new Date(date);
+  // let date = new Date(timestamp * 1000);
+  return `${newDate.toDateString()}, ${newDate.toLocaleTimeString()}`;
 };
 
 exports.formatDate = (date) => {
