@@ -39,16 +39,14 @@ function TicketItem() {
 
   const params = useParams();
   const isMounted = useRef(true);
+
   useEffect(() => {
     isMounted.current = false;
   }, []);
+  
   useEffect(async () => {
     const account = await getAccount();
-
     const item = await fetchTicket();
-
-    console.log(item, account);
-
     fetchHistory();
     fetchEvent();
     if (isMounted) {
@@ -62,7 +60,6 @@ function TicketItem() {
     const event = await getEvent(params.eventId);
     const eventUri = await getUri(params.eventId);
     const eventMeta = await axios.get(eventUri);
-    console.log(eventMeta);
     setEvent(eventMeta.data);
     const account = await getAccount();
 
@@ -97,21 +94,21 @@ function TicketItem() {
       `https://api.covalenthq.com/v1/97/tokens/${contractAddress}/nft_transactions/${params.ticketId}/?&key=ckey_4ec1eb3bb5aa4b11a16c34b8550`
     );
     const transactions = await fetchData.data.data.items[0].nft_transactions;
-    console.log(transactions);
     setHistory(transactions);
   };
 
   const signEvent = (params) => {
     if (params[1].value === "0x0000000000000000000000000000000000000000")
       return "Minted";
-    if (params[2].value === contractAddress.toLocaleLowerCase()) return "Listed";
+    if (params[2].value === contractAddress.toLocaleLowerCase())
+      return "Listed";
     return "Unknown";
   };
 
-  const fromAccount = (params) => {
-    if (params[1].value === "0x0000000000000000000000000000000000000000")
+  const signAccount = (params) => {
+    if (params.value === "0x0000000000000000000000000000000000000000")
       return "NullAddress";
-    return params[1].value;
+    return params.value.slice(2, 9).toUpperCase();
   };
 
   const copyURL = () => {
@@ -335,7 +332,7 @@ function TicketItem() {
                       } h-full max-h-60`}
                     >
                       {history.map((item, i) => (
-                        <>
+                        <div key={i}>
                           {item.log_events
                             .filter(
                               (item) =>
@@ -343,8 +340,8 @@ function TicketItem() {
                             )
                             .map((history, j) => (
                               <div
-                                key={i + j}
-                                className="grid grid-cols-6 divider-x-b pl-5 py-3 text-white"
+                                key={j}
+                                className="grid grid-cols-5 divider-x-b pl-5 py-3 text-white"
                               >
                                 <div className="flex space-x-1">
                                   <p className="text-text">
@@ -354,27 +351,23 @@ function TicketItem() {
                                 <div className="flex space-x-1">
                                   <p className="text-text">{history.price}</p>
                                 </div>
-                                <div className="flex space-x-1">
-                                  <p className="text-text">
-                                    {history.quantity}
+                                <a
+                                  href={`${window.location.protocol}//${window.location.host}/${history.decoded.params[1].value}`}
+                                  className="flex space-x-1 text-primary"
+                                >
+                                  <p>
+                                    {signAccount(history.decoded.params[1])}
                                   </p>
-                                </div>
-                                {history.fromAccount ? (
+                                </a>
+                                {signEvent(history.decoded.params) !==
+                                "Listed" ? (
                                   <a
-                                    href={history.decoded.params[1].value}
+                                    href={`${window.location.protocol}//${window.location.host}/${history.decoded.params[2].value}`}
                                     className="flex space-x-1 text-primary"
                                   >
-                                    <p>{fromAccount(history.decoded.params)}</p>
-                                  </a>
-                                ) : (
-                                  <div></div>
-                                )}
-                                {history.toAccount ? (
-                                  <a
-                                    href={history.toAccount.address}
-                                    className="flex space-x-1 text-primary"
-                                  >
-                                    <p>{history.toAccount.name}</p>
+                                    <p>
+                                      {signAccount(history.decoded.params[2])}
+                                    </p>
                                   </a>
                                 ) : (
                                   <div></div>
@@ -403,7 +396,7 @@ function TicketItem() {
                                 />
                               </div>
                             ))}
-                        </>
+                        </div>
                       ))}
                       <div className="w-full divider-x-b"></div>
                     </div>
