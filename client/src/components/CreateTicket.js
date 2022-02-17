@@ -10,62 +10,11 @@ import { DateRangePicker, START_DATE, END_DATE } from "react-nice-dates";
 import "react-nice-dates/build/style.css";
 import formatter from "../formatter";
 
-import { ReactComponent as Photo } from "../assets/icons/photo.svg";
 import { ReactComponent as Calendar } from "../assets/icons/calendar.svg";
 import { Listbox, Transition } from "@headlessui/react";
 import CustomScrollbars from "./CustomScrollbars";
 
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
-const time = [
-  "00:00",
-  "00:30",
-  "01:00",
-  "01:30",
-  "02:00",
-  "02:30",
-  "03:00",
-  "03:30",
-  "04:00",
-  "04:30",
-  "05:00",
-  "05:30",
-  "06:00",
-  "06:30",
-  "07:00",
-  "07:30",
-  "08:00",
-  "08:30",
-  "09:00",
-  "09:30",
-  "10:00",
-  "10:30",
-  "11:00",
-  "11:30",
-  "12:00",
-  "12:30",
-  "13:00",
-  "13:30",
-  "14:00",
-  "14:30",
-  "15:00",
-  "15:30",
-  "16:00",
-  "16:30",
-  "17:00",
-  "17:30",
-  "18:00",
-  "18:30",
-  "19:00",
-  "19:30",
-  "20:00",
-  "20:30",
-  "21:00",
-  "21:30",
-  "22:00",
-  "22:30",
-  "23:00",
-  "23:30",
-];
 
 function CreateTicket() {
   const [web3, setWeb3] = useState();
@@ -388,7 +337,7 @@ function CreateTicket() {
                             >
                               <Listbox.Options className="absolute z-10 w-full h-64 mt-3 p-1 bg-white rounded-lg shadow-lg">
                                 <CustomScrollbars>
-                                  {time?.map((item, i) => (
+                                  {formatter.time?.map((item, i) => (
                                     <Listbox.Option key={i} value={item}>
                                       {({ active }) => (
                                         <button
@@ -460,7 +409,7 @@ function CreateTicket() {
                               >
                                 <Listbox.Options className="absolute z-10 w-full h-64 mt-3 p-1 bg-white rounded-lg shadow-lg">
                                   <CustomScrollbars>
-                                    {time?.map((item, i) => (
+                                    {formatter.time?.map((item, i) => (
                                       <Listbox.Option key={i} value={item}>
                                         {({ active }) => (
                                           <button

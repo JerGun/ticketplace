@@ -1,5 +1,4 @@
 import React, { Fragment, useEffect, useState } from "react";
-import Web3 from "web3";
 import axios from "axios";
 import { create as ipfsHttpClient } from "ipfs-http-client";
 import Ticket from "../contracts/Ticket.json";
@@ -10,6 +9,7 @@ import { enGB } from "date-fns/locale";
 import { DateRangePicker, START_DATE, END_DATE } from "react-nice-dates";
 import "react-nice-dates/build/style.css";
 import formatter from "../formatter";
+import { getAccount, mintEvent } from "../services/Web3";
 
 import { ReactComponent as Photo } from "../assets/icons/photo.svg";
 import { ReactComponent as Calendar } from "../assets/icons/calendar.svg";
@@ -17,62 +17,8 @@ import { Listbox, Transition } from "@headlessui/react";
 import CustomScrollbars from "./CustomScrollbars";
 
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
-const time = [
-  "00:00",
-  "00:30",
-  "01:00",
-  "01:30",
-  "02:00",
-  "02:30",
-  "03:00",
-  "03:30",
-  "04:00",
-  "04:30",
-  "05:00",
-  "05:30",
-  "06:00",
-  "06:30",
-  "07:00",
-  "07:30",
-  "08:00",
-  "08:30",
-  "09:00",
-  "09:30",
-  "10:00",
-  "10:30",
-  "11:00",
-  "11:30",
-  "12:00",
-  "12:30",
-  "13:00",
-  "13:30",
-  "14:00",
-  "14:30",
-  "15:00",
-  "15:30",
-  "16:00",
-  "16:30",
-  "17:00",
-  "17:30",
-  "18:00",
-  "18:30",
-  "19:00",
-  "19:30",
-  "20:00",
-  "20:30",
-  "21:00",
-  "21:30",
-  "22:00",
-  "22:30",
-  "23:00",
-  "23:30",
-];
 
 function CreateEvent() {
-  const [web3, setWeb3] = useState();
-  const [account, setAccount] = useState("");
-  const [networkId, setNetworkId] = useState();
-  const [eventContract, setEventContract] = useState();
   const [image, setImage] = useState({ preview: "", raw: "" });
   const [formInput, setFormInput] = useState({
     name: "",
@@ -87,37 +33,31 @@ function CreateEvent() {
 
   const navigate = useNavigate();
 
-  useEffect(async () => {
+  useEffect(() => {
     if (window.ethereum) {
-      const web3 = new Web3(window.ethereum);
-      const accounts = await web3.eth.getAccounts();
-      const networkId = await web3.eth.net.getId();
-      const eventContract = new web3.eth.Contract(
-        Event.abi,
-        Event.networks[networkId].address
-      );
-      setWeb3(web3);
-      setAccount(accounts[0]);
-      setNetworkId(networkId);
-      setEventContract(eventContract);
-      await axios
-        .get(`${API_URL}/account/${accounts[0]}`)
-        .then((response) => {
-          if (response.data) {
-            if (response.data.email) {
-              return response.data.email.length !== 0
-                ? !response.data.verify
-                  ? navigate("/account/settings")
-                  : null
-                : navigate("/account/setup");
-            }
-          } else {
-            navigate("/account/setup");
-          }
-        })
-        .catch((err) => console.log(err));
+      checkEmailVerified();
     }
   }, []);
+
+  const checkEmailVerified = async () => {
+    const account = await getAccount();
+    await axios
+      .get(`${API_URL}/account/${account}`)
+      .then((response) => {
+        if (response.data) {
+          if (response.data.email) {
+            return response.data.email.length !== 0
+              ? !response.data.verify
+                ? navigate("/account/settings")
+                : null
+              : navigate("/account/setup");
+          }
+        } else {
+          navigate("/account/setup");
+        }
+      })
+      .catch((err) => console.log(err));
+  };
 
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
@@ -162,40 +102,11 @@ function CreateEvent() {
       const added = await client.add(data);
       const url = `https://ipfs.infura.io/ipfs/${added.path}`;
 
-      mintToken(url)
-        .then((result) => {
-          console.log(result);
-          navigate(`/event/${result.tokenId}`);
-        })
-        .catch((err) => console.log(err));
+      let transaction = await mintEvent(url);
+      console.log(transaction);
     } catch (err) {
       console.log("Error uploading file: ", err);
     }
-  };
-
-  const mintToken = async (url) => {
-    let transaction = await eventContract.methods
-      .mintEvent(url)
-      .send({ from: account });
-    let block = await web3.eth.getBlock(transaction.blockNumber);
-    let returnValues = transaction.events.TransferSingle.returnValues;
-    console.log(transaction);
-
-    let payload = {
-      tokenId: returnValues.id,
-      eventTimestamp: block.timestamp,
-      eventType: "Minted",
-      isMint: true,
-      fromAccount: { address: returnValues.from, name: "NullAddress" },
-      toAccount: { address: returnValues.to },
-      price: "",
-      transaction: transaction.transactionHash,
-    };
-
-    await axios
-      .post(`${API_URL}/event`, payload)
-      .catch((err) => console.log(err));
-    return payload;
   };
 
   return (
@@ -360,7 +271,7 @@ function CreateEvent() {
                             >
                               <Listbox.Options className="absolute z-10 w-full h-64 mt-3 p-1 bg-white rounded-lg shadow-lg">
                                 <CustomScrollbars>
-                                  {time?.map((item, i) => (
+                                  {formatter.time?.map((item, i) => (
                                     <Listbox.Option key={i} value={item}>
                                       {({ active }) => (
                                         <button
@@ -436,7 +347,7 @@ function CreateEvent() {
                               >
                                 <Listbox.Options className="absolute z-10 w-full h-64 mt-3 p-1 bg-white rounded-lg shadow-lg">
                                   <CustomScrollbars>
-                                    {time?.map((item, i) => (
+                                    {formatter.time?.map((item, i) => (
                                       <Listbox.Option key={i} value={item}>
                                         {({ active }) => (
                                           <button
