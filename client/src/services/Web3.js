@@ -43,11 +43,11 @@ export const mintTicket = (url, eventId, quantity, price) => {
 /* global BigInt */
 export const buyTicket = (itemId, price) => {
   return new Promise(function (res, rej) {
-    console.log(price);
-    web3.eth.getAccounts().then((accounts) => {
-        eventContract.methods
-        .buyMarketItem(itemId, { value: BigInt(price * 10 ** 10) })
-        .send({ from: accounts[0] })
+      console.log(price * 10 ** 10);
+      web3.eth.getAccounts().then((accounts) => {
+      eventContract.methods
+        .buyMarketItem(itemId)
+        .send({ from: accounts[0], value: price * 10 ** 10 })
         .then((result) => res(result));
     });
   });

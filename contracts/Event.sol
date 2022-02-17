@@ -91,6 +91,7 @@ contract Event is ERC1155 {
 
     function createMarketItem(uint256 tokenId, uint256 price) public payable {
         require(price > 0, "Price must be at least 1 wei");
+
         _itemIds.increment();
         uint256 itemId = _itemIds.current();
 
@@ -119,10 +120,11 @@ contract Event is ERC1155 {
         ticketInMarket[itemId].seller.transfer(msg.value);
         ticketInMarket[itemId].owner = payable(msg.sender);
         ticketInMarket[itemId].sold = true;
+        ticketToken[tokenId].owner = payable(msg.sender);
         ticketToken[tokenId].list = false;
         _itemsSold.increment();
 
-        safeTransferFrom(address(this), msg.sender, tokenId, 1, "");
+        _safeTransferFrom(address(this), msg.sender, tokenId, 1, "");
     }
 
     function fetchMarketItem(uint256 tokenId)
