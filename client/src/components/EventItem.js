@@ -48,7 +48,7 @@ function EventItem() {
     const event = await eventContract.methods.fetchEvent(params.eventId).call();
     const eventUri = await eventContract.methods.uri(params.eventId).call();
     const eventMeta = await axios.get(eventUri);
-    console.log(event,eventMeta.data);
+    console.log(event, eventMeta.data);
     let eventItem = {
       image: eventMeta.data.image,
       name: eventMeta.data.name,
@@ -134,28 +134,34 @@ function EventItem() {
               </div>
               <div className="relative h-96 w-full px-20 flex items-center bg-modal-button bg-opacity-95">
                 <div className="absolute flex space-x-5 top-5 right-5">
-                  {owner && <Link
-                    to={`/event/${params.eventId}`}
-                    data-tip="Share"
-                    className="h-11 w-11 flex justify-center items-center rounded-lg shadow-md bg-hover hover:bg-hover-light"
-                  >
-                    <Edit className="scale-50" />
-                  </Link>}
-                  {event.link && <a
-                    data-tip="External Link"
-                    target={"_blank"}
-                    href={event.link}
-                    className="h-11 w-11 flex justify-center items-center rounded-lg shadow-md bg-hover hover:bg-hover-light"
-                  >
-                    <External />
-                  </a>}
-                  {owner && <Link
-                    to={`/event/${params.eventId}/ticket/create`}
-                    data-tip="Share"
-                    className="h-11 w-fit px-5 flex justify-center items-center font-bold rounded-lg shadow-md text-black bg-primary hover:bg-primary-light"
-                  >
-                    <p>Add ticket</p>
-                  </Link>}
+                  {owner && (
+                    <Link
+                      to={`/event/${params.eventId}`}
+                      data-tip="Share"
+                      className="h-11 w-11 flex justify-center items-center rounded-lg shadow-md bg-hover hover:bg-hover-light"
+                    >
+                      <Edit className="scale-50" />
+                    </Link>
+                  )}
+                  {event.link && (
+                    <a
+                      data-tip="External Link"
+                      target={"_blank"}
+                      href={event.link}
+                      className="h-11 w-11 flex justify-center items-center rounded-lg shadow-md bg-hover hover:bg-hover-light"
+                    >
+                      <External />
+                    </a>
+                  )}
+                  {owner && (
+                    <Link
+                      to={`/event/${params.eventId}/ticket/create`}
+                      data-tip="Share"
+                      className="h-11 w-fit px-5 flex justify-center items-center font-bold rounded-lg shadow-md text-black bg-primary hover:bg-primary-light"
+                    >
+                      <p>Add ticket</p>
+                    </Link>
+                  )}
                 </div>
                 <div className="w-fit space-y-10 text-left">
                   <div>
@@ -288,14 +294,18 @@ function EventItem() {
                             </p>
                             <p className="w-10/12 truncate">{ticket.name}</p>
                             <div className="w-full flex justify-between items-center">
-                              <p className="text-lg">{ticket.price} BNB</p>
+                              <p className="text-lg">
+                                {ticket.price / 10 ** 8} BNB
+                              </p>
                               <p className="text-sm text-text">~ THB</p>
                             </div>
                           </div>
                         </div>
                       </Link>
                       <div className="px-3 py-2 flex items-center space-x-5 justify-between text-text">
-                        <p className="w-full text-sm truncate">Token ID: {ticket.tokenId}</p>
+                        <p className="w-full text-sm truncate">
+                          Token ID: {ticket.tokenId}
+                        </p>
                         <button className="py-2 text-primary">
                           <Cart />
                         </button>
