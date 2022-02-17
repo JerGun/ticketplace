@@ -102,8 +102,7 @@ function CreateEvent() {
       const added = await client.add(data);
       const url = `https://ipfs.infura.io/ipfs/${added.path}`;
 
-      let transaction = await mintEvent(url);
-      console.log(transaction);
+      await mintEvent(url).then((result) => navigate(`/event/${result.events.TransferSingle.returnValues.id}`));
     } catch (err) {
       console.log("Error uploading file: ", err);
     }

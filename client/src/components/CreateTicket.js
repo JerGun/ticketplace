@@ -75,21 +75,6 @@ function CreateTicket() {
     }
   }, []);
 
-  const handleImageChange = async (e) => {
-    const file = e.target.files[0];
-    try {
-      const added = await client.add(file);
-      const url = `https://ipfs.infura.io/ipfs/${added.path}`;
-      setFileUrl(url);
-      setImage({
-        preview: url,
-        raw: e.target.files[0],
-      });
-    } catch (error) {
-      console.log("Error uploading file: ", error);
-    }
-  };
-
   const handleQuantityChange = (e) => {
     let { value } = e.target;
     value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : null;
@@ -152,28 +137,11 @@ function CreateTicket() {
 
   const mintToken = async (url, quantity, price) => {
     let transaction = await eventContract.methods
-      .mintTicket(url, params.eventId, quantity, price)
+      .mintTicket(url, params.eventId, quantity, price * 10 ** 8)
       .send({ from: account });
     let block = await web3.eth.getBlock(transaction.blockNumber);
     let returnValues = transaction.events.TransferSingle.returnValues;
     console.log(transaction);
-
-    let payload = {
-      tokenId: returnValues.id,
-      eventTimestamp: block.timestamp,
-      eventType: "Minted",
-      isMint: true,
-      fromAccount: { address: returnValues.from, name: "NullAddress" },
-      toAccount: { address: returnValues.to },
-      price: "",
-      quantity: quantity,
-      transaction: transaction.transactionHash,
-    };
-
-    await axios
-      .post(`${API_URL}/event`, payload)
-      .catch((err) => console.log(err));
-    return payload;
   };
 
   return (
