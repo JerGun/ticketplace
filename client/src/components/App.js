@@ -5,21 +5,21 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { ReactComponent as Close } from "../assets/icons/close.svg";
 
 import Navbar from "./Navbar";
-import Tickets from "./Tickets";
+import Tickets from "./Item/Tickets";
 import Home from "./Home";
-import Account from "./Account";
-import CreateEvent from "./CreateEvent";
-import CreateTicket from "./CreateTicket";
-import TicketItem from "./TicketItem";
+import Account from "./Account/Account";
+import CreateEvent from "./Create/CreateEvent";
+import CreateTicket from "./Create/CreateTicket";
+import TicketItem from "./Item/TicketItem";
 import CustomScrollbars from "./CustomScrollbars";
 import SimpleStorage from "./SimpleStorage";
-import SetUpOrganizer from "./AccountSetup";
+import SetUpOrganizer from "./Account/AccountSetup";
 import Confirm from "./Confirm";
-import SettingAccount from "./AccountSettings";
+import SettingAccount from "./Account/AccountSettings";
 import VerifyRequest from "./VerifyRequest";
 import ListTicket from "./ListTicket";
-import Events from "./Events";
-import EventItem from "./EventItem";
+import Events from "./Item/Events";
+import EventItem from "./Item/EventItem";
 
 function App() {
   const [web3, setWeb3] = useState();

@@ -1,20 +1,18 @@
 import React, { Fragment, useEffect, useState } from "react";
 import axios from "axios";
 import { create as ipfsHttpClient } from "ipfs-http-client";
-import Ticket from "../contracts/Ticket.json";
-import Event from "../contracts/Event.json";
-import { API_URL } from "../config";
 import { useNavigate } from "react-router-dom";
 import { enGB } from "date-fns/locale";
 import { DateRangePicker, START_DATE, END_DATE } from "react-nice-dates";
 import "react-nice-dates/build/style.css";
-import formatter from "../formatter";
-import { getAccount, mintEvent } from "../services/Web3";
+import { API_URL } from "../../config";
+import formatter from "../../formatter";
+import { getAccount, mintEvent } from "../../services/Web3";
 
-import { ReactComponent as Photo } from "../assets/icons/photo.svg";
-import { ReactComponent as Calendar } from "../assets/icons/calendar.svg";
+import { ReactComponent as Photo } from "../../assets/icons/photo.svg";
+import { ReactComponent as Calendar } from "../../assets/icons/calendar.svg";
 import { Listbox, Transition } from "@headlessui/react";
-import CustomScrollbars from "./CustomScrollbars";
+import CustomScrollbars from "../CustomScrollbars";
 
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
 

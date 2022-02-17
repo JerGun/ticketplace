@@ -2,21 +2,21 @@ import { React, Fragment, useState, useEffect, useRef } from "react";
 import Web3 from "web3";
 import axios from "axios";
 import { Dialog, Listbox, Transition } from "@headlessui/react";
-import QueryNavLink from "./QueryNavLink";
-import Event from "../contracts/Event.json";
-import { API_URL } from "../config";
-import Loading from "./Loading";
+import QueryNavLink from "../QueryNavLink";
+import Event from "../../contracts/Event.json";
+import { API_URL } from "../../config";
+import Loading from "../Loading";
 import { Link, useParams } from "react-router-dom";
 
-import { ReactComponent as Cart } from "../assets/icons/cart.svg";
-import { ReactComponent as Down } from "../assets/icons/down.svg";
-import { ReactComponent as Close } from "../assets/icons/close.svg";
-import { ReactComponent as BNB } from "../assets/icons/bnb.svg";
-import { ReactComponent as Edit } from "../assets/icons/edit.svg";
-import { ReactComponent as Calendar } from "../assets/icons/calendar.svg";
-import { ReactComponent as External } from "../assets/icons/external.svg";
-import { ReactComponent as Location } from "../assets/icons/location.svg";
-import { ReactComponent as Ticket } from "../assets/icons/ticket.svg";
+import { ReactComponent as Cart } from "../../assets/icons/cart.svg";
+import { ReactComponent as Down } from "../../assets/icons/down.svg";
+import { ReactComponent as Close } from "../../assets/icons/close.svg";
+import { ReactComponent as BNB } from "../../assets/icons/bnb.svg";
+import { ReactComponent as Edit } from "../../assets/icons/edit.svg";
+import { ReactComponent as Calendar } from "../../assets/icons/calendar.svg";
+import { ReactComponent as External } from "../../assets/icons/external.svg";
+import { ReactComponent as Location } from "../../assets/icons/location.svg";
+import { ReactComponent as Ticket } from "../../assets/icons/ticket.svg";
 
 const listOption = [
   { title: "Recently Listed", value: "recently" },

@@ -1,11 +1,11 @@
 import React, { Fragment, useEffect, useState } from "react";
 import Web3 from "web3";
 import axios from "axios";
-import { API_URL } from "../config";
+import { API_URL } from "../../config";
 import { Dialog, Transition } from "@headlessui/react";
 
-import { ReactComponent as Close } from "../assets/icons/close.svg";
-import { ReactComponent as Email } from "../assets/icons/email.svg";
+import { ReactComponent as Close } from "../../assets/icons/close.svg";
+import { ReactComponent as Email } from "../../assets/icons/email.svg";
 import { useNavigate } from "react-router-dom";
 
 function AccountSetup() {

@@ -1,12 +1,12 @@
 import { React, useState, useEffect } from "react";
 import Web3 from "web3";
 import axios from "axios";
-import Event from "../contracts/Event.json";
 import { Link } from "react-router-dom";
-import Loading from "./Loading";
+import Event from "../../contracts/Event.json";
+import Loading from "../Loading";
 
-import { ReactComponent as More } from "../assets/icons/more.svg";
-import { ReactComponent as Location } from "../assets/icons/location.svg";
+import { ReactComponent as More } from "../../assets/icons/more.svg";
+import { ReactComponent as Location } from "../../assets/icons/location.svg";
 
 function Created() {
   const [events, setEvents] = useState([]);

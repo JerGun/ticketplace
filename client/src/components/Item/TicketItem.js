@@ -3,8 +3,8 @@ import { Dialog, Transition } from "@headlessui/react";
 import { Link, useParams } from "react-router-dom";
 import ReactTooltip from "react-tooltip";
 import axios from "axios";
-import formatter from "../formatter";
-import Loading from "./Loading";
+import formatter from "../../formatter";
+import Loading from "../Loading";
 import {
   contractAddress,
   getUri,
@@ -13,19 +13,19 @@ import {
   getAccount,
   fetchMarketItem,
   buyTicket,
-} from "../services/Web3";
-import { API_URL } from "../config";
+} from "../../services/Web3";
+import { API_URL } from "../../config";
 
-import { ReactComponent as Price } from "../assets/icons/price.svg";
-import { ReactComponent as BNB } from "../assets/icons/bnb.svg";
-import { ReactComponent as External } from "../assets/icons/external.svg";
-import { ReactComponent as Share } from "../assets/icons/share.svg";
-import { ReactComponent as Description } from "../assets/icons/description.svg";
-import { ReactComponent as Location } from "../assets/icons/location.svg";
-import { ReactComponent as Calendar } from "../assets/icons/calendar.svg";
-import { ReactComponent as History } from "../assets/icons/history.svg";
-import { ReactComponent as Close } from "../assets/icons/close.svg";
-import { ReactComponent as Check } from "../assets/icons/check.svg";
+import { ReactComponent as Price } from "../../assets/icons/price.svg";
+import { ReactComponent as BNB } from "../../assets/icons/bnb.svg";
+import { ReactComponent as External } from "../../assets/icons/external.svg";
+import { ReactComponent as Share } from "../../assets/icons/share.svg";
+import { ReactComponent as Description } from "../../assets/icons/description.svg";
+import { ReactComponent as Location } from "../../assets/icons/location.svg";
+import { ReactComponent as Calendar } from "../../assets/icons/calendar.svg";
+import { ReactComponent as History } from "../../assets/icons/history.svg";
+import { ReactComponent as Close } from "../../assets/icons/close.svg";
+import { ReactComponent as Check } from "../../assets/icons/check.svg";
 
 function TicketItem() {
   const [copy, setCopy] = useState(false);

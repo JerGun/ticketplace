@@ -4,18 +4,18 @@ import { Routes, Route, Link, useNavigate } from "react-router-dom";
 import ReactTooltip from "react-tooltip";
 import Web3 from "web3";
 import axios from "axios";
-import { API_URL } from "../config";
+import { API_URL } from "../../config";
 import { create as ipfsHttpClient } from "ipfs-http-client";
 
-import { ReactComponent as Copy } from "../assets/icons/copy.svg";
-import { ReactComponent as Check } from "../assets/icons/check.svg";
-import { ReactComponent as Setting } from "../assets/icons/setting.svg";
-import { ReactComponent as Share } from "../assets/icons/share.svg";
-import { ReactComponent as Edit } from "../assets/icons/edit.svg";
-import { ReactComponent as Verify } from "../assets/icons/verify.svg";
+import { ReactComponent as Copy } from "../../assets/icons/copy.svg";
+import { ReactComponent as Check } from "../../assets/icons/check.svg";
+import { ReactComponent as Setting } from "../../assets/icons/setting.svg";
+import { ReactComponent as Share } from "../../assets/icons/share.svg";
+import { ReactComponent as Edit } from "../../assets/icons/edit.svg";
+import { ReactComponent as Verify } from "../../assets/icons/verify.svg";
 
-import Owned from "./Owned";
-import Created from "./Created";
+import Owned from "../Account/Owned";
+import Created from "../Account/Created";
 
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
 

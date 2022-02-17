@@ -2,16 +2,16 @@ import { React, Fragment, useState, useEffect, useRef } from "react";
 import Web3 from "web3";
 import axios from "axios";
 import { Dialog, Listbox, Transition } from "@headlessui/react";
-import QueryNavLink from "./QueryNavLink";
-import Ticket from "../contracts/Ticket.json";
-import { API_URL } from "../config";
-import Loading from "./Loading";
+import QueryNavLink from "../QueryNavLink";
+import Ticket from "../../contracts/Ticket.json";
+import { API_URL } from "../../config";
+import Loading from "../Loading";
 
-import { ReactComponent as Info } from "../assets/icons/info.svg";
-import { ReactComponent as Cart } from "../assets/icons/cart.svg";
-import { ReactComponent as Down } from "../assets/icons/down.svg";
-import { ReactComponent as Close } from "../assets/icons/close.svg";
-import { ReactComponent as BNB } from "../assets/icons/bnb.svg";
+import { ReactComponent as Info } from "../../assets/icons/info.svg";
+import { ReactComponent as Cart } from "../../assets/icons/cart.svg";
+import { ReactComponent as Down } from "../../assets/icons/down.svg";
+import { ReactComponent as Close } from "../../assets/icons/close.svg";
+import { ReactComponent as BNB } from "../../assets/icons/bnb.svg";
 
 const listOption = [
   { title: "Recently Listed", value: "recently" },

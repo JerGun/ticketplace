@@ -1,10 +1,9 @@
 import { React, useState, useEffect } from "react";
 import Web3 from "web3";
 import axios from "axios";
-import Event from "../contracts/Event.json";
-import QueryNavLink from "./QueryNavLink";
+import Event from "../../contracts/Event.json";
 
-import { ReactComponent as More } from "../assets/icons/more.svg";
+import { ReactComponent as More } from "../../assets/icons/more.svg";
 import { Link } from "react-router-dom";
 
 function Created() {

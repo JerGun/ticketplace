@@ -1,11 +1,11 @@
 import { React, useState, useEffect } from "react";
 import Web3 from "web3";
 import axios from "axios";
-import Ticket from "../contracts/Ticket.json";
-import Market from "../contracts/Market.json";
-import QueryNavLink from "./QueryNavLink";
+import Ticket from "../../contracts/Ticket.json";
+import Market from "../../contracts/Market.json";
+import QueryNavLink from "../QueryNavLink";
 
-import { ReactComponent as Info } from "../assets/icons/info.svg";
+import { ReactComponent as Info } from "../../assets/icons/info.svg";
 
 function Owned() {
   const [tickets, setTickets] = useState([]);
