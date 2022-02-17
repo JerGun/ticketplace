@@ -12,69 +12,79 @@ export const getWeb3 = async () => {
 
 export const getAccount = () => {
   return new Promise(function (res, rej) {
-    web3.eth.getAccounts().then((result) => {
-      res(result[0]);
-    });
+    web3.eth.getAccounts().then((result) => res(result[0]));
   });
 };
 
 export const getNetwork = async () => await web3.eth.net.getId();
 
-export const mintEvent = async (url) => {
+export const mintEvent = (url) => {
   return new Promise(function (res, rej) {
     web3.eth.getAccounts().then((accounts) => {
       eventContract.methods
         .mintEvent(url)
         .send({ from: accounts[0] })
-        .then((result) => {
-          res(result);
-        });
+        .then((result) => res(result));
     });
   });
 };
 
-export const mintTicket = async (url, eventId, quantity, price) => {
+export const mintTicket = (url, eventId, quantity, price) => {
   return new Promise(function (res, rej) {
     web3.eth.getAccounts().then((accounts) => {
       eventContract.methods
         .mintTicket(url, eventId, quantity, price)
         .send({ from: accounts[0] })
-        .then((result) => {
-          res(result);
-        });
+        .then((result) => res(result));
     });
   });
 };
 
-export const getUri = async (tokenId) => {
+/* global BigInt */
+export const buyTicket = (itemId, price) => {
+  return new Promise(function (res, rej) {
+    console.log(price);
+    web3.eth.getAccounts().then((accounts) => {
+        eventContract.methods
+        .buyMarketItem(itemId, { value: BigInt(price * 10 ** 10) })
+        .send({ from: accounts[0] })
+        .then((result) => res(result));
+    });
+  });
+};
+
+export const getUri = (tokenId) => {
   return new Promise(function (res, rej) {
     eventContract.methods
       .uri(tokenId)
       .call()
-      .then((result) => {
-        res(result);
-      });
+      .then((result) => res(result));
   });
 };
 
-export const getEvent = async (tokenId) => {
+export const fetchEvent = (tokenId) => {
   return new Promise(function (res, rej) {
     eventContract.methods
       .fetchEvent(tokenId)
       .call()
-      .then((result) => {
-        res(result);
-      });
+      .then((result) => res(result));
   });
 };
 
-export const getTicket = async (tokenId) => {
+export const fetchTicket = (tokenId) => {
   return new Promise(function (res, rej) {
     eventContract.methods
       .fetchTicket(tokenId)
       .call()
-      .then((result) => {
-        res(result);
-      });
+      .then((result) => res(result));
+  });
+};
+
+export const fetchMarketItem = (tokenId) => {
+  return new Promise(function (res, rej) {
+    eventContract.methods
+      .fetchMarketItem(tokenId)
+      .call()
+      .then((result) => res(result));
   });
 };

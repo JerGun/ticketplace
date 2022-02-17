@@ -27,6 +27,7 @@ contract Event is ERC1155 {
         uint256 eventTokenId;
         address payable owner;
         uint256 price;
+        bool list;
     }
 
     struct MarketItem {
@@ -80,7 +81,8 @@ contract Event is ERC1155 {
                 newItemId,
                 eventTokenId,
                 payable(msg.sender),
-                price
+                price,
+                false
             );
             ticketsInEvent[eventTokenId].push(ticketToken[newItemId]);
             createMarketItem(newItemId, price);
@@ -101,7 +103,43 @@ contract Event is ERC1155 {
             false
         );
 
+        ticketToken[tokenId].list = true;
+
         safeTransferFrom(msg.sender, address(this), tokenId, 1, "");
+    }
+
+    function buyMarketItem(uint256 itemId) public payable {
+        uint256 price = ticketInMarket[itemId].price;
+        uint256 tokenId = ticketInMarket[itemId].tokenId;
+        require(
+            msg.value == price * (10**10),
+            "msg.value != price ** decimals"
+        );
+
+        ticketInMarket[itemId].seller.transfer(msg.value);
+        ticketInMarket[itemId].owner = payable(msg.sender);
+        ticketInMarket[itemId].sold = true;
+        ticketToken[tokenId].list = false;
+        _itemsSold.increment();
+
+        safeTransferFrom(address(this), msg.sender, tokenId, 1, "");
+    }
+
+    function fetchMarketItem(uint256 tokenId)
+        public
+        view
+        returns (MarketItem memory)
+    {
+        uint256 itemCount = _itemIds.current();
+        MarketItem memory item;
+
+        for (uint256 i = 0; i < itemCount; i++) {
+            if (ticketInMarket[i + 1].tokenId == tokenId) {
+                uint256 currentId = i + 1;
+                item = ticketInMarket[currentId];
+            }
+        }
+        return item;
     }
 
     function fetchMarketItems() public view returns (MarketItem[] memory) {
