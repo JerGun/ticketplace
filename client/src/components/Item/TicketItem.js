@@ -26,6 +26,7 @@ import { ReactComponent as Calendar } from "../../assets/icons/calendar.svg";
 import { ReactComponent as History } from "../../assets/icons/history.svg";
 import { ReactComponent as Close } from "../../assets/icons/close.svg";
 import { ReactComponent as Check } from "../../assets/icons/check.svg";
+import { ReactComponent as Tranfer } from "../../assets/icons/tranfer.svg";
 
 function TicketItem() {
   const [copy, setCopy] = useState(false);
@@ -47,12 +48,13 @@ function TicketItem() {
 
   useEffect(async () => {
     const item = await fetchData();
-    const asd = await axios.get(
-      `https://api.covalenthq.com/v1/97/tokens/${contractAddress}/nft_transactions/${params.ticketId}/?&key=ckey_4ec1eb3bb5aa4b11a16c34b8550`
-    );
-    const transactions = await asd.data.data.items[0].nft_transactions;
-    setHistory(transactions);
-    console.log(asd, transactions);
+    // const asd = await axios.get(
+    //   `https://api.covalenthq.com/v1/97/tokens/${contractAddress}/nft_transactions/${params.ticketId}/?&key=ckey_4ec1eb3bb5aa4b11a16c34b8550`
+    // );
+    // const transactions = await asd.data.data.items[0].nft_transactions;
+    // setHistory(transactions);
+    // console.log(asd, transactions);
+    fetchHistory();
     if (isMounted) {
       setLoadingState(true);
       setTicket(item);
@@ -72,7 +74,7 @@ function TicketItem() {
     setEvent(eventMeta.data);
     if (ticket.owner === account) setOwner(true);
 
-    let data = {itemId: ""};
+    let data = { itemId: "" };
     if (ticket.list) {
       data = await fetchMarketItem(params.ticketId);
       console.log(data, params.ticketId);
@@ -130,13 +132,15 @@ function TicketItem() {
     if (params[1].value === "0x0000000000000000000000000000000000000000")
       return "Minted";
     if (params[2].value === contractAddress.toLocaleLowerCase())
-      return "Listed";
-    return "Unknown";
+      return "List";
+    return "Buy";
   };
 
   const signAccount = (params) => {
     if (params.value === "0x0000000000000000000000000000000000000000")
       return "NullAddress";
+    if (params.value === contractAddress.toLocaleLowerCase())
+      return "Ticketplace";
     return params.value.slice(2, 9).toUpperCase();
   };
 
@@ -152,7 +156,9 @@ function TicketItem() {
 
   const handleSubmit = async (itemId, price) => {
     console.log(itemId, price);
-    let transaction = await buyTicket(itemId, price);
+    await buyTicket(itemId, price)
+      .then(window.location.reload())
+      .catch((err) => console.log(err));
   };
 
   return (
@@ -316,70 +322,67 @@ function TicketItem() {
                       >
                         {history.map((item, i) => (
                           <div key={i}>
-                            {item.log_events
-                              .filter((item) => {
-                                item.decoded.params.length > 2 ??
-                                  item.decoded.params[3].value ===
-                                    params.ticketId ;
-                              })
-                              .map((history, j) => (
-                                <div
-                                  key={j}
-                                  className="grid grid-cols-5 divider-x-b pl-5 py-3 text-white"
+                            {item.log_events.map((history, j) => (
+                              <div
+                                key={j}
+                                className="grid grid-cols-5 divider-x-b pl-5 py-3 text-white"
+                              >
+                                <div className="flex space-x-1">
+                                  <p className="text-text">
+                                    {signEvent(history.decoded.params)}
+                                  </p>
+                                </div>
+                                {item.value !== "0" ? (
+                                  <div className="flex space-x-1">
+                                    <div className="flex space-x-2 items-center text-text">
+                                      <BNB className="h-4 w-4" />
+                                      <p>{item.value / 10 ** 18}</p>
+                                      <p>BNB</p>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div></div>
+                                )}
+                                <a
+                                  href={`${window.location.protocol}//${window.location.host}/${history.decoded.params[1].value}`}
+                                  className="flex space-x-1 text-primary"
                                 >
-                                  <div className="flex space-x-1">
-                                    <p className="text-text">
-                                      {signEvent(history.decoded.params)}
-                                    </p>
-                                  </div>
-                                  <div className="flex space-x-1">
-                                    <p className="text-text">{history.price}</p>
-                                  </div>
-                                  <a
-                                    href={`${window.location.protocol}//${window.location.host}/${history.decoded.params[1].value}`}
-                                    className="flex space-x-1 text-primary"
-                                  >
-                                    <p>
-                                      {signAccount(history.decoded.params[1])}
-                                    </p>
-                                  </a>
-                                  {signEvent(history.decoded.params) !==
-                                  "Listed" ? (
-                                    <a
-                                      href={`${window.location.protocol}//${window.location.host}/${history.decoded.params[2].value}`}
-                                      className="flex space-x-1 text-primary"
-                                    >
-                                      <p>
-                                        {signAccount(history.decoded.params[2])}
-                                      </p>
-                                    </a>
-                                  ) : (
-                                    <div></div>
+                                  <p>
+                                    {signAccount(history.decoded.params[1])}
+                                  </p>
+                                </a>
+                                <a
+                                  href={`${window.location.protocol}//${window.location.host}/${history.decoded.params[2].value}`}
+                                  className="flex space-x-1 text-primary"
+                                >
+                                  <p>
+                                    {signAccount(history.decoded.params[2])}
+                                  </p>
+                                </a>
+                                <a
+                                  href={`https://testnet.bscscan.com/tx/${history.tx_hash}`}
+                                  target="_blank"
+                                  className={`${
+                                    history.tx_hash && "text-primary"
+                                  } w-fit flex space-x-1 text-text`}
+                                  data-tip={formatter.dateConverter(
+                                    history.block_signed_at
                                   )}
-                                  <a
-                                    href={`https://testnet.bscscan.com/tx/${history.tx_hash}`}
-                                    target="_blank"
-                                    className={`${
-                                      history.tx_hash && "text-primary"
-                                    } w-fit flex space-x-1 text-text`}
-                                    data-tip={formatter.dateConverter(
+                                >
+                                  <p>
+                                    {formatter.timeConverter(
                                       history.block_signed_at
                                     )}
-                                  >
-                                    <p>
-                                      {formatter.timeConverter(
-                                        history.block_signed_at
-                                      )}
-                                    </p>
-                                  </a>
-                                  <ReactTooltip
-                                    effect="solid"
-                                    place="top"
-                                    offset={{ top: 2, left: 0 }}
-                                    backgroundColor="#5A5A5C"
-                                  />
-                                </div>
-                              ))}
+                                  </p>
+                                </a>
+                                <ReactTooltip
+                                  effect="solid"
+                                  place="top"
+                                  offset={{ top: 2, left: 0 }}
+                                  backgroundColor="#5A5A5C"
+                                />
+                              </div>
+                            ))}
                           </div>
                         ))}
                         <div className="w-full divider-x-b"></div>
