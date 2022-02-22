@@ -7,7 +7,7 @@ import { DateRangePicker, START_DATE, END_DATE } from "react-nice-dates";
 import "react-nice-dates/build/style.css";
 import { API_URL } from "../../config";
 import formatter from "../../formatter";
-import { getAccount, mintEvent } from "../../services/web3";
+import { getAccount, mintEvent } from "../../services/Web3";
 
 import { ReactComponent as Photo } from "../../assets/icons/photo.svg";
 import { ReactComponent as Calendar } from "../../assets/icons/calendar.svg";

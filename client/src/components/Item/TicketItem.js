@@ -14,7 +14,7 @@ import {
   fetchMarketItem,
   buyTicket,
   createMarketItem,
-} from "../../services/web3";
+} from "../../services/Web3";
 import { API_URL } from "../../config";
 
 import { ReactComponent as Price } from "../../assets/icons/price.svg";

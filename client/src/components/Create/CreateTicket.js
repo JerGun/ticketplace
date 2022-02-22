@@ -9,7 +9,7 @@ import "react-nice-dates/build/style.css";
 import { API_URL } from "../../config";
 import formatter from "../../formatter";
 import CustomScrollbars from "../CustomScrollbars";
-import { getAccount, getUri, mintTicket } from "../../services/web3";
+import { getAccount, getUri, mintTicket } from "../../services/Web3";
 
 import { ReactComponent as Calendar } from "../../assets/icons/calendar.svg";
 

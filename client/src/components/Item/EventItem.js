@@ -8,7 +8,7 @@ import {
   fetchEvent,
   getAccount,
   fetchTicketsInEvent,
-} from "../../services/web3";
+} from "../../services/Web3";
 
 import { ReactComponent as Cart } from "../../assets/icons/cart.svg";
 import { ReactComponent as Down } from "../../assets/icons/down.svg";
