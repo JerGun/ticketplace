@@ -40,6 +40,17 @@ export const mintTicket = (url, eventId, quantity, price) => {
   });
 };
 
+export const createMarketItem = (ticketId, price) => {
+  return new Promise(function (res, rej) {
+    web3.eth.getAccounts().then((accounts) => {
+      eventContract.methods
+        .createMarketItem(ticketId, price)
+        .send({ from: accounts[0] })
+        .then((result) => res(result));
+    });
+  });
+};
+
 /* global BigInt */
 export const buyTicket = (itemId, price) => {
   return new Promise(function (res, rej) {
