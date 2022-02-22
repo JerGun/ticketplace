@@ -88,3 +88,12 @@ export const fetchMarketItem = (tokenId) => {
       .then((result) => res(result));
   });
 };
+
+export const fetchTicketsInEvent = (tokenId) => {
+  return new Promise(function (res, rej) {
+    eventContract.methods
+      .fetchTicketsInEvent(tokenId)
+      .call()
+      .then((result) => res(result));
+  });
+};
