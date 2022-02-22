@@ -7,23 +7,22 @@ Ticketplace is a ticket exchange website. that uses Blockchain technology to sol
 ## Project Percentage Division
 Section         | Total (%) | Progress (%)
 --------------  | ----------| -----------
-Smart Contract  | 35%       | 10%
-Frontend        | 25%       | 20%
-Backend         | 10%       | 5%
-Implement       | 20%       | 5%
+Smart Contract  | 35%       | 30%
+Frontend        | 25%       | 15%
+Backend         | 10%       | 10%
+Implement       | 20%       | 10%
 Others          | 10%       | 5%
-**Total**       | **100%**  | **45%**
+**Total**       | **100%**  | **70%**
 ------------------------
 ### Upcoming features
+- [ ] Cancel listing
 - [ ] Verify Request
-    - [ ] Frontend
-        * Verify request form 
-    - [ ] Backend
-        * Admin section - approve or reject request form
-- [ ] Signature request
+- [ ] Transfer ticket to others
+- [] Resell ticket
 ------------------------
 ### Features
 - [x] Connect wallet via MetaMask
 - [x] Setup Ticketplace account
 - [x] Verify email
 - [x] Mint Ticket & Create market sale
+- [x] Buy ticket
