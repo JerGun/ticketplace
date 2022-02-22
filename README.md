@@ -1,9 +1,6 @@
 # Ticketplace
 Ticketplace is a ticket exchange website. that uses Blockchain technology to solve the problem of ticket fraud.
 
-## **Todo list**
-
-
 ## Project Percentage Division
 Section         | Total (%) | Progress (%)
 --------------  | ----------| -----------
@@ -18,7 +15,7 @@ Others          | 10%       | 5%
 - [ ] Cancel listing
 - [ ] Verify Request
 - [ ] Transfer ticket to others
-- [] Resell ticket
+- [ ] Resell ticket
 ------------------------
 ### Features
 - [x] Connect wallet via MetaMask
