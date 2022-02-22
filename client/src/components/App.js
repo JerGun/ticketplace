@@ -95,14 +95,20 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="tickets" element={<Tickets />} />
-              <Route path="event/:eventId/ticket/:ticketId" element={<TicketItem />} />
+              <Route
+                path="event/:eventId/ticket/:ticketId"
+                element={<TicketItem />}
+              />
               {/* <Route path="ticket/create" element={<CreateTicket />} /> */}
               <Route path="event/create" element={<CreateEvent />} />
               <Route
                 path="event/:eventId/ticket/create"
                 element={<CreateTicket />}
               />
-              <Route path="ticket/:tokenId/sell" element={<ListTicket />} />
+              <Route
+                path="event/:eventId/ticket/:tokenId/sell"
+                element={<ListTicket />}
+              />
               <Route path="events" element={<Events />} />
               <Route path="event/:eventId" element={<EventItem />} />
               <Route path="account/setup" element={<SetUpOrganizer />} />

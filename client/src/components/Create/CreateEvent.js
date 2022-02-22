@@ -7,7 +7,7 @@ import { DateRangePicker, START_DATE, END_DATE } from "react-nice-dates";
 import "react-nice-dates/build/style.css";
 import { API_URL } from "../../config";
 import formatter from "../../formatter";
-import { getAccount, mintEvent } from "../../services/Web3";
+import { getAccount, mintEvent } from "../../services/web3";
 
 import { ReactComponent as Photo } from "../../assets/icons/photo.svg";
 import { ReactComponent as Calendar } from "../../assets/icons/calendar.svg";
@@ -100,7 +100,9 @@ function CreateEvent() {
       const added = await client.add(data);
       const url = `https://ipfs.infura.io/ipfs/${added.path}`;
 
-      await mintEvent(url).then((result) => navigate(`/event/${result.events.TransferSingle.returnValues.id}`));
+      await mintEvent(url).then((result) =>
+        navigate(`/event/${result.events.TransferSingle.returnValues.id}`)
+      );
     } catch (err) {
       console.log("Error uploading file: ", err);
     }

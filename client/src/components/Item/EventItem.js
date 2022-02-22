@@ -1,12 +1,14 @@
 import { React, Fragment, useState, useEffect, useRef } from "react";
-import Web3 from "web3";
 import axios from "axios";
 import { Dialog, Listbox, Transition } from "@headlessui/react";
-import QueryNavLink from "../QueryNavLink";
-import Event from "../../contracts/Event.json";
-import { API_URL } from "../../config";
 import Loading from "../Loading";
 import { Link, useParams } from "react-router-dom";
+import {
+  getUri,
+  fetchEvent,
+  getAccount,
+  fetchTicketsInEvent,
+} from "../../services/web3";
 
 import { ReactComponent as Cart } from "../../assets/icons/cart.svg";
 import { ReactComponent as Down } from "../../assets/icons/down.svg";
@@ -32,43 +34,33 @@ function EventItem() {
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [event, setEvent] = useState();
   const [owner, setOwner] = useState(false);
+  const [bnb, setBnb] = useState(0);
 
   const params = useParams();
-  const componentMounted = useRef(true);
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    isMounted.current = false;
+  }, []);
 
   useEffect(async () => {
-    const web3 = new Web3(window.ethereum);
-    const accounts = await web3.eth.getAccounts();
-    const networkId = await web3.eth.net.getId();
-    const eventContract = new web3.eth.Contract(
-      Event.abi,
-      Event.networks[networkId].address
-    );
+    const accounts = getAccount();
+    const ticket = await fetchTicket();
+    const event = await fecthEvent();
+    setTickets(ticket);
+    setEvent(event);
+    fetchBNB();
+    if (event.owner === accounts[0]) setOwner(true);
+    if (isMounted) {
+      setLoadingState(true);
+    }
+  }, []);
 
-    const event = await eventContract.methods.fetchEvent(params.eventId).call();
-    const eventUri = await eventContract.methods.uri(params.eventId).call();
-    const eventMeta = await axios.get(eventUri);
-    console.log(event, eventMeta.data);
-    let eventItem = {
-      image: eventMeta.data.image,
-      name: eventMeta.data.name,
-      link: eventMeta.data.link,
-      description: eventMeta.data.description,
-      location: eventMeta.data.location,
-      startDate: eventMeta.data.startDate,
-      endDate: eventMeta.data.endDate,
-      startTime: eventMeta.data.startTime,
-      endTime: eventMeta.data.endTime,
-    };
-
-    const ticketsData = await eventContract.methods
-      .fetchTicketsInEvent(params.eventId)
-      .call();
-    console.log(ticketsData);
-    let payload = { tokenList: [] };
+  const fetchTicket = async () => {
+    const ticketsData = await fetchTicketsInEvent(params.eventId);
     const items = await Promise.all(
       ticketsData.map(async (i) => {
-        const tokenUri = await eventContract.methods.uri(i.tokenId).call();
+        const tokenUri = await getUri(i.tokenId);
         const meta = await axios.get(tokenUri);
         let item = {
           itemId: i.itemId,
@@ -85,27 +77,42 @@ function EventItem() {
           startTime: meta.data.startTime,
           endTime: meta.data.endTime,
         };
-        payload.tokenList.push(i.tokenId);
         return item;
       })
     );
     console.log(items);
-    if (event.owner === accounts[0]) setOwner(true);
+    return items;
+  };
 
-    if (componentMounted.current) {
-      setTickets(items);
-      setEvent(eventItem);
-      setLoadingState(true);
-    }
-
-    return () => {
-      componentMounted.current = false;
+  const fecthEvent = async () => {
+    const event = await fetchEvent(params.eventId);
+    const eventUri = await getUri(params.eventId);
+    const eventMeta = await axios.get(eventUri);
+    let item = {
+      image: eventMeta.data.image,
+      name: eventMeta.data.name,
+      link: eventMeta.data.link,
+      description: eventMeta.data.description,
+      location: eventMeta.data.location,
+      startDate: eventMeta.data.startDate,
+      endDate: eventMeta.data.endDate,
+      startTime: eventMeta.data.startTime,
+      endTime: eventMeta.data.endTime,
     };
-  }, []);
+    return item;
+  };
 
   const handleChange = (event) => {
     let { value } = event.target;
     value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : null;
+  };
+
+  const fetchBNB = async () => {
+    await axios
+      .get("https://api.coingecko.com/api/v3/coins/binancecoin")
+      .then((result) => {
+        setBnb(result.data.market_data.current_price.thb.toFixed(2));
+      });
   };
 
   return (
@@ -293,12 +300,17 @@ function EventItem() {
                               {ticket.startDate} - {ticket.endDate}
                             </p>
                             <p className="w-10/12 truncate">{ticket.name}</p>
-                            <div className="w-full flex justify-between items-center">
-                              <p className="text-lg">
-                                {ticket.price / 10 ** 8} BNB
-                              </p>
-                              <p className="text-sm text-text">~ THB</p>
-                            </div>
+                            <p className="text-lg">
+                              {ticket.price / 10 ** 8} BNB
+                            </p>
+                            <p className="w-10/12 truncate text-sm text-text">
+                              ~{" "}
+                              {(
+                                (bnb * ticket.price) /
+                                10 ** 8
+                              ).toLocaleString()}{" "}
+                              THB
+                            </p>
                           </div>
                         </div>
                       </Link>

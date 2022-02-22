@@ -1,5 +1,4 @@
 import React, { Fragment, useEffect, useState } from "react";
-import Web3 from "web3";
 import axios from "axios";
 import { create as ipfsHttpClient } from "ipfs-http-client";
 import { useNavigate, useParams } from "react-router-dom";
@@ -7,21 +6,16 @@ import { enGB } from "date-fns/locale";
 import { Listbox, Transition } from "@headlessui/react";
 import { DateRangePicker, START_DATE, END_DATE } from "react-nice-dates";
 import "react-nice-dates/build/style.css";
-import Event from "../../contracts/Event.json";
 import { API_URL } from "../../config";
 import formatter from "../../formatter";
 import CustomScrollbars from "../CustomScrollbars";
+import { getAccount, getUri, mintTicket } from "../../services/web3";
 
 import { ReactComponent as Calendar } from "../../assets/icons/calendar.svg";
 
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
 
 function CreateTicket() {
-  const [web3, setWeb3] = useState();
-  const [account, setAccount] = useState("");
-  const [networkId, setNetworkId] = useState();
-  const [eventContract, setEventContract] = useState();
-  const [image, setImage] = useState({ preview: "", raw: "" });
   const [formInput, setFormInput] = useState({
     name: "",
     link: "",
@@ -35,25 +29,16 @@ function CreateTicket() {
   const [startTime, setStartTime] = useState("Start Time");
   const [endTime, setEndTime] = useState("End Time");
   const [fileUrl, setFileUrl] = useState(null);
+  const [bnb, setBnb] = useState(0);
 
   const params = useParams();
   const navigate = useNavigate();
 
   useEffect(async () => {
     if (window.ethereum) {
-      const web3 = new Web3(window.ethereum);
-      const accounts = await web3.eth.getAccounts();
-      const networkId = await web3.eth.net.getId();
-      const eventContract = new web3.eth.Contract(
-        Event.abi,
-        Event.networks[networkId].address
-      );
-      setWeb3(web3);
-      setAccount(accounts[0]);
-      setNetworkId(networkId);
-      setEventContract(eventContract);
+      const account = await getAccount();
       await axios
-        .get(`${API_URL}/account/${accounts[0]}`)
+        .get(`${API_URL}/account/${account}`)
         .then((response) => {
           if (response.data) {
             if (response.data.email) {
@@ -69,9 +54,10 @@ function CreateTicket() {
         })
         .catch((err) => console.log(err));
 
-      const eventUri = await eventContract.methods.uri(params.eventId).call();
+      const eventUri = await getUri(params.eventId);
       const eventMeta = await axios.get(eventUri);
       setFileUrl(eventMeta.data.image);
+      fetchBNB();
     }
   }, []);
 
@@ -124,10 +110,12 @@ function CreateTicket() {
       const added = await client.add(data);
       const url = `https://ipfs.infura.io/ipfs/${added.path}`;
 
-      mintToken(url, quantity, price)
+      mintTicket(url, params.eventId, quantity, price * 10 ** 8)
         .then((result) => {
           console.log(result);
-          navigate(`/event/${params.eventId}`);
+          navigate(
+            `/event/${params.eventId}`
+          );
         })
         .catch((err) => console.log(err));
     } catch (err) {
@@ -135,13 +123,12 @@ function CreateTicket() {
     }
   };
 
-  const mintToken = async (url, quantity, price) => {
-    let transaction = await eventContract.methods
-      .mintTicket(url, params.eventId, quantity, price * 10 ** 8)
-      .send({ from: account });
-    let block = await web3.eth.getBlock(transaction.blockNumber);
-    let returnValues = transaction.events.TransferSingle.returnValues;
-    console.log(transaction);
+  const fetchBNB = async () => {
+    await axios
+      .get("https://api.coingecko.com/api/v3/coins/binancecoin")
+      .then((result) => {
+        setBnb(result.data.market_data.current_price.thb.toFixed(2));
+      });
   };
 
   return (
@@ -153,43 +140,6 @@ function CreateTicket() {
           <p className="text-text text-sm">Required fields</p>
         </div>
         <div className="h-full w-full flex space-x-20">
-          {/* <div className="h-full w-3/12">
-            <p>Image</p>
-            <p className="text-sm text-sub-text">
-              File types supported: JPG, PNG
-            </p>
-            <div className="h-96 w-10/12 mt-3 p-1 rounded-2xl border-dashed border-2">
-              <div className="relative h-full w-full">
-                <label
-                  htmlFor="upload-button"
-                  className="absolute h-full w-full hover:cursor-pointer"
-                >
-                  {image.preview ? (
-                    <div className="relative h-full w-full">
-                      <div className="absolute h-full w-full z-20 flex justify-center items-center opacity-0 hover:bg-black hover:bg-opacity-50 hover:opacity-100">
-                        <Photo />
-                      </div>
-                      <img
-                        src={image.preview}
-                        alt="dummy"
-                        className="h-full w-full object-cover rounded-xl"
-                      />
-                    </div>
-                  ) : (
-                    <div className="absolute h-full w-full z-10 flex justify-center items-center rounded-xl hover:bg-black hover:bg-opacity-50">
-                      <Photo />
-                    </div>
-                  )}
-                </label>
-                <input
-                  type="file"
-                  id="upload-button"
-                  className="hidden"
-                  onChange={handleImageChange}
-                />
-              </div>
-            </div>
-          </div> */}
           <div className="w-1/2 space-y-10">
             <div className="space-y-3">
               <div className="flex space-x-1">
@@ -461,7 +411,6 @@ function CreateTicket() {
                   <input
                     type="number"
                     placeholder="1"
-                    min="1"
                     value={formInput.price}
                     className="price h-full w-full bg-transparent"
                     onChange={handlePriceChange}
@@ -471,6 +420,13 @@ function CreateTicket() {
                   <p>BNB</p>
                 </div>
               </div>
+              {formInput.price ? (
+                <p className="text-sm text-text">
+                  ~ {(bnb * formInput.price).toLocaleString()} THB
+                </p>
+              ) : (
+                <p className="text-sm text-sub-text">~ 0 THB</p>
+              )}
             </div>
             <button
               type="submit"
