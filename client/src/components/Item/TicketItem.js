@@ -13,6 +13,7 @@ import {
   getAccount,
   fetchMarketItem,
   buyTicket,
+  createMarketItem,
 } from "../../services/web3";
 import { API_URL } from "../../config";
 
@@ -32,6 +33,7 @@ function TicketItem() {
   const [copy, setCopy] = useState(false);
   const [buttonDisabled, setButtonDisabled] = useState();
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [showSellModal, setShowSellModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showAddFundsModal, setShowAddFundsModal] = useState(false);
   const [ticket, setTicket] = useState([]);
@@ -40,6 +42,7 @@ function TicketItem() {
   const [loadingState, setLoadingState] = useState(false);
   const [event, setEvent] = useState();
   const [bnb, setBnb] = useState();
+  const [price, setPrice] = useState('');
 
   const params = useParams();
   const isMounted = useRef(true);
@@ -126,6 +129,14 @@ function TicketItem() {
     console.log(fetchData, transactions);
   };
 
+  const fetchBNB = async () => {
+    await axios
+      .get("https://api.coingecko.com/api/v3/coins/binancecoin")
+      .then((result) => {
+        setBnb(result.data.market_data.current_price.thb.toFixed(2));
+      });
+  };
+
   const signEvent = (params) => {
     if (params[1].value === "0x0000000000000000000000000000000000000000")
       return "Minted";
@@ -151,18 +162,23 @@ function TicketItem() {
     }, 2000);
   };
 
-  const fetchBNB = async () => {
-    await axios
-      .get("https://api.coingecko.com/api/v3/coins/binancecoin")
-      .then((result) => {
-        setBnb(result.data.market_data.current_price.thb.toFixed(2));
-      });
+  const handlePriceChange = (e) => {
+    let { value } = e.target;
+    value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : null;
+    setPrice(value);
   };
 
   const handleSubmit = async (itemId, price) => {
     console.log(itemId, price);
     await buyTicket(itemId, price)
-      .then(window.location.reload())
+      .then()
+      .catch((err) => console.log(err));
+  };
+
+  const handleSell = async (ticketId, price) => {
+    console.log(ticketId, price);
+    await createMarketItem(ticketId, price * 10 ** 8)
+      .then()
       .catch((err) => console.log(err));
   };
 
@@ -198,7 +214,7 @@ function TicketItem() {
                     >
                       Edit
                     </button>
-                    {!ticket.list && (
+                    {ticket.list && (
                       <button
                         className="h-11 w-full flex justify-center items-center rounded-lg font-bold text-black bg-primary hover:bg-primary-light"
                         onClick={() => setShowCancelModal(true)}
@@ -206,13 +222,13 @@ function TicketItem() {
                         Cancel listing
                       </button>
                     )}
-                    {ticket.list && (
-                      <Link
-                        to={"sell"}
+                    {!ticket.list && (
+                      <button
                         className="h-11 w-full flex justify-center items-center rounded-lg font-bold text-black bg-primary hover:bg-primary-light"
+                        onClick={() => setShowSellModal(true)}
                       >
                         Sell
-                      </Link>
+                      </button>
                     )}
                   </div>
                 )}
@@ -513,6 +529,103 @@ function TicketItem() {
         </Dialog>
       </Transition>
       <Transition
+        show={showSellModal}
+        enter="transition duration-100 ease-out"
+        enterFrom="transform scale-95 opacity-0"
+        enterTo="transform scale-100 opacity-100"
+        leave="transition duration-75 ease-out"
+        leaveFrom="transform scale-100 opacity-100"
+        leaveTo="transform scale-95 opacity-0"
+      >
+        <Dialog
+          as="div"
+          className="fixed inset-0 z-20 overflow-y-auto "
+          onClose={() => setShowSellModal(false)}
+        >
+          <div className="px-4 text-center">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <Dialog.Overlay className="fixed inset-0 bg-black opacity-50" />
+            </Transition.Child>
+            <span
+              className="inline-block h-screen align-middle"
+              aria-hidden="true"
+            >
+              &#8203;
+            </span>
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <div className="inline-block w-full max-w-2xl my-8 text-left align-middle transition-all transform text-white bg-background shadow-lg rounded-2xl">
+                {/*header*/}
+                <div className="relative flex items-center justify-center p-5 border-b border-solid border-white">
+                  <h3 className="text-2xl">Complete checkout</h3>
+                  <button
+                    className="absolute right-5 p-3 text-white"
+                    onClick={() => setShowSellModal(false)}
+                  >
+                    <Close />
+                  </button>
+                </div>
+                {/*body*/}
+                <div className="relative p-6 space-y-3">
+                  <div className="space-y-3">
+                    <p>Price</p>
+                    <div className="flex space-x-5">
+                      <div className="h-11 w-full px-3 flex items-center space-x-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
+                        <input
+                          type="number"
+                          placeholder="1"
+                          value={price}
+                          className="price h-full w-full bg-transparent"
+                          onChange={handlePriceChange}
+                        />
+                      </div>
+                      <div className="h-11 px-5 flex items-center space-x-3 rounded-lg bg-input">
+                        <p>BNB</p>
+                      </div>
+                    </div>
+                    {price ? (
+                      <p className="text-sm text-text">
+                        ~ {(bnb * price).toLocaleString()} THB
+                      </p>
+                    ) : (
+                      <p className="text-sm text-sub-text">~ 0 THB</p>
+                    )}
+                  </div>
+                </div>
+                {/*footer*/}
+                <div className="flex items-center justify-center p-6 border-t border-solid border-white">
+                  <button
+                    className="h-11 w-fit px-5 flex justify-center items-center rounded-lg font-bold text-black bg-primary hover:bg-primary-light"
+                    type="button"
+                    onClick={() => {
+                      handleSell(params.ticketId, price);
+                      setShowSellModal(false);
+                    }}
+                  >
+                    Complete listing
+                  </button>
+                </div>
+              </div>
+            </Transition.Child>
+          </div>
+        </Dialog>
+      </Transition>
+      <Transition
         show={showCheckoutModal}
         enter="transition duration-100 ease-out"
         enterFrom="transform scale-95 opacity-0"
@@ -523,7 +636,7 @@ function TicketItem() {
       >
         <Dialog
           as="div"
-          className="fixed inset-0 z-10 overflow-y-auto "
+          className="fixed inset-0 z-20 overflow-y-auto "
           onClose={() => setShowCheckoutModal(false)}
         >
           <div className="px-4 text-center">
