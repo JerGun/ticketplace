@@ -5,6 +5,7 @@ import Loading from "../Loading";
 import { Link, useParams } from "react-router-dom";
 import {
   getUri,
+  fetchTicket,
   fetchEvent,
   getAccount,
   fetchTicketsInEvent,
@@ -45,7 +46,7 @@ function EventItem() {
 
   useEffect(async () => {
     const accounts = getAccount();
-    const ticket = await fetchTicket();
+    const ticket = await fetchTickets();
     const event = await fecthEvent();
     setTickets(ticket);
     setEvent(event);
@@ -56,18 +57,19 @@ function EventItem() {
     }
   }, []);
 
-  const fetchTicket = async () => {
+  const fetchTickets = async () => {
     const ticketsData = await fetchTicketsInEvent(params.eventId);
     const items = await Promise.all(
       ticketsData.map(async (i) => {
+        const ticket = await fetchTicket(i.tokenId);
         const tokenUri = await getUri(i.tokenId);
         const meta = await axios.get(tokenUri);
         let item = {
-          itemId: i.itemId,
-          tokenId: i.tokenId,
-          seller: i.seller,
-          owner: i.owner,
-          price: i.price,
+          itemId: ticket.itemId,
+          tokenId: ticket.tokenId,
+          seller: ticket.seller,
+          owner: ticket.owner,
+          price: ticket.price,
           image: meta.data.image,
           name: meta.data.name,
           link: meta.data.link,
