@@ -44,7 +44,18 @@ export const createMarketItem = (ticketId, price) => {
   return new Promise(function (res, rej) {
     web3.eth.getAccounts().then((accounts) => {
       eventContract.methods
-        .createMarketItem(ticketId, price)
+        .createMarketItem(ticketId, price * 10 ** 8)
+        .send({ from: accounts[0] })
+        .then((result) => res(result));
+    });
+  });
+};
+
+export const cancelListing = (itemId) => {
+  return new Promise(function (res, rej) {
+    web3.eth.getAccounts().then((accounts) => {
+      eventContract.methods
+        .cancelListing(itemId)
         .send({ from: accounts[0] })
         .then((result) => res(result));
     });
@@ -54,8 +65,8 @@ export const createMarketItem = (ticketId, price) => {
 /* global BigInt */
 export const buyTicket = (itemId, price) => {
   return new Promise(function (res, rej) {
-      console.log(price * 10 ** 10);
-      web3.eth.getAccounts().then((accounts) => {
+    console.log(price * 10 ** 10);
+    web3.eth.getAccounts().then((accounts) => {
       eventContract.methods
         .buyMarketItem(itemId)
         .send({ from: accounts[0], value: price * 10 ** 10 })

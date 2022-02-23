@@ -14,6 +14,7 @@ import {
   fetchMarketItem,
   buyTicket,
   createMarketItem,
+  cancelListing,
 } from "../../services/Web3";
 import { API_URL } from "../../config";
 
@@ -42,7 +43,7 @@ function TicketItem() {
   const [loadingState, setLoadingState] = useState(false);
   const [event, setEvent] = useState();
   const [bnb, setBnb] = useState();
-  const [price, setPrice] = useState('');
+  const [price, setPrice] = useState("");
 
   const params = useParams();
   const isMounted = useRef(true);
@@ -169,7 +170,6 @@ function TicketItem() {
   };
 
   const handleSubmit = async (itemId, price) => {
-    console.log(itemId, price);
     await buyTicket(itemId, price)
       .then()
       .catch((err) => console.log(err));
@@ -177,12 +177,16 @@ function TicketItem() {
 
   const handleSell = async (ticketId, price) => {
     console.log(ticketId, price);
-    await createMarketItem(ticketId, price * 10 ** 8)
+    await createMarketItem(ticketId, price)
       .then()
       .catch((err) => console.log(err));
   };
 
-  const handleCancel = async () => {};
+  const handleCancel = async (itemId) => {
+    await cancelListing(itemId)
+      .then()
+      .catch((err) => console.log(err));
+  };
 
   return (
     <>
@@ -516,7 +520,7 @@ function TicketItem() {
                     className="h-11 w-fit px-5 flex justify-center items-center rounded-lg font-bold text-black bg-primary hover:bg-primary-light"
                     type="button"
                     onClick={() => {
-                      handleCancel();
+                      handleCancel(ticket.itemId);
                       setShowCancelModal(false);
                     }}
                   >

@@ -17,6 +17,10 @@ contract Event is ERC1155 {
 
     mapping(uint256 => string) private _uris;
 
+    struct Item {
+        uint256 tokenId;
+    }
+
     struct EventItem {
         uint256 tokenId;
         address payable owner;
@@ -28,6 +32,7 @@ contract Event is ERC1155 {
         address payable owner;
         uint256 price;
         bool list;
+        bool active;
     }
 
     struct MarketItem {
@@ -41,7 +46,7 @@ contract Event is ERC1155 {
 
     mapping(uint256 => EventItem) private eventToken;
     mapping(uint256 => TicketItem) private ticketToken;
-    mapping(uint256 => TicketItem[]) private ticketsInEvent;
+    mapping(uint256 => Item[]) private ticketsInEvent;
     mapping(uint256 => MarketItem) private ticketInMarket;
 
     mapping(address => EventItem[]) private createdEvents;
@@ -82,14 +87,19 @@ contract Event is ERC1155 {
                 eventTokenId,
                 payable(msg.sender),
                 price,
-                false
+                false,
+                true
             );
-            ticketsInEvent[eventTokenId].push(ticketToken[newItemId]);
+            ticketsInEvent[eventTokenId].push(Item(newItemId));
             createMarketItem(newItemId, price);
         }
     }
 
     function createMarketItem(uint256 tokenId, uint256 price) public payable {
+        require(
+            msg.sender == ticketToken[tokenId].owner,
+            "Only for the owner of this ticket!"
+        );
         require(price > 0, "Price must be at least 1 wei");
 
         _itemIds.increment();
@@ -104,9 +114,21 @@ contract Event is ERC1155 {
             false
         );
 
+        ticketToken[tokenId].price = price;
         ticketToken[tokenId].list = true;
 
         safeTransferFrom(msg.sender, address(this), tokenId, 1, "");
+    }
+
+    function cancelListing(uint256 itemId) public payable {
+        require(
+            msg.sender == ticketInMarket[itemId].owner,
+            "Only for the owner of this ticket!"
+        );
+        uint256 tokenId = ticketInMarket[itemId].tokenId;
+        ticketToken[tokenId].list = false;
+        delete ticketInMarket[itemId];
+        _safeTransferFrom(address(this), msg.sender, tokenId, 1, "");
     }
 
     function buyMarketItem(uint256 itemId) public payable {
@@ -173,9 +195,9 @@ contract Event is ERC1155 {
     function fetchTicketsInEvent(uint256 eventTokenId)
         public
         view
-        returns (TicketItem[] memory)
+        returns (Item[] memory)
     {
-        TicketItem[] memory items = ticketsInEvent[eventTokenId];
+        Item[] memory items = ticketsInEvent[eventTokenId];
         return items;
     }
 
