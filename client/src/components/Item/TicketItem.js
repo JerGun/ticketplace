@@ -138,11 +138,20 @@ function TicketItem() {
       });
   };
 
-  const signEvent = (params) => {
+  const signEvent = (item, params) => {
     if (params[1].value === "0x0000000000000000000000000000000000000000")
       return "Minted";
     if (params[2].value === contractAddress.toLocaleLowerCase()) return "List";
-    return "Buy";
+    if (
+      params[1].value === contractAddress.toLocaleLowerCase() &&
+      item.value !== "0"
+    )
+      return "Buy";
+    if (
+      params[1].value === contractAddress.toLocaleLowerCase() &&
+      item.value === "0"
+    )
+      return "Cancel Listing";
   };
 
   const signAccount = (params) => {
@@ -212,6 +221,30 @@ function TicketItem() {
                 </div>
                 {owner && (
                   <div className="h-fit w-full p-3 space-y-3 rounded-lg bg-input">
+                    {ticket.list && (
+                      <>
+                        <div className="flex items-center space-x-3">
+                          <Price />
+                          <p>Price</p>
+                        </div>
+                        <div className="flex space-x-5">
+                          <BNB />
+                          <div className="space-y-1">
+                            <p className="text-4xl font-bold">
+                              {ticket.price / 10 ** 8} BNB
+                            </p>
+                            <p className="text-sm text-text">
+                              ~{" "}
+                              {(
+                                (bnb * ticket.price) /
+                                10 ** 8
+                              ).toLocaleString()}{" "}
+                              THB
+                            </p>
+                          </div>
+                        </div>
+                      </>
+                    )}
                     <button
                       className="h-11 w-full flex justify-center items-center rounded-lg font-bold text-white bg-hover hover:bg-hover-light"
                       // onClick={() => setShowCheckoutModal(true)}
@@ -361,7 +394,7 @@ function TicketItem() {
                       </div>
                       <div
                         className={`${
-                          history.length > 5 && "overflow-auto"
+                          history.length > 4 && "overflow-auto"
                         } h-full max-h-60`}
                       >
                         {history.map((item, i) => (
@@ -376,7 +409,10 @@ function TicketItem() {
                                   >
                                     <div className="flex space-x-1">
                                       <p className="text-text">
-                                        {signEvent(history.decoded.params)}
+                                        {signEvent(
+                                          item,
+                                          history.decoded.params
+                                        )}
                                       </p>
                                     </div>
                                     {item.value !== "0" ? (
