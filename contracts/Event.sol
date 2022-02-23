@@ -126,6 +126,7 @@ contract Event is ERC1155 {
             "Only for the owner of this ticket!"
         );
         uint256 tokenId = ticketInMarket[itemId].tokenId;
+        ticketToken[tokenId].price = 0;
         ticketToken[tokenId].list = false;
         delete ticketInMarket[itemId];
         _safeTransferFrom(address(this), msg.sender, tokenId, 1, "");
