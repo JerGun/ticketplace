@@ -2,24 +2,24 @@ import React, { useState, useEffect, useRef } from "react";
 import Web3 from "web3";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
-import { ReactComponent as Close } from "../assets/icons/close.svg";
+import { ReactComponent as Close } from "./assets/icons/close.svg";
 
-import Navbar from "./Navbar";
-import Tickets from "./Item/Tickets";
-import Home from "./Home";
-import Account from "./Account/Account";
-import CreateEvent from "./Create/CreateEvent";
-import CreateTicket from "./Create/CreateTicket";
-import TicketItem from "./Item/TicketItem";
-import CustomScrollbars from "./CustomScrollbars";
-import SimpleStorage from "./SimpleStorage";
-import SetUpOrganizer from "./Account/AccountSetup";
-import Confirm from "./Confirm";
-import SettingAccount from "./Account/AccountSettings";
-import VerifyRequest from "./VerifyRequest";
-import ListTicket from "./ListTicket";
-import Events from "./Item/Events";
-import EventItem from "./Item/EventItem";
+import Navbar from "./components/Navbar";
+import Tickets from "./components/Item/Tickets";
+import Home from "./components/Home";
+import Account from "./components/Account/Account";
+import CreateEvent from "./components/Create/CreateEvent";
+import CreateTicket from "./components/Create/CreateTicket";
+import TicketItem from "./components/Item/TicketItem";
+import CustomScrollbars from "./components/CustomScrollbars";
+import SimpleStorage from "./components/SimpleStorage";
+import SetUpOrganizer from "./components/Account/AccountSetup";
+import Confirm from "./components/Confirm";
+import SettingAccount from "./components/Account/AccountSettings";
+import VerifyRequest from "./components/VerifyRequest";
+import ListTicket from "./components/ListTicket";
+import Events from "./components/Item/Events";
+import EventItem from "./components/Item/EventItem";
 
 function App() {
   const [web3, setWeb3] = useState();
