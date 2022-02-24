@@ -299,7 +299,14 @@ function TicketItem() {
                 <div className="w-full space-y-5">
                   <div className="w-full space-y-1">
                     <div className="w-full flex justify-between items-center">
-                      {event && <p className="text-4xl">{event.name}</p>}
+                      {event && (
+                        <Link
+                          to={`/event/${params.eventId}`}
+                          className="text-4xl text-primary"
+                        >
+                          {event.name}
+                        </Link>
+                      )}
                       <div className="flex space-x-5">
                         {ticket.link && (
                           <a
@@ -517,7 +524,7 @@ function TicketItem() {
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <Dialog.Overlay className="fixed inset-0 bg-black opacity-50" />
+              <Dialog.Overlay className="fixed inset-0 bg-black opacity-80" />
             </Transition.Child>
 
             {/* This element is to trick the browser into centering the modal contents. */}
@@ -591,7 +598,7 @@ function TicketItem() {
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <Dialog.Overlay className="fixed inset-0 bg-black opacity-50" />
+              <Dialog.Overlay className="fixed inset-0 bg-black opacity-80" />
             </Transition.Child>
             <span
               className="inline-block h-screen align-middle"
@@ -688,7 +695,7 @@ function TicketItem() {
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <Dialog.Overlay className="fixed inset-0 bg-black opacity-50" />
+              <Dialog.Overlay className="fixed inset-0 bg-black opacity-80" />
             </Transition.Child>
 
             {/* This element is to trick the browser into centering the modal contents. */}
@@ -755,7 +762,7 @@ function TicketItem() {
                   </div>
                 </div>
                 {/*footer*/}
-                <div className="flex items-center justify-end p-6 space-x-5 border-t border-solid border-white">
+                <div className="flex items-center justify-center p-6 space-x-5 border-t border-solid border-white">
                   <button
                     className="h-11 w-fit px-5 flex justify-center items-center rounded-lg font-bold text-black bg-primary hover:bg-primary-light"
                     type="button"

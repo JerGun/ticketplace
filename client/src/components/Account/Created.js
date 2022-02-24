@@ -12,7 +12,7 @@ import {
 } from "../../services/Web3";
 
 function Created() {
-  const [events, setEvents] = useState(['']);
+  const [events, setEvents] = useState([""]);
   const [loadingState, setLoadingState] = useState(false);
 
   const isMounted = useRef(true);
@@ -24,7 +24,9 @@ function Created() {
   useEffect(() => {
     loadTickets();
     if (isMounted) {
-      setLoadingState(true);
+      setTimeout(() => {
+        setLoadingState(true);
+      }, 1000);
     }
   }, []);
 

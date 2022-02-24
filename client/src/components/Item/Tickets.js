@@ -59,7 +59,9 @@ function Tickets() {
     loadTickets();
     fetchBNB();
     if (isMounted) {
-      setLoadingState(true);
+      setTimeout(() => {
+        setLoadingState(true);
+      }, 1000);
     }
   }, [tickets]);
 
@@ -220,70 +222,96 @@ function Tickets() {
           </div>
         </div>
         <div className="h-fit w-10/12 p-10 pb-20">
-          {!loadingState ? (
-            <div className="h-full w-full flex justify-center items-center">
-              <Loading loading={loadingState} />
-            </div>
-          ) : tickets.length === 0 ? (
-            <div className="h-full w-full flex justify-center items-center text-3xl">
-              <p>No items to display</p>
-            </div>
-          ) : (
-            <div className="h-auto w-full grid grid-cols-2 gap-5 pb-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-              {tickets.map((ticket, i) => (
-                <div
-                  key={i}
-                  className="h-fit w-full rounded-lg shadow-lg float-right bg-modal-button"
-                >
-                  <Link
-                    to={`/event/${ticket.eventId}/ticket/${ticket.tokenId}`}
-                  >
-                    <div className="p-3 space-y-3 shadow-lg">
-                      <div className="h-72 w-full">
-                        <img
-                          src={ticket.image}
-                          alt=""
-                          className="h-full w-full object-cover rounded-lg"
-                        />
-                      </div>
-                      <div className="w-full flex flex-col items-start">
-                        <p className="text-sm text-primary">
-                          {ticket.startDate} - {ticket.endDate}
-                        </p>
-                        <p className="w-10/12 truncate">{ticket.name}</p>
-                        <p className="text-lg">{ticket.price / 10 ** 8} BNB</p>
-                        <p className="w-10/12 truncate text-sm text-text">
-                          ~ {((bnb * ticket.price) / 10 ** 8).toLocaleString()}{" "}
-                          THB
-                        </p>
-                      </div>
-                    </div>
-                  </Link>
-                  <div className="px-3 py-2 flex items-center space-x-5 justify-between text-text">
-                    {ticket.active && (
-                      <div className="flex items-center space-x-2">
-                        <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                        <p>Active</p>
-                      </div>
-                    )}
-                    <div className="flex space-x-1">
-                      <button className="p-2 text-white">
-                        <Info />
-                      </button>
-                      <button
-                        className="p-2 text-primary"
-                        onClick={() => {
-                          handleSubmit(ticket);
-                        }}
-                      >
-                        <Cart />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
+          {loadingState && tickets.length === 0 && (
+            <div className="h-64 w-full mt-5 border-2 rounded-lg flex items-center justify-center border-input">
+              <h1 className="py-10 px-20 text-3xl">No items to display</h1>
             </div>
           )}
+          <div className="h-auto w-full grid grid-cols-2 gap-5 pb-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            {!loadingState && tickets.length === 0
+              ? [...Array(5)].map((x, i) => (
+                  <div
+                    key={i}
+                    className="h-fit w-full rounded-lg shadow-lg animate-pulse bg-modal-button"
+                  >
+                    <div className="p-3 space-y-3 shadow-lg">
+                      <div className="h-72 w-full rounded-lg bg-hover bg-opacity-50"></div>
+                      <div className="h-18 w-full flex flex-col items-start space-y-3">
+                        <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                        <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                        <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                        <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                      </div>
+                    </div>
+                    <div className="px-3 py-2 flex items-center space-x-5 justify-between text-text">
+                      <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                      <div className="w-fit flex space-x-1">
+                        <button className="p-2 text-white">
+                          <Info />
+                        </button>
+                        <button className="p-2 text-primary">
+                          <Cart />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              : tickets.map((ticket, i) => (
+                  <div
+                    key={i}
+                    className="h-fit w-full rounded-lg shadow-lg float-right bg-modal-button"
+                  >
+                    <Link
+                      to={`/event/${ticket.eventId}/ticket/${ticket.tokenId}`}
+                    >
+                      <div className="p-3 space-y-3 shadow-lg">
+                        <div className="h-72 w-full">
+                          <img
+                            src={ticket.image}
+                            alt=""
+                            className="h-full w-full object-cover rounded-lg"
+                          />
+                        </div>
+                        <div className="w-full flex flex-col items-start">
+                          <p className="text-sm text-primary">
+                            {ticket.startDate} - {ticket.endDate}
+                          </p>
+                          <p className="w-10/12 truncate">{ticket.name}</p>
+                          <p className="text-lg">
+                            {ticket.price / 10 ** 8} BNB
+                          </p>
+                          <p className="w-10/12 truncate text-sm text-text">
+                            ~{" "}
+                            {((bnb * ticket.price) / 10 ** 8).toLocaleString()}{" "}
+                            THB
+                          </p>
+                        </div>
+                      </div>
+                    </Link>
+                    <div className="px-3 py-2 flex items-center space-x-5 justify-between text-text">
+                      {ticket.active && (
+                        <div className="flex items-center space-x-2">
+                          <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                          <p>Active</p>
+                        </div>
+                      )}
+                      <div className="flex space-x-1">
+                        <button className="p-2 text-white">
+                          <Info />
+                        </button>
+                        <button
+                          className="p-2 text-primary"
+                          onClick={() => {
+                            handleSubmit(ticket);
+                          }}
+                        >
+                          <Cart />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+          </div>
         </div>
       </div>
       <Transition
