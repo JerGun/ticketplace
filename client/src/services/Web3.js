@@ -16,6 +16,15 @@ export const getAccount = () => {
   });
 };
 
+export const getBalance = () => {
+  return new Promise(function (res, rej) {
+    web3.eth.getAccounts().then((result) => {
+      const balance = web3.eth.getBalance(result[0]);
+      res(balance);
+    });
+  });
+};
+
 export const getNetwork = async () => await web3.eth.net.getId();
 
 export const mintEvent = (url) => {
@@ -84,6 +93,17 @@ export const getUri = (tokenId) => {
   });
 };
 
+export const fetchCreatedEvents = () => {
+  return new Promise(function (res, rej) {
+    web3.eth.getAccounts().then((accounts) => {
+      eventContract.methods
+        .fetchCreatedEvents(accounts[0])
+        .call()
+        .then((result) => res(result));
+    });
+  });
+};
+
 export const fetchEvent = (tokenId) => {
   return new Promise(function (res, rej) {
     eventContract.methods
@@ -106,6 +126,15 @@ export const fetchMarketItem = (tokenId) => {
   return new Promise(function (res, rej) {
     eventContract.methods
       .fetchMarketItem(tokenId)
+      .call()
+      .then((result) => res(result));
+  });
+};
+
+export const fetchMarketItems = () => {
+  return new Promise(function (res, rej) {
+    eventContract.methods
+      .fetchMarketItems()
       .call()
       .then((result) => res(result));
   });
