@@ -4,20 +4,23 @@ import { Dialog, Listbox, Transition } from "@headlessui/react";
 import { API_URL } from "../../config";
 import Loading from "../Loading";
 import { Link } from "react-router-dom";
+import {
+  buyTicket,
+  fetchEvent,
+  fetchMarketItems,
+  fetchTicket,
+  getAccount,
+  getBalance,
+  getUri,
+} from "../../services/Web3";
+import ReactTooltip from "react-tooltip";
 
+import { ReactComponent as Left } from "../../assets/icons/left.svg";
 import { ReactComponent as Info } from "../../assets/icons/info.svg";
 import { ReactComponent as Cart } from "../../assets/icons/cart.svg";
 import { ReactComponent as Down } from "../../assets/icons/down.svg";
 import { ReactComponent as Close } from "../../assets/icons/close.svg";
 import { ReactComponent as BNB } from "../../assets/icons/bnb.svg";
-import {
-  fetchEvent,
-  fetchMarketItems,
-  fetchTicket,
-  getBalance,
-  getUri,
-} from "../../services/Web3";
-import ReactTooltip from "react-tooltip";
 
 const listOption = [
   { title: "Recently Listed", value: "recently" },
@@ -27,6 +30,7 @@ const listOption = [
 ];
 
 function Tickets() {
+  const [account, setAccount] = useState();
   const [sortBy, setSortBy] = useState(listOption[0]);
   const [selectedTicket, setSelectedTicket] = useState({
     image: "",
@@ -38,9 +42,11 @@ function Tickets() {
   const [tickets, setTickets] = useState([]);
   const [loadingState, setLoadingState] = useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [showAddFundsModal, setShowAddFundsModal] = useState(false);
   const [event, setEvent] = useState([]);
   const [bnb, setBnb] = useState(0);
   const [balance, setBalance] = useState();
+  const [copy, setCopy] = useState(false);
 
   const isMounted = useRef(true);
 
@@ -49,12 +55,13 @@ function Tickets() {
   }, []);
 
   useEffect(() => {
+    fetchAccount();
     loadTickets();
     fetchBNB();
     if (isMounted) {
       setLoadingState(true);
     }
-  }, []);
+  }, [tickets]);
 
   const loadTickets = async () => {
     const data = await fetchMarketItems();
@@ -62,7 +69,6 @@ function Tickets() {
     const items = await Promise.all(
       data.map(async (i) => {
         const ticket = await fetchTicket(i.tokenId);
-        console.log(ticket);
         const eventUri = await getUri(ticket.eventTokenId);
         const eventMeta = await axios.get(eventUri);
         const tokenUri = await getUri(i.tokenId);
@@ -87,7 +93,6 @@ function Tickets() {
         return item;
       })
     );
-    console.log(items);
     setTickets(items);
   };
 
@@ -104,11 +109,15 @@ function Tickets() {
       });
   };
 
+  const fetchAccount = async () => {
+    const account = await getAccount();
+    setAccount(account);
+  };
+
   const handleSubmit = async (ticket) => {
     const balance = await getBalance();
-    setBalance(balance);
-    console.log(balance / 10 ** 18, ticket.price / 10 ** 8);
     setSelectedTicket({
+      itemId: ticket.itemId,
       image: ticket.image,
       organizerName: ticket.organizerName,
       name: ticket.name,
@@ -118,7 +127,19 @@ function Tickets() {
     setShowCheckoutModal(true);
   };
 
-  const confirmCheckout = async () => {};
+  const confirmCheckout = async (itemId, price) => {
+    await buyTicket(itemId, price)
+      .then()
+      .catch((err) => console.log(err));
+  };
+
+  const copyAddress = () => {
+    navigator.clipboard.writeText(account);
+    setCopy(true);
+    setTimeout(() => {
+      setCopy(false);
+    }, 1000);
+  };
 
   const getMinter = (tokenId) => {
     // return event.filter((el) => {
@@ -246,7 +267,7 @@ function Tickets() {
                       </div>
                     )}
                     <div className="flex space-x-1">
-                      <button className="p-2">
+                      <button className="p-2 text-white">
                         <Info />
                       </button>
                       <button
@@ -289,7 +310,7 @@ function Tickets() {
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <Dialog.Overlay className="fixed inset-0 bg-black opacity-50" />
+              <Dialog.Overlay className="fixed inset-0 bg-black opacity-80" />
             </Transition.Child>
             <span
               className="inline-block h-screen align-middle"
@@ -319,7 +340,7 @@ function Tickets() {
                 </div>
                 {/*body*/}
                 <div className="relative p-6 space-y-3">
-                  <p>Items</p>
+                  <p>Item</p>
                   <div className="flex justify-between">
                     <div className="flex space-x-5">
                       <div className="h-24 w-16 rounded-lg bg-white">
@@ -360,38 +381,49 @@ function Tickets() {
                   </div>
                 </div>
                 {/*footer*/}
-                <div className="flex items-center justify-end p-6 space-x-5 border-t border-solid border-white">
+                <div className="flex items-center justify-center p-6 space-x-5 border-t border-solid border-white">
                   <div className="relative h-fit w-fit">
-                    {balance / 10 ** 18 > selectedTicket.price / 10 ** 8 && (
+                    {balance / 10 ** 18 < selectedTicket.price / 10 ** 8 && (
                       <div
-                        data-tip="asdasd"
+                        data-tip="Not enough BNB to complete purchase"
                         className="absolute h-full w-full z-10"
                       ></div>
                     )}
                     <button
                       className={`${
-                        balance / 10 ** 18 > selectedTicket.price / 10 ** 8 &&
+                        balance / 10 ** 18 < selectedTicket.price / 10 ** 8 &&
                         "opacity-50 hover:bg-primary"
                       } h-11 w-fit px-5 flex justify-center items-center rounded-lg font-bold text-black bg-primary hover:bg-primary-light`}
                       type="button"
                       onClick={() => {
                         // handleSubmit(selectedTicket.itemId, selectedTicket.price);
+                        confirmCheckout(
+                          selectedTicket.itemId,
+                          selectedTicket.price
+                        );
                         setShowCheckoutModal(false);
                       }}
                       disabled={
-                        balance / 10 ** 18 > selectedTicket.price / 10 ** 8
+                        balance / 10 ** 18 < selectedTicket.price / 10 ** 8
                       }
                     >
                       Confirm checkout
                     </button>
                   </div>
-                  <button
-                    className="h-11 w-fit px-5 flex justify-center items-center rounded-lg font-bold text-white bg-modal-button"
-                    type="button"
-                    // onClick={() => setShowAddFundsModal(true)}
-                  >
-                    Add funds
-                  </button>
+                  {balance / 10 ** 18 < selectedTicket.price / 10 ** 8 && (
+                    <button
+                      className="h-11 w-fit px-5 flex justify-center items-center rounded-lg font-bold text-white bg-hover hover:bg-hover-light"
+                      type="button"
+                      onClick={() => {
+                        setShowCheckoutModal(false);
+                        setTimeout(() => {
+                          setShowAddFundsModal(true);
+                        }, 500);
+                      }}
+                    >
+                      Add funds
+                    </button>
+                  )}
                 </div>
               </div>
             </Transition.Child>
@@ -405,6 +437,97 @@ function Tickets() {
             backgroundColor="#5A5A5C"
           />
         )}
+      </Transition>
+      <Transition
+        show={showAddFundsModal}
+        enter="transition duration-100 ease-out"
+        enterFrom="transform scale-95 opacity-0"
+        enterTo="transform scale-100 opacity-100"
+        leave="transition duration-75 ease-out"
+        leaveFrom="transform scale-100 opacity-100"
+        leaveTo="transform scale-95 opacity-0"
+      >
+        <Dialog
+          as="div"
+          className="fixed inset-0 z-20 overflow-y-auto "
+          onClose={() => setShowAddFundsModal(false)}
+        >
+          <div className="px-4 text-center">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <Dialog.Overlay className="fixed inset-0 bg-black opacity-80" />
+            </Transition.Child>
+            <span
+              className="inline-block h-screen align-middle"
+              aria-hidden="true"
+            >
+              &#8203;
+            </span>
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <div className="inline-block w-full max-w-xl my-8 text-left align-middle transition-all transform text-white bg-background shadow-lg rounded-2xl">
+                {/*header*/}
+                <div className="relative flex items-center justify-center p-5 border-b border-solid border-white">
+                  <h3 className="text-2xl">Add funds</h3>
+                  <button
+                    className="absolute left-5 p-3 scale-50 text-white"
+                    onClick={() => {
+                      setShowAddFundsModal(false);
+                      setTimeout(() => {
+                        setShowCheckoutModal(true);
+                      }, 500);
+                    }}
+                  >
+                    <Left />
+                  </button>
+                  <button
+                    className="absolute right-5 p-3 text-white"
+                    onClick={() => setShowAddFundsModal(false)}
+                  >
+                    <Close />
+                  </button>
+                </div>
+                {/*body*/}
+                <div className="p-6 space-y-5 flex flex-col items-center">
+                  <p className="text-text">
+                    Send BNB from your exchange or wallet to the following
+                    address. Only send BNB!
+                  </p>
+                  <div className="w-full space-y-3">
+                    <p>Your Wallet Address</p>
+                    <div className="flex space-x-5">
+                      <div className="h-11 w-full px-3 flex items-center space-x-3 rounded-lg text-text bg-input">
+                        <p>{account}</p>
+                      </div>
+                      <button
+                        className="h-11 w-24 px-5 flex items-center justify-center space-x-3 rounded-lg font-bold text-black bg-primary hover:bg-primary-light"
+                        onClick={() => {
+                          copyAddress();
+                        }}
+                      >
+                        {copy ? "Copied" : "Copy"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Transition.Child>
+          </div>
+        </Dialog>
       </Transition>
     </>
   );
