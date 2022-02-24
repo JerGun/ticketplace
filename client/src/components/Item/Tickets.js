@@ -1,17 +1,23 @@
 import { React, Fragment, useState, useEffect, useRef } from "react";
-import Web3 from "web3";
 import axios from "axios";
 import { Dialog, Listbox, Transition } from "@headlessui/react";
-import QueryNavLink from "../QueryNavLink";
-import Ticket from "../../contracts/Ticket.json";
 import { API_URL } from "../../config";
 import Loading from "../Loading";
+import { Link } from "react-router-dom";
 
 import { ReactComponent as Info } from "../../assets/icons/info.svg";
 import { ReactComponent as Cart } from "../../assets/icons/cart.svg";
 import { ReactComponent as Down } from "../../assets/icons/down.svg";
 import { ReactComponent as Close } from "../../assets/icons/close.svg";
 import { ReactComponent as BNB } from "../../assets/icons/bnb.svg";
+import {
+  fetchEvent,
+  fetchMarketItems,
+  fetchTicket,
+  getBalance,
+  getUri,
+} from "../../services/Web3";
+import ReactTooltip from "react-tooltip";
 
 const listOption = [
   { title: "Recently Listed", value: "recently" },
@@ -22,70 +28,102 @@ const listOption = [
 
 function Tickets() {
   const [sortBy, setSortBy] = useState(listOption[0]);
+  const [selectedTicket, setSelectedTicket] = useState({
+    image: "",
+    organizerName: "",
+    name: "",
+    tokenId: "",
+    price: "",
+  });
   const [tickets, setTickets] = useState([]);
   const [loadingState, setLoadingState] = useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
-  const [event, setEvent] = useState();
+  const [event, setEvent] = useState([]);
+  const [bnb, setBnb] = useState(0);
+  const [balance, setBalance] = useState();
 
-  const componentMounted = useRef(true);
+  const isMounted = useRef(true);
 
-  useEffect(async () => {
-    const web3 = new Web3(window.ethereum);
-    const networkId = await web3.eth.net.getId();
-    const ticketContract = new web3.eth.Contract(
-      Ticket.abi,
-      Ticket.networks[networkId].address
-    );
-    const data = await ticketContract.methods.fetchMarketItems().call();
-    console.log(data);
+  useEffect(() => {
+    isMounted.current = false;
+  }, []);
+
+  useEffect(() => {
+    loadTickets();
+    fetchBNB();
+    if (isMounted) {
+      setLoadingState(true);
+    }
+  }, []);
+
+  const loadTickets = async () => {
+    const data = await fetchMarketItems();
     let payload = { tokenList: [] };
     const items = await Promise.all(
       data.map(async (i) => {
-        const tokenUri = await ticketContract.methods.uri(i.tokenId).call();
-        const meta = await axios.get(tokenUri);
+        const ticket = await fetchTicket(i.tokenId);
+        console.log(ticket);
+        const eventUri = await getUri(ticket.eventTokenId);
+        const eventMeta = await axios.get(eventUri);
+        const tokenUri = await getUri(i.tokenId);
+        const ticketMeta = await axios.get(tokenUri);
         let item = {
-          price: i.price.toString(),
+          eventId: ticket.eventTokenId,
+          eventName: eventMeta.data.name,
           itemId: i.itemId,
           tokenId: i.tokenId,
           seller: i.seller,
           owner: i.owner,
-          image: meta.data.image,
-          name: meta.data.name,
-          link: meta.data.link,
-          description: meta.data.description,
+          price: i.price,
+          image: ticketMeta.data.image,
+          name: ticketMeta.data.name,
+          link: ticketMeta.data.link,
+          description: ticketMeta.data.description,
+          startDate: ticketMeta.data.startDate,
+          endDate: ticketMeta.data.endDate,
+          active: ticket.active,
         };
         payload.tokenList.push(i.tokenId);
         return item;
       })
     );
     console.log(items);
-
-    await axios
-      .post(`${API_URL}/event/mint`, payload)
-      .then((response) => {
-        setEvent(response.data);
-      })
-      .catch((err) => console.log(err));
-
-    if (componentMounted.current) {
-      setLoadingState(true);
-      setTickets(items);
-    }
-
-    return () => {
-      componentMounted.current = false;
-    };
-  }, []);
+    setTickets(items);
+  };
 
   const handleChange = (event) => {
     let { value } = event.target;
     value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : null;
   };
 
+  const fetchBNB = async () => {
+    await axios
+      .get("https://api.coingecko.com/api/v3/coins/binancecoin")
+      .then((result) => {
+        setBnb(result.data.market_data.current_price.thb.toFixed(2));
+      });
+  };
+
+  const handleSubmit = async (ticket) => {
+    const balance = await getBalance();
+    setBalance(balance);
+    console.log(balance / 10 ** 18, ticket.price / 10 ** 8);
+    setSelectedTicket({
+      image: ticket.image,
+      organizerName: ticket.organizerName,
+      name: ticket.name,
+      tokenId: ticket.tokenId,
+      price: ticket.price,
+    });
+    setShowCheckoutModal(true);
+  };
+
+  const confirmCheckout = async () => {};
+
   const getMinter = (tokenId) => {
-    return event.filter((el) => {
-      return el.tokenId === tokenId;
-    })[0].name;
+    // return event.filter((el) => {
+    //   return el.tokenId === tokenId;
+    // })[0].name;
   };
 
   return (
@@ -160,7 +198,7 @@ function Tickets() {
             </div>
           </div>
         </div>
-        <div className="h-full w-10/12 p-10">
+        <div className="h-fit w-10/12 p-10 pb-20">
           {!loadingState ? (
             <div className="h-full w-full flex justify-center items-center">
               <Loading loading={loadingState} />
@@ -176,7 +214,9 @@ function Tickets() {
                   key={i}
                   className="h-fit w-full rounded-lg shadow-lg float-right bg-modal-button"
                 >
-                  <QueryNavLink to={`/ticket/${ticket.tokenId}`}>
+                  <Link
+                    to={`/event/${ticket.eventId}/ticket/${ticket.tokenId}`}
+                  >
                     <div className="p-3 space-y-3 shadow-lg">
                       <div className="h-72 w-full">
                         <img
@@ -186,116 +226,186 @@ function Tickets() {
                         />
                       </div>
                       <div className="w-full flex flex-col items-start">
-                        <div>
-                          <a
-                            href="/0xBdbfAee2d9E9a47e7Db5b919be0d202c0f949733"
-                            className="text-text hover:text-white"
-                          >
-                            {getMinter(ticket.tokenId)}
-                          </a>
-                        </div>
+                        <p className="text-sm text-primary">
+                          {ticket.startDate} - {ticket.endDate}
+                        </p>
                         <p className="w-10/12 truncate">{ticket.name}</p>
-                        <p className="text-lg">{ticket.price} BNB</p>
+                        <p className="text-lg">{ticket.price / 10 ** 8} BNB</p>
+                        <p className="w-10/12 truncate text-sm text-text">
+                          ~ {((bnb * ticket.price) / 10 ** 8).toLocaleString()}{" "}
+                          THB
+                        </p>
                       </div>
                     </div>
-                  </QueryNavLink>
-                  <div className="px-3 py-2 flex items-center text-text">
-                    <button className="py-2 text-primary">
-                      <Cart />
-                    </button>
+                  </Link>
+                  <div className="px-3 py-2 flex items-center space-x-5 justify-between text-text">
+                    {ticket.active && (
+                      <div className="flex items-center space-x-2">
+                        <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                        <p>Active</p>
+                      </div>
+                    )}
+                    <div className="flex space-x-1">
+                      <button className="p-2">
+                        <Info />
+                      </button>
+                      <button
+                        className="p-2 text-primary"
+                        onClick={() => {
+                          handleSubmit(ticket);
+                        }}
+                      >
+                        <Cart />
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           )}
         </div>
-        <Transition
-          show={showCheckoutModal}
-          enter="transition duration-100 ease-out"
-          enterFrom="transform scale-95 opacity-0"
-          enterTo="transform scale-100 opacity-100"
-          leave="transition duration-75 ease-out"
-          leaveFrom="transform scale-100 opacity-100"
-          leaveTo="transform scale-95 opacity-0"
+      </div>
+      <Transition
+        show={showCheckoutModal}
+        enter="transition duration-100 ease-out"
+        enterFrom="transform scale-95 opacity-0"
+        enterTo="transform scale-100 opacity-100"
+        leave="transition duration-75 ease-out"
+        leaveFrom="transform scale-100 opacity-100"
+        leaveTo="transform scale-95 opacity-0"
+      >
+        <Dialog
+          as="div"
+          className="fixed inset-0 z-20 overflow-y-auto "
+          onClose={() => setShowCheckoutModal(false)}
         >
-          <Dialog
-            as="div"
-            className="fixed inset-0 z-10 overflow-y-auto "
-            onClose={() => setShowCheckoutModal(false)}
-          >
-            <div className="px-4 text-center">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0"
-                enterTo="opacity-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
-              >
-                <Dialog.Overlay className="fixed inset-0 bg-black opacity-50" />
-              </Transition.Child>
-
-              {/* This element is to trick the browser into centering the modal contents. */}
-              <span
-                className="inline-block h-screen align-middle"
-                aria-hidden="true"
-              >
-                &#8203;
-              </span>
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <div className="inline-block w-full max-w-2xl my-8 text-left align-middle transition-all transform text-white bg-background shadow-lg rounded-2xl">
-                  {/*header*/}
-                  <div className="relative flex items-center justify-center p-5 border-b border-solid border-white">
-                    <h3 className="text-2xl">Complete checkout</h3>
-                    <button
-                      className="absolute right-5 p-3 text-white"
-                      onClick={() => setShowCheckoutModal(false)}
-                    >
-                      <Close />
-                    </button>
-                  </div>
-                  {/*body*/}
-                  <div className="relative p-6 space-y-3">
-                    <p>Items</p>
-                    <div className="flex justify-between">
-                      <div className="flex space-x-5">
-                        <span className="h-24 w-16 rounded-lg bg-white"></span>
-                        <div className="space-y-3">
-                          <p>Cat Radio</p>
-                          <p className="text-xl">LEO presents Cat Expo</p>
-                        </div>
+          <div className="px-4 text-center">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <Dialog.Overlay className="fixed inset-0 bg-black opacity-50" />
+            </Transition.Child>
+            <span
+              className="inline-block h-screen align-middle"
+              aria-hidden="true"
+            >
+              &#8203;
+            </span>
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <div className="inline-block w-full max-w-xl my-8 text-left align-middle transition-all transform text-white bg-background shadow-lg rounded-2xl">
+                {/*header*/}
+                <div className="relative flex items-center justify-center p-5 border-b border-solid border-white">
+                  <h3 className="text-2xl">Complete checkout</h3>
+                  <button
+                    className="absolute right-5 p-3 text-white"
+                    onClick={() => setShowCheckoutModal(false)}
+                  >
+                    <Close />
+                  </button>
+                </div>
+                {/*body*/}
+                <div className="relative p-6 space-y-3">
+                  <p>Items</p>
+                  <div className="flex justify-between">
+                    <div className="flex space-x-5">
+                      <div className="h-24 w-16 rounded-lg bg-white">
+                        <img
+                          src={selectedTicket.image}
+                          alt=""
+                          className="h-full w-full object-cover rounded-lg"
+                        />
                       </div>
-                      <div className="flex items-center space-x-5">
-                        <BNB className="h-6" />
-                        <p className="text-xl">1.0 BNB</p>
+                      <div className="space-y-3">
+                        <p>{selectedTicket.organizerName}</p>
+                        <p className="text-xl">{selectedTicket.name}</p>
+                        <p className="text-sm text-text">
+                          Token ID: {selectedTicket.tokenId}
+                        </p>
                       </div>
                     </div>
+                    <div className="flex flex-col justify-center text-right space-y-3">
+                      <div className="flex items-center space-x-5">
+                        <BNB className="h-6 w-6" />
+                        <p className="text-xl">
+                          {selectedTicket.price / 10 ** 8} BNB
+                        </p>
+                      </div>
+                      {selectedTicket.price ? (
+                        <p className="text-sm text-text">
+                          ~{" "}
+                          {(
+                            (bnb * selectedTicket.price) /
+                            10 ** 8
+                          ).toLocaleString()}{" "}
+                          THB
+                        </p>
+                      ) : (
+                        <p className="text-sm text-sub-text">~ 0 THB</p>
+                      )}
+                    </div>
                   </div>
-                  {/*footer*/}
-                  <div className="flex items-center justify-end p-6 space-x-5 border-t border-solid border-white">
+                </div>
+                {/*footer*/}
+                <div className="flex items-center justify-end p-6 space-x-5 border-t border-solid border-white">
+                  <div className="relative h-fit w-fit">
+                    {balance / 10 ** 18 > selectedTicket.price / 10 ** 8 && (
+                      <div
+                        data-tip="asdasd"
+                        className="absolute h-full w-full z-10"
+                      ></div>
+                    )}
                     <button
-                      className="h-11 w-fit px-5 flex justify-center items-center rounded-lg font-bold text-black bg-primary"
+                      className={`${
+                        balance / 10 ** 18 > selectedTicket.price / 10 ** 8 &&
+                        "opacity-50 hover:bg-primary"
+                      } h-11 w-fit px-5 flex justify-center items-center rounded-lg font-bold text-black bg-primary hover:bg-primary-light`}
                       type="button"
-                      onClick={() => setShowCheckoutModal(false)}
+                      onClick={() => {
+                        // handleSubmit(selectedTicket.itemId, selectedTicket.price);
+                        setShowCheckoutModal(false);
+                      }}
+                      disabled={
+                        balance / 10 ** 18 > selectedTicket.price / 10 ** 8
+                      }
                     >
                       Confirm checkout
                     </button>
                   </div>
+                  <button
+                    className="h-11 w-fit px-5 flex justify-center items-center rounded-lg font-bold text-white bg-modal-button"
+                    type="button"
+                    // onClick={() => setShowAddFundsModal(true)}
+                  >
+                    Add funds
+                  </button>
                 </div>
-              </Transition.Child>
-            </div>
-          </Dialog>
-        </Transition>
-      </div>
+              </div>
+            </Transition.Child>
+          </div>
+        </Dialog>
+        {balance / 10 ** 18 > selectedTicket.price / 10 ** 8 && (
+          <ReactTooltip
+            effect="solid"
+            place="top"
+            offset={{ top: 2, left: 0 }}
+            backgroundColor="#5A5A5C"
+          />
+        )}
+      </Transition>
     </>
   );
 }

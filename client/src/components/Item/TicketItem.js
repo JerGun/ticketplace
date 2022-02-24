@@ -53,8 +53,7 @@ function TicketItem() {
   }, []);
 
   useEffect(async () => {
-    const item = await fetchData();
-    setTicket(item);
+    loadTickets();
     fetchHistory();
     fetchBNB();
     if (isMounted) {
@@ -62,7 +61,7 @@ function TicketItem() {
     }
   }, []);
 
-  const fetchData = async () => {
+  const loadTickets = async () => {
     const account = await getAccount();
     const ticket = await fetchTicket(params.ticketId);
     console.log(ticket);
@@ -118,7 +117,7 @@ function TicketItem() {
       })
       .catch((err) => console.log(err));
 
-    return item;
+    setTicket(item);
   };
 
   const fetchHistory = async () => {
@@ -609,10 +608,10 @@ function TicketItem() {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <div className="inline-block w-full max-w-2xl my-8 text-left align-middle transition-all transform text-white bg-background shadow-lg rounded-2xl">
+              <div className="inline-block w-full max-w-xl my-8 text-left align-middle transition-all transform text-white bg-background shadow-lg rounded-2xl">
                 {/*header*/}
                 <div className="relative flex items-center justify-center p-5 border-b border-solid border-white">
-                  <h3 className="text-2xl">Complete checkout</h3>
+                  <h3 className="text-2xl">List item for sale</h3>
                   <button
                     className="absolute right-5 p-3 text-white"
                     onClick={() => setShowSellModal(false)}
@@ -708,7 +707,7 @@ function TicketItem() {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <div className="inline-block w-full max-w-2xl my-8 text-left align-middle transition-all transform text-white bg-background shadow-lg rounded-2xl">
+              <div className="inline-block w-full max-w-xl my-8 text-left align-middle transition-all transform text-white bg-background shadow-lg rounded-2xl">
                 {/*header*/}
                 <div className="relative flex items-center justify-center p-5 border-b border-solid border-white">
                   <h3 className="text-2xl">Complete checkout</h3>
@@ -739,9 +738,19 @@ function TicketItem() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-5">
-                      <BNB className="h-6 w-6" />
-                      <p className="text-xl">{ticket.price / 10 ** 8} BNB</p>
+                    <div className="flex flex-col justify-center text-right space-y-3">
+                      <div className="flex items-center space-x-5">
+                        <BNB className="h-6 w-6" />
+                        <p className="text-xl">{ticket.price / 10 ** 8} BNB</p>
+                      </div>
+                      {ticket.price ? (
+                        <p className="text-sm text-text">
+                          ~ {((bnb * ticket.price) / 10 ** 8).toLocaleString()}{" "}
+                          THB
+                        </p>
+                      ) : (
+                        <p className="text-sm text-sub-text">~ 0 THB</p>
+                      )}
                     </div>
                   </div>
                 </div>

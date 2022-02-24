@@ -1,8 +1,13 @@
 import { React, useState, Fragment, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { Routes, Route, Link, useNavigate } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  Link,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
 import ReactTooltip from "react-tooltip";
-import Web3 from "web3";
 import axios from "axios";
 import { API_URL } from "../../config";
 import { create as ipfsHttpClient } from "ipfs-http-client";
@@ -16,6 +21,7 @@ import { ReactComponent as Verify } from "../../assets/icons/verify.svg";
 
 import Owned from "../Account/Owned";
 import Created from "../Account/Created";
+import { getAccount } from "../../services/Web3";
 
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
 
@@ -27,7 +33,6 @@ function Account() {
     email: "",
     verify: false,
   });
-  const [path, setPath] = useState();
   const [copy, setCopy] = useState(false);
   const [share, setShare] = useState(false);
   const [copyDisabled, setCopyDisabled] = useState();
@@ -35,18 +40,24 @@ function Account() {
   const [image, setImage] = useState({ preview: "", raw: "" });
 
   const navigate = useNavigate();
+  const location = useLocation();
 
-  useEffect(async () => {
-    const web3 = new Web3(window.ethereum);
-    const accounts = await web3.eth.getAccounts();
-    setAccount(accounts[0]);
+  useEffect(() => {}, [location]);
 
-    if (accounts.length === 0) {
+  useEffect(() => {
+    checkEmailVerified();
+  }, []);
+
+  const checkEmailVerified = async () => {
+    const account = await getAccount();
+    setAccount(account);
+
+    if (account.length === 0) {
       return navigate("/");
     }
 
     await axios
-      .get(`${API_URL}/account/${accounts[0]}`)
+      .get(`${API_URL}/account/${account}`)
       .then((response) => {
         if (response.data) {
           if (response.data.email) {
@@ -67,7 +78,7 @@ function Account() {
         }
       })
       .catch((err) => console.log(err));
-  }, []);
+  };
 
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
@@ -99,10 +110,6 @@ function Account() {
       setShare(false);
       setShareDisabled(false);
     }, 2000);
-  };
-
-  const watchPath = (path) => {
-    setPath(path);
   };
 
   const copyAddress = () => {
@@ -197,39 +204,27 @@ function Account() {
             </div>
             <div className="w-full flex flex-col items-center">
               <div className="h-18 flex items-center text-text">
-                <Link
-                  to=""
-                  onClick={() => {
-                    watchPath("");
-                  }}
-                  className="relative h-full flex px-10 items-center"
-                >
+                <Link to="" className="relative h-full flex px-10 items-center">
                   <p>On Sale</p>
-                  {path === "" ? (
+                  {location.pathname === "/account" ? (
                     <span className="absolute h-1 w-full bottom-0 left-0 rounded-t-lg bg-primary"></span>
                   ) : null}
                 </Link>
                 <Link
                   to={"owned"}
-                  onClick={() => {
-                    watchPath("owned");
-                  }}
                   className="relative h-full flex px-10 items-center"
                 >
                   <p>Owned</p>
-                  {path === "owned" ? (
+                  {location.pathname === "/account/owned" ? (
                     <span className="absolute h-1 w-full bottom-0 left-0 rounded-t-lg bg-primary"></span>
                   ) : null}
                 </Link>
                 <Link
                   to={"created"}
-                  onClick={() => {
-                    watchPath("created");
-                  }}
                   className="relative h-full flex px-10 items-center"
                 >
                   <p>Created</p>
-                  {path === "created" ? (
+                  {location.pathname === "/account/created" ? (
                     <span className="absolute h-1 w-full bottom-0 left-0 rounded-t-lg bg-primary"></span>
                   ) : null}
                 </Link>
