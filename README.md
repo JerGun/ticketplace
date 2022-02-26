@@ -25,6 +25,7 @@ Others          | 10%       | 5%
 ---
 
 ## Under Development 🚧
+- Filter events or tickets
 - Verify Request
 - Transfer ticket to others
 ---
