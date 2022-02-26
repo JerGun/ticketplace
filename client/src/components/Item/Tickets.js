@@ -118,6 +118,7 @@ function Tickets() {
 
   const handleSubmit = async (ticket) => {
     const balance = await getBalance();
+    setBalance(balance);
     setSelectedTicket({
       itemId: ticket.itemId,
       image: ticket.image,
