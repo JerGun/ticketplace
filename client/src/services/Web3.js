@@ -16,6 +16,18 @@ export const getAccount = () => {
   });
 };
 
+export const connectWallet = () => {
+  return new Promise(function (res, rej) {
+    window.ethereum
+      .request({
+        method: "eth_requestAccounts",
+      })
+      .then((result) => {
+        accounts.length !== 0 && res(result[0]);
+      });
+  });
+};
+
 export const getBalance = () => {
   return new Promise(function (res, rej) {
     web3.eth.getAccounts().then((result) => {

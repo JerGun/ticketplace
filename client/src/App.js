@@ -60,13 +60,19 @@ function App() {
     }
   });
 
-  const connectWallet = async () => {
+  const connect = async () => {
+    // if (account.length === 0) {
+    //   const accounts = await window.ethereum.request({
+    //     method: "eth_requestAccounts",
+    //   });
+    //   if (accounts.length !== 0) {
+    //     setAccount(accounts[0]);
+    //   }
+    // }
     if (account.length === 0) {
-      const accounts = await window.ethereum.request({
-        method: "eth_requestAccounts",
-      });
-      if (accounts.length !== 0) {
-        setAccount(accounts[0]);
+      const connectAccount = await connectWallet();
+      if (connectAccount) {
+        setAccount(connectAccount);
       }
     }
   };
@@ -74,7 +80,7 @@ function App() {
   return (
     <div className="w-full h-screen bg-background overflow-hidden">
       <Router>
-        <Navbar connectWallet={connectWallet} account={account} />
+        <Navbar connectWallet={connect} account={account} />
         <div
           className={
             network !== 97
