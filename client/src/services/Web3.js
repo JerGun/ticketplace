@@ -23,7 +23,7 @@ export const connectWallet = () => {
         method: "eth_requestAccounts",
       })
       .then((result) => {
-        accounts.length !== 0 && res(result[0]);
+        result.length !== 0 && res(result[0]);
       });
   });
 };

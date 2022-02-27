@@ -20,6 +20,7 @@ import VerifyRequest from "./components/VerifyRequest";
 import ListTicket from "./components/ListTicket";
 import Events from "./components/Item/Events";
 import EventItem from "./components/Item/EventItem";
+import { connectWallet } from "./services/Web3";
 
 function App() {
   const [web3, setWeb3] = useState();
