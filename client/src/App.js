@@ -20,30 +20,26 @@ import VerifyRequest from "./components/VerifyRequest";
 import ListTicket from "./components/ListTicket";
 import Events from "./components/Item/Events";
 import EventItem from "./components/Item/EventItem";
-import { connectWallet } from "./services/Web3";
+import { connectWallet, getNetwork } from "./services/Web3";
 
 function App() {
   const [web3, setWeb3] = useState();
   const [account, setAccount] = useState("");
   const [network, setNetwork] = useState(97);
 
-  const componentMounted = useRef(true);
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    isMounted.current = false;
+  }, []);
 
   useEffect(async () => {
     if (window.ethereum) {
-      const web3 = new Web3(window.ethereum);
-      const accounts = await web3.eth.getAccounts();
-      const networkId = await web3.eth.net.getId();
-      if (componentMounted.current) {
-        setNetwork(networkId);
-        setWeb3(web3);
-        if (accounts.length !== 0) {
-          setAccount(accounts[0]);
-        }
+      const networkId = await getNetwork();
+      setNetwork(networkId);
+      if (isMounted) {
+        setLoadingState(true);
       }
-      return () => {
-        componentMounted.current = false;
-      };
     }
   }, []);
 
