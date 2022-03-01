@@ -1,15 +1,14 @@
 import { React, useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import Loading from "../Loading";
-
-import { ReactComponent as More } from "../../assets/icons/more.svg";
-import { ReactComponent as Location } from "../../assets/icons/location.svg";
 import {
   fetchCreatedEvents,
   fetchTicketsInEvent,
   getUri,
 } from "../../services/Web3";
+
+import { ReactComponent as More } from "../../assets/icons/more.svg";
+import { ReactComponent as Location } from "../../assets/icons/location.svg";
 
 function Created() {
   const [events, setEvents] = useState([""]);
