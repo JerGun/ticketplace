@@ -120,6 +120,42 @@ export const fetchCreatedEvents = () => {
       eventContract.methods
         .fetchCreatedEvents(accounts[0])
         .call()
+        .then((result) => {
+          console.log(result);
+          res(result);
+        });
+    });
+  });
+};
+
+export const fetchOwnedEvents = () => {
+  return new Promise(function (res, rej) {
+    web3.eth.getAccounts().then((accounts) => {
+      eventContract.methods
+        .fetchOwnedEvents(accounts[0])
+        .call()
+        .then((result) => res(result));
+    });
+  });
+};
+
+export const fetchCreatedTickets = () => {
+  return new Promise(function (res, rej) {
+    web3.eth.getAccounts().then((accounts) => {
+      eventContract.methods
+        .fetchCreatedTickets(accounts[0])
+        .call()
+        .then((result) => res(result));
+    });
+  });
+};
+
+export const fetchOwnedTickets = (isCreator) => {
+  return new Promise(function (res, rej) {
+    web3.eth.getAccounts().then((accounts) => {
+      eventContract.methods
+        .fetchOwnedTickets(accounts[0], isCreator)
+        .call()
         .then((result) => res(result));
     });
   });

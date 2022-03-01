@@ -193,6 +193,110 @@ contract Event is ERC1155 {
         return items;
     }
 
+    function fetchOwnedEvents(address account)
+        public
+        view
+        returns (EventItem[] memory)
+    {
+        uint256 totalTokenCount = _tokenIds.current();
+        uint256 tokenCount = 0;
+        uint256 currentIndex = 0;
+
+        for (uint256 i = 0; i < totalTokenCount; i++) {
+            if (eventToken[i + 1].owner == account) {
+                tokenCount += 1;
+            }
+        }
+
+        EventItem[] memory items = new EventItem[](tokenCount);
+        for (uint256 i = 0; i < totalTokenCount; i++) {
+            if (eventToken[i + 1].owner == account) {
+                EventItem storage currentItem = eventToken[i + 1];
+                items[currentIndex] = currentItem;
+                currentIndex += 1;
+            }
+        }
+        return items;
+    }
+
+    function fetchCreatedTickets(address account)
+        public
+        view
+        returns (Item[] memory)
+    {
+        uint256 tokenCount = 0;
+        uint256 currentIndex = 0;
+
+        EventItem[] memory events = createdEvents[account];
+        for (uint256 i = 0; i < events.length; i++) {
+            uint256 ticketCount = ticketsInEvent[events[i].tokenId].length;
+            tokenCount += ticketCount;
+        }
+
+        Item[] memory items = new Item[](tokenCount);
+        for (uint256 i = 0; i < events.length; i++) {
+            Item[] storage currentItem = ticketsInEvent[events[i].tokenId];
+            for (uint256 j = 0; j < currentItem.length; j++) {
+                items[currentIndex] = currentItem[j];
+                currentIndex += 1;
+            }
+        }
+        return items;
+    }
+
+    function fetchOwnedTickets(address account, bool isCreator)
+        public
+        view
+        returns (TicketItem[] memory)
+    {
+        uint256 totalTokenCount = _tokenIds.current();
+        uint256 tokenCount = 0;
+        uint256 currentIndex = 0;
+
+        if (isCreator) {
+            for (uint256 i = 0; i < totalTokenCount; i++) {
+                if (ticketToken[i + 1].owner == account) {
+                    tokenCount += 1;
+                }
+            }
+        } else {
+            for (uint256 i = 0; i < totalTokenCount; i++) {
+                if (
+                    eventToken[ticketToken[i + 1].eventTokenId].owner !=
+                    account &&
+                    ticketToken[i + 1].owner == account
+                ) {
+                    tokenCount += 1;
+                }
+            }
+        }
+
+        TicketItem[] memory items = new TicketItem[](tokenCount);
+        if (isCreator) {
+            for (uint256 i = 0; i < totalTokenCount; i++) {
+                if (ticketToken[i + 1].owner == account) {
+                    TicketItem storage currentItem = ticketToken[i + 1];
+                    items[currentIndex] = currentItem;
+                    currentIndex += 1;
+                }
+            }
+        } else {
+            for (uint256 i = 0; i < totalTokenCount; i++) {
+                if (
+                    eventToken[ticketToken[i + 1].eventTokenId].owner !=
+                    account &&
+                    ticketToken[i + 1].owner == account
+                ) {
+                    TicketItem storage currentItem = ticketToken[i + 1];
+                    items[currentIndex] = currentItem;
+                    currentIndex += 1;
+                }
+            }
+        }
+
+        return items;
+    }
+
     function fetchTicketsInEvent(uint256 eventTokenId)
         public
         view
