@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import Web3 from "web3";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import { ReactComponent as Close } from "./assets/icons/close.svg";
@@ -23,25 +22,16 @@ import EventItem from "./components/Item/EventItem";
 import { connectWallet, getNetwork } from "./services/Web3";
 
 function App() {
-  const [web3, setWeb3] = useState();
   const [account, setAccount] = useState("");
   const [network, setNetwork] = useState(97);
-
-  const isMounted = useRef(true);
-
-  useEffect(() => {
-    isMounted.current = false;
-  }, []);
 
   useEffect(async () => {
     if (window.ethereum) {
       const networkId = await getNetwork();
       setNetwork(networkId);
-      if (isMounted) {
-        setLoadingState(true);
-      }
+      await connect();
     }
-  }, []);
+  }, [account]);
 
   useEffect(() => {
     if (window.ethereum) {
@@ -51,7 +41,7 @@ function App() {
       });
 
       window.ethereum.on("chainChanged", async function (networkId) {
-        const network = await web3.eth.net.getId();
+        const network = await getNetwork();
         setNetwork(network);
       });
     }
@@ -119,10 +109,10 @@ function App() {
               <Route path="/confirm/:id" element={<Confirm />} />
               <Route path="account/*" element={<Account />} />
               <Route path="verify-request" element={<VerifyRequest />} />
-              <Route
+              {/* <Route
                 path="simple"
                 element={<SimpleStorage account={account} />}
-              />
+              /> */}
             </Routes>
           </div>
         </CustomScrollbars>
