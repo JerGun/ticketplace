@@ -28,7 +28,7 @@ import { ReactComponent as Calendar } from "../../assets/icons/calendar.svg";
 import { ReactComponent as History } from "../../assets/icons/history.svg";
 import { ReactComponent as Close } from "../../assets/icons/close.svg";
 import { ReactComponent as Check } from "../../assets/icons/check.svg";
-import { ReactComponent as Tranfer } from "../../assets/icons/tranfer.svg";
+import { ReactComponent as Transfer } from "../../assets/icons/transfer.svg";
 
 function TicketItem() {
   const [copy, setCopy] = useState(false);
@@ -52,8 +52,8 @@ function TicketItem() {
     isMounted.current = false;
   }, []);
 
-  useEffect(async () => {
-    loadTickets();
+  useEffect(() => {
+    loadTicket();
     fetchHistory();
     fetchBNB();
     if (isMounted) {
@@ -61,7 +61,7 @@ function TicketItem() {
     }
   }, []);
 
-  const loadTickets = async () => {
+  const loadTicket = async () => {
     const account = await getAccount();
     const ticket = await fetchTicket(params.ticketId);
     console.log(ticket);
@@ -179,20 +179,16 @@ function TicketItem() {
 
   const handleSubmit = async (itemId, price) => {
     await buyTicket(itemId, price)
-      .then()
       .catch((err) => console.log(err));
   };
 
   const handleSell = async (ticketId, price) => {
-    console.log(ticketId, price);
     await createMarketItem(ticketId, price)
-      .then()
       .catch((err) => console.log(err));
   };
 
   const handleCancel = async (itemId) => {
     await cancelListing(itemId)
-      .then()
       .catch((err) => console.log(err));
   };
 

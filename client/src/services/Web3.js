@@ -67,7 +67,10 @@ export const createMarketItem = (ticketId, price) => {
       eventContract.methods
         .createMarketItem(ticketId, price * 10 ** 8)
         .send({ from: accounts[0] })
-        .then((result) => res(result));
+        .then((result) => {
+          window.location.reload();
+          res(result);
+        });
     });
   });
 };
@@ -78,7 +81,10 @@ export const cancelListing = (itemId) => {
       eventContract.methods
         .cancelListing(itemId)
         .send({ from: accounts[0] })
-        .then((result) => res(result));
+        .then((result) => {
+          window.location.reload();
+          res(result);
+        });
     });
   });
 };
@@ -91,7 +97,10 @@ export const buyTicket = (itemId, price) => {
       eventContract.methods
         .buyMarketItem(itemId)
         .send({ from: accounts[0], value: price * 10 ** 10 })
-        .then((result) => res(result));
+        .then((result) => {
+          window.location.reload();
+          res(result);
+        });
     });
   });
 };
