@@ -235,7 +235,7 @@ function Account() {
           <div className="h-full flex justify-center text-white">
             <Routes>
               <Route path="" element={<p>No items to display</p>} />
-              <Route path=":owned" element={<Created />} />
+              <Route path=":owned" element={<Owned />} />
               <Route path=":create" element={<Created />} />
             </Routes>
           </div>
