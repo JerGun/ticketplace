@@ -175,8 +175,7 @@ contract Event is ERC1155 {
         MarketItem[] memory items = new MarketItem[](unsoldItemCount);
         for (uint256 i = 0; i < itemCount; i++) {
             if (!ticketInMarket[i + 1].sold) {
-                uint256 currentId = i + 1;
-                MarketItem storage currentItem = ticketInMarket[currentId];
+                MarketItem storage currentItem = ticketInMarket[i + 1];
                 items[currentIndex] = currentItem;
                 currentIndex += 1;
             }
