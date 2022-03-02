@@ -178,18 +178,15 @@ function TicketItem() {
   };
 
   const handleSubmit = async (itemId, price) => {
-    await buyTicket(itemId, price)
-      .catch((err) => console.log(err));
+    await buyTicket(itemId, price).catch((err) => console.log(err));
   };
 
   const handleSell = async (ticketId, price) => {
-    await createMarketItem(ticketId, price)
-      .catch((err) => console.log(err));
+    await createMarketItem(ticketId, price).catch((err) => console.log(err));
   };
 
   const handleCancel = async (itemId) => {
-    await cancelListing(itemId)
-      .catch((err) => console.log(err));
+    await cancelListing(itemId).catch((err) => console.log(err));
   };
 
   return (
@@ -229,11 +226,12 @@ function TicketItem() {
                               {ticket.price / 10 ** 8} BNB
                             </p>
                             <p className="text-sm text-text">
-                              ~{" "}
-                              {(
-                                (bnb * ticket.price) /
-                                10 ** 8
-                              ).toLocaleString()}{" "}
+                              {((bnb * ticket.price) / 10 ** 8).toLocaleString(
+                                undefined,
+                                {
+                                  maximumFractionDigits: 2,
+                                }
+                              )}{" "}
                               THB
                             </p>
                           </div>
@@ -277,7 +275,12 @@ function TicketItem() {
                           {ticket.price / 10 ** 8} BNB
                         </p>
                         <p className="text-sm text-text">
-                          ~ {((bnb * ticket.price) / 10 ** 8).toLocaleString()}{" "}
+                          {((bnb * ticket.price) / 10 ** 8).toLocaleString(
+                            undefined,
+                            {
+                              maximumFractionDigits: 2,
+                            }
+                          )}{" "}
                           THB
                         </p>
                       </div>
@@ -435,7 +438,9 @@ function TicketItem() {
                                             {(
                                               (bnb * item.value) /
                                               10 ** 18
-                                            ).toFixed(2)}
+                                            ).toLocaleString(undefined, {
+                                              maximumFractionDigits: 2,
+                                            })}
                                           </p>
                                           <p>THB</p>
                                         </div>
@@ -642,10 +647,13 @@ function TicketItem() {
                     </div>
                     {price ? (
                       <p className="text-sm text-text">
-                        ~ {(bnb * price).toLocaleString()} THB
+                        {(bnb * price).toLocaleString(undefined, {
+                          maximumFractionDigits: 2,
+                        })}{" "}
+                        THB
                       </p>
                     ) : (
-                      <p className="text-sm text-sub-text">~ 0 THB</p>
+                      <p className="text-sm text-sub-text">0 THB</p>
                     )}
                   </div>
                 </div>
@@ -748,11 +756,16 @@ function TicketItem() {
                       </div>
                       {ticket.price ? (
                         <p className="text-sm text-text">
-                          ~ {((bnb * ticket.price) / 10 ** 8).toLocaleString()}{" "}
+                          {((bnb * ticket.price) / 10 ** 8).toLocaleString(
+                            undefined,
+                            {
+                              maximumFractionDigits: 2,
+                            }
+                          )}{" "}
                           THB
                         </p>
                       ) : (
-                        <p className="text-sm text-sub-text">~ 0 THB</p>
+                        <p className="text-sm text-sub-text">0 THB</p>
                       )}
                     </div>
                   </div>

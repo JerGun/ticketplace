@@ -56,7 +56,7 @@ function AccountSettings() {
   }, []);
 
   useEffect(() => {
-    formInput.name !== info.name && formInput.emai !== info.email
+    formInput.name !== info.name || formInput.email !== info.email
       ? formInput.name.length > 0 && formInput.email.length > 0
         ? !nameRequired && !emailRequired && !emailPattern
           ? setSubmitDisable(false)

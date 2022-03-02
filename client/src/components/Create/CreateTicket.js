@@ -422,10 +422,10 @@ function CreateTicket() {
               </div>
               {formInput.price ? (
                 <p className="text-sm text-text">
-                  ~ {(bnb * formInput.price).toLocaleString()} THB
+                  {(bnb * formInput.price).toLocaleString(undefined, {maximumFractionDigits: 2})} THB
                 </p>
               ) : (
-                <p className="text-sm text-sub-text">~ 0 THB</p>
+                <p className="text-sm text-sub-text">0 THB</p>
               )}
             </div>
             <button

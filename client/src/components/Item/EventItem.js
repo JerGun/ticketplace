@@ -306,11 +306,12 @@ function EventItem() {
                               {ticket.price / 10 ** 8} BNB
                             </p>
                             <p className="w-10/12 truncate text-sm text-text">
-                              ~{" "}
                               {(
                                 (bnb * ticket.price) /
                                 10 ** 8
-                              ).toLocaleString()}{" "}
+                              ).toLocaleString(undefined, {
+                                maximumFractionDigits: 2,
+                              })}{" "}
                               THB
                             </p>
                           </div>
