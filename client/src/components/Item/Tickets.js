@@ -816,23 +816,28 @@ function Tickets() {
                           className="h-full w-full object-cover rounded-lg"
                         />
                       </div>
-                      {!selectedTicket.active ? (
-                        <div className="flex items-center space-x-2 ml-3">
+                      <div className="space-y-1 ml-3">
+                        <p>Ticket Status</p>
+                        <div className="flex items-center space-x-2">
                           <span class="relative flex h-2 w-2">
-                            <span class="animate-ping absolute h-2 w-2 rounded-full bg-green-500 opacity-75"></span>
-                            <span className="h-2 w-2 rounded-full bg-green-500"></span>
+                            <span
+                              class={`${
+                                selectedTicket.active
+                                  ? "bg-green-500"
+                                  : "bg-red-500"
+                              } animate-ping absolute h-2 w-2 rounded-full opacity-75`}
+                            ></span>
+                            <span
+                              className={`${
+                                selectedTicket.active
+                                  ? "bg-green-500"
+                                  : "bg-red-500"
+                              } h-2 w-2 rounded-full`}
+                            ></span>
                           </span>
-                          <p>Available</p>
+                          <p>{selectedTicket.active ? "Available" : "Used"}</p>
                         </div>
-                      ) : (
-                        <div className="flex items-center space-x-2 ml-3">
-                          <span class="relative flex h-2 w-2">
-                            <span class="animate-ping absolute h-2 w-2 rounded-full bg-red-500 opacity-75"></span>
-                            <span className="h-2 w-2 rounded-full bg-red-500"></span>
-                          </span>
-                          <p>Used</p>
-                        </div>
-                      )}
+                      </div>
                     </div>
                     <div className="w-8/12 space-y-3">
                       <div className="space-y-1">
