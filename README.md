@@ -18,16 +18,20 @@ Others          | 10%       | 5%
 - Connect wallet via MetaMask
 - Setup Ticketplace account
 - Verify email
+- Mint Event
 - Mint Ticket & Create market sale
 - Buy ticket
 - Resell ticket
 - Cancel listing
+- Fast checkout
 ---
 
 ## Under Development 🚧
 - Filter events or tickets
-- Verify Request
+- Edit event & ticket
+- Verify Request (Profile setup)
 - Transfer ticket to others
+- Other users profile
 ---
 ## CI 🏭
 
