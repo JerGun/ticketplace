@@ -278,8 +278,8 @@ function EventItem() {
             </div>
             <div className="h-full w-10/12 p-10">
               {tickets.length === 0 ? (
-                <div className="h-full w-full flex justify-center items-center text-3xl">
-                  <p>No items to display</p>
+                <div className="h-64 w-full border-2 rounded-lg flex items-center justify-center border-input">
+                  <h1 className="py-10 px-20 text-3xl">No items to display</h1>
                 </div>
               ) : (
                 <div className="h-auto w-full grid grid-cols-2 gap-5 pb-10 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
@@ -306,12 +306,12 @@ function EventItem() {
                               {ticket.price / 10 ** 8} BNB
                             </p>
                             <p className="w-10/12 truncate text-sm text-text">
-                              {(
-                                (bnb * ticket.price) /
-                                10 ** 8
-                              ).toLocaleString(undefined, {
-                                maximumFractionDigits: 2,
-                              })}{" "}
+                              {((bnb * ticket.price) / 10 ** 8).toLocaleString(
+                                undefined,
+                                {
+                                  maximumFractionDigits: 2,
+                                }
+                              )}{" "}
                               THB
                             </p>
                           </div>
