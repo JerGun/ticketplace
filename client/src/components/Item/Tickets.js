@@ -6,6 +6,7 @@ import Loading from "../Loading";
 import { Link } from "react-router-dom";
 import {
   buyTicket,
+  cancelListing,
   fetchEvent,
   fetchMarketItems,
   fetchTicket,
@@ -20,6 +21,7 @@ import { ReactComponent as Info } from "../../assets/icons/info.svg";
 import { ReactComponent as Cart } from "../../assets/icons/cart.svg";
 import { ReactComponent as Down } from "../../assets/icons/down.svg";
 import { ReactComponent as Close } from "../../assets/icons/close.svg";
+import { ReactComponent as Cancel } from "../../assets/icons/cancel.svg";
 import { ReactComponent as BNB } from "../../assets/icons/bnb.svg";
 
 const listOption = [
@@ -42,6 +44,7 @@ function Tickets() {
   const [tickets, setTickets] = useState([]);
   const [loadingState, setLoadingState] = useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
   const [showAddFundsModal, setShowAddFundsModal] = useState(false);
   const [event, setEvent] = useState([]);
   const [bnb, setBnb] = useState(0);
@@ -67,35 +70,42 @@ function Tickets() {
 
   const loadTickets = async () => {
     const data = await fetchMarketItems();
-    let payload = { tokenList: [] };
+    console.log(data);
     const items = await Promise.all(
       data.map(async (i) => {
-        const ticket = await fetchTicket(i.tokenId);
-        const eventUri = await getUri(ticket.eventTokenId);
-        const eventMeta = await axios.get(eventUri);
-        const tokenUri = await getUri(i.tokenId);
-        const ticketMeta = await axios.get(tokenUri);
-        let item = {
-          eventId: ticket.eventTokenId,
-          eventName: eventMeta.data.name,
-          itemId: i.itemId,
-          tokenId: i.tokenId,
-          seller: i.seller,
-          owner: i.owner,
-          price: i.price,
-          image: ticketMeta.data.image,
-          name: ticketMeta.data.name,
-          link: ticketMeta.data.link,
-          description: ticketMeta.data.description,
-          startDate: ticketMeta.data.startDate,
-          endDate: ticketMeta.data.endDate,
-          active: ticket.active,
-        };
-        payload.tokenList.push(i.tokenId);
-        return item;
+        let item;
+        if (i.itemId !== "0") {
+          const ticket = await fetchTicket(i.tokenId);
+          const eventUri = await getUri(ticket.eventTokenId);
+          const eventMeta = await axios.get(eventUri);
+          const tokenUri = await getUri(i.tokenId);
+          const ticketMeta = await axios.get(tokenUri);
+          item = {
+            eventId: ticket.eventTokenId,
+            eventName: eventMeta.data.name,
+            itemId: i.itemId,
+            tokenId: i.tokenId,
+            seller: i.seller,
+            owner: i.owner,
+            price: i.price,
+            image: ticketMeta.data.image,
+            name: ticketMeta.data.name,
+            link: ticketMeta.data.link,
+            description: ticketMeta.data.description,
+            startDate: ticketMeta.data.startDate,
+            endDate: ticketMeta.data.endDate,
+            active: ticket.active,
+          };
+          return item;
+        }
+        return;
       })
     );
-    setTickets(items);
+    setTickets(
+      items.filter((e) => {
+        return e !== undefined;
+      })
+    );
   };
 
   const handleChange = (event) => {
@@ -116,9 +126,13 @@ function Tickets() {
     setAccount(account);
   };
 
-  const handleSubmit = async (ticket) => {
+  const getAccountBalance = async () => {
     const balance = await getBalance();
     setBalance(balance);
+  };
+
+  const handleSubmit = async (ticket) => {
+    getAccountBalance();
     setSelectedTicket({
       itemId: ticket.itemId,
       image: ticket.image,
@@ -128,6 +142,10 @@ function Tickets() {
       price: ticket.price,
     });
     setShowCheckoutModal(true);
+  };
+
+  const handleCancel = async (itemId) => {
+    await cancelListing(itemId).catch((err) => console.log(err));
   };
 
   const confirmCheckout = async (itemId, price) => {
@@ -155,7 +173,7 @@ function Tickets() {
       <div className="h-full w-full flex justify-end text-white bg-background">
         <div className="h-full w-2/12 fixed p-5 space-y-10 left-0 flex flex-col items-center shadow-lg bg-modal-button">
           <div className="w-full space-y-3">
-            <p className="w-full text-2xl font-bold">Sort by</p>
+            <p className="w-full text-xl font-bold">Sort by</p>
             <Listbox value={sortBy} onChange={setSortBy}>
               <div className="w-full relative inline-block rounded-lg shadow-lg bg-hover hover:bg-hover-light">
                 <Listbox.Button className="h-11 w-full inline-flex justify-between px-3 items-center space-x-3 text-white rounded-lg">
@@ -198,7 +216,7 @@ function Tickets() {
             </Listbox>
           </div>
           <div className="w-full space-y-3">
-            <p className="text-2xl font-bold">Min Price</p>
+            <p className="text-xl font-bold">Min Price</p>
             <div className="h-11 w-full space-x-3 px-3 flex items-center rounded-lg shadow-lg bg-hover hover:bg-hover-light focus-within:bg-hover-light">
               <input
                 type="number"
@@ -210,7 +228,7 @@ function Tickets() {
             </div>
           </div>
           <div className="w-full space-y-3">
-            <p className="text-2xl font-bold">Max Price</p>
+            <p className="text-xl font-bold">Max Price</p>
             <div className="h-11 w-full space-x-3 px-3 flex items-center rounded-lg shadow-lg bg-hover hover:bg-hover-light focus-within:bg-hover-light">
               <input
                 type="number"
@@ -296,22 +314,44 @@ function Tickets() {
                     <div className="px-3 py-2 flex items-center space-x-5 justify-between text-text">
                       {ticket.active && (
                         <div className="flex items-center space-x-2">
-                          <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                          <p>Active</p>
+                          <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute h-2 w-2 rounded-full bg-green-500 opacity-75"></span>
+                            <span className="h-2 w-2 rounded-full bg-green-500"></span>
+                          </span>
+                          <p className="w-full text-sm truncate">
+                            Token ID: {ticket.tokenId}
+                          </p>
                         </div>
                       )}
                       <div className="flex space-x-1">
                         <button className="p-2 text-white">
                           <Info />
                         </button>
-                        <button
-                          className="p-2 text-primary"
-                          onClick={() => {
-                            handleSubmit(ticket);
-                          }}
-                        >
-                          <Cart />
-                        </button>
+                        {ticket.owner !== account ? (
+                          <button
+                            className="p-2 text-primary"
+                            onClick={() => {
+                              handleSubmit(ticket);
+                            }}
+                          >
+                            <Cart />
+                          </button>
+                        ) : (
+                          <button
+                            className="p-2 text-primary"
+                            onClick={() => {
+                              setSelectedTicket({
+                                itemId: ticket.itemId,
+                              });
+                              setShowCancelModal(true);
+                            }}
+                          >
+                            <div className="relative">
+                              <Cart />
+                              <Cancel className="absolute top-0 scale-50 text-red-500 rounded-full bg-modal-button" />
+                            </div>
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -463,7 +503,7 @@ function Tickets() {
             </Transition.Child>
           </div>
         </Dialog>
-        {balance / 10 ** 18 > selectedTicket.price / 10 ** 8 && (
+        {balance / 10 ** 18 < selectedTicket.price / 10 ** 8 && (
           <ReactTooltip
             effect="solid"
             place="top"
@@ -471,6 +511,80 @@ function Tickets() {
             backgroundColor="#5A5A5C"
           />
         )}
+      </Transition>
+      <Transition
+        show={showCancelModal}
+        enter="transition duration-100 ease-out"
+        enterFrom="transform scale-95 opacity-0"
+        enterTo="transform scale-100 opacity-100"
+        leave="transition duration-75 ease-out"
+        leaveFrom="transform scale-100 opacity-100"
+        leaveTo="transform scale-95 opacity-0"
+      >
+        <Dialog
+          as="div"
+          className="fixed inset-0 z-20 overflow-y-auto"
+          onClose={() => setShowCancelModal(false)}
+        >
+          <div className="px-4 text-center">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <Dialog.Overlay className="fixed inset-0 bg-black opacity-80" />
+            </Transition.Child>
+
+            {/* This element is to trick the browser into centering the modal contents. */}
+            <span
+              className="inline-block h-screen align-middle"
+              aria-hidden="true"
+            >
+              &#8203;
+            </span>
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <div className="inline-block w-full max-w-xl my-8 text-left align-middle transition-all transform text-white bg-background shadow-lg rounded-2xl">
+                {/*header*/}
+                <div className="relative flex items-center justify-center p-5 border-b border-solid border-white">
+                  <h3 className="text-2xl">
+                    Are you sure you want to cancel your listing?
+                  </h3>
+                  <button
+                    className="absolute right-5 p-3 text-white"
+                    onClick={() => setShowCancelModal(false)}
+                  >
+                    <Close />
+                  </button>
+                </div>
+                {/*body*/}
+                <div className="relative p-6 space-y-3 flex justify-center">
+                  <button
+                    className="h-11 w-fit px-5 flex justify-center items-center rounded-lg font-bold text-black bg-primary hover:bg-primary-light"
+                    type="button"
+                    onClick={() => {
+                      handleCancel(selectedTicket.itemId);
+                      setShowCancelModal(false);
+                    }}
+                  >
+                    Confirm
+                  </button>
+                </div>
+              </div>
+            </Transition.Child>
+          </div>
+        </Dialog>
       </Transition>
       <Transition
         show={showAddFundsModal}
@@ -520,6 +634,7 @@ function Tickets() {
                   <button
                     className="absolute left-5 p-3 scale-50 text-white"
                     onClick={() => {
+                      getAccountBalance();
                       setShowAddFundsModal(false);
                       setTimeout(() => {
                         setShowCheckoutModal(true);
