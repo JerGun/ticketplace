@@ -22,6 +22,7 @@ import { ReactComponent as Verify } from "../../assets/icons/verify.svg";
 import Owned from "../Account/Owned";
 import Created from "../Account/Created";
 import { getAccount } from "../../services/Web3";
+import Listing from "./Listing";
 
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
 
@@ -205,7 +206,7 @@ function Account() {
             <div className="w-full flex flex-col items-center">
               <div className="h-18 flex items-center text-text">
                 <Link to="" className="relative h-full flex px-10 items-center">
-                  <p>On Sale</p>
+                  <p>Listing</p>
                   {location.pathname === "/account" ? (
                     <span className="absolute h-1 w-full bottom-0 left-0 rounded-t-lg bg-primary"></span>
                   ) : null}
@@ -234,7 +235,7 @@ function Account() {
           </div>
           <div className="h-full flex justify-center text-white">
             <Routes>
-              <Route path="" element={<p>No items to display</p>} />
+              <Route path="" element={<Listing />} />
               <Route path=":owned" element={<Owned />} />
               <Route path=":create" element={<Created />} />
             </Routes>
