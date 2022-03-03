@@ -101,7 +101,7 @@ function TicketItem() {
     await axios
       .get(`${API_URL}/account/${event.owner}`)
       .then((user) => {
-        if (user) {
+        if (user.data) {
           item.organizer = event.owner;
           item.organizerName = event.owner === account ? "you" : user.data.name;
         } else item.ownerName = item.owner.slice(2, 9).toUpperCase();
@@ -111,7 +111,7 @@ function TicketItem() {
     await axios
       .get(`${API_URL}/account/${item.owner}`)
       .then((user) => {
-        if (user)
+        if (user.data)
           item.ownerName = item.owner === account ? "you" : user.data.name;
         else item.ownerName = item.owner.slice(2, 9).toUpperCase();
       })

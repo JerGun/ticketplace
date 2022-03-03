@@ -1,8 +1,6 @@
-import { React, Fragment, useState, useEffect, useRef } from "react";
+import React, { Fragment, useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Dialog, Listbox, Transition } from "@headlessui/react";
-import { API_URL } from "../../config";
-import Loading from "../Loading";
 import { Link } from "react-router-dom";
 import {
   buyTicket,
@@ -15,6 +13,7 @@ import {
   getUri,
 } from "../../services/Web3";
 import ReactTooltip from "react-tooltip";
+import { API_URL } from "../../config";
 
 import { ReactComponent as Left } from "../../assets/icons/left.svg";
 import { ReactComponent as Info } from "../../assets/icons/info.svg";
@@ -36,7 +35,7 @@ function Tickets() {
   const [sortBy, setSortBy] = useState(listOption[0]);
   const [selectedTicket, setSelectedTicket] = useState({
     image: "",
-    organizerName: "",
+    organizer: "",
     name: "",
     tokenId: "",
     price: "",
@@ -46,7 +45,7 @@ function Tickets() {
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showAddFundsModal, setShowAddFundsModal] = useState(false);
-  const [event, setEvent] = useState([]);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   const [bnb, setBnb] = useState(0);
   const [balance, setBalance] = useState();
   const [copy, setCopy] = useState(false);
@@ -70,19 +69,20 @@ function Tickets() {
 
   const loadTickets = async () => {
     const data = await fetchMarketItems();
-    console.log(data);
     const items = await Promise.all(
       data.map(async (i) => {
         let item;
         if (i.itemId !== "0") {
           const ticket = await fetchTicket(i.tokenId);
+          const ticketUri = await getUri(i.tokenId);
+          const ticketMeta = await axios.get(ticketUri);
+          const event = await fetchEvent(ticket.eventTokenId);
           const eventUri = await getUri(ticket.eventTokenId);
           const eventMeta = await axios.get(eventUri);
-          const tokenUri = await getUri(i.tokenId);
-          const ticketMeta = await axios.get(tokenUri);
           item = {
             eventId: ticket.eventTokenId,
             eventName: eventMeta.data.name,
+            eventOwner: event.owner,
             itemId: i.itemId,
             tokenId: i.tokenId,
             seller: i.seller,
@@ -94,6 +94,9 @@ function Tickets() {
             description: ticketMeta.data.description,
             startDate: ticketMeta.data.startDate,
             endDate: ticketMeta.data.endDate,
+            startTime: ticketMeta.data.startTime,
+            endTime: ticketMeta.data.endTime,
+            location: ticketMeta.data.location,
             active: ticket.active,
           };
           return item;
@@ -131,27 +134,14 @@ function Tickets() {
     setBalance(balance);
   };
 
-  const handleSubmit = async (ticket) => {
-    getAccountBalance();
-    setSelectedTicket({
-      itemId: ticket.itemId,
-      image: ticket.image,
-      organizerName: ticket.organizerName,
-      name: ticket.name,
-      tokenId: ticket.tokenId,
-      price: ticket.price,
-    });
-    setShowCheckoutModal(true);
+  const handleSubmit = async (itemId, price) => {
+    await buyTicket(itemId, price)
+      .then()
+      .catch((err) => console.log(err));
   };
 
   const handleCancel = async (itemId) => {
     await cancelListing(itemId).catch((err) => console.log(err));
-  };
-
-  const confirmCheckout = async (itemId, price) => {
-    await buyTicket(itemId, price)
-      .then()
-      .catch((err) => console.log(err));
   };
 
   const copyAddress = () => {
@@ -162,10 +152,35 @@ function Tickets() {
     }, 1000);
   };
 
-  const getMinter = (tokenId) => {
-    // return event.filter((el) => {
-    //   return el.tokenId === tokenId;
-    // })[0].name;
+  const getMinter = async (ticket) => {
+    let organizer;
+    await axios
+      .get(`${API_URL}/account/${ticket.eventOwner}`)
+      .then((user) => {
+        console.log(user);
+        if (user.data) organizer = user.data.name;
+        else organizer = ticket.eventOwner.slice(2, 9).toUpperCase();
+      })
+      .catch((err) => console.log(err));
+
+    setSelectedTicket({
+      eventName: ticket.eventName,
+      eventOwner: ticket.eventOwner,
+      organizer: organizer,
+      itemId: ticket.itemId,
+      tokenId: ticket.tokenId,
+      image: ticket.image,
+      name: ticket.name,
+      price: ticket.price,
+      description: ticket.description,
+      startDate: ticket.startDate,
+      endDate: ticket.endDate,
+      startTime: ticket.startTime,
+      endTime: ticket.endTime,
+      location: ticket.location,
+      active: ticket.active,
+    });
+    console.log(selectedTicket);
   };
 
   return (
@@ -312,26 +327,47 @@ function Tickets() {
                       </div>
                     </Link>
                     <div className="px-3 py-2 flex items-center space-x-5 justify-between text-text">
-                      {ticket.active && (
-                        <div className="flex items-center space-x-2">
-                          <span class="relative flex h-2 w-2">
-                            <span class="animate-ping absolute h-2 w-2 rounded-full bg-green-500 opacity-75"></span>
-                            <span className="h-2 w-2 rounded-full bg-green-500"></span>
-                          </span>
-                          <p className="w-full text-sm truncate">
-                            Token ID: {ticket.tokenId}
-                          </p>
-                        </div>
-                      )}
+                      <div className="flex items-center space-x-2">
+                        <span class="relative flex h-2 w-2">
+                          <span
+                            class={`${
+                              !ticket.active ? "bg-green-500" : "bg-red-500"
+                            } animate-ping absolute h-2 w-2 rounded-full opacity-75`}
+                          ></span>
+                          <span
+                            className={`${
+                              !ticket.active ? "bg-green-500" : "bg-red-500"
+                            } h-2 w-2 rounded-full`}
+                          ></span>
+                        </span>
+                        <p className="w-full text-sm truncate">
+                          Token ID: {ticket.tokenId}
+                        </p>
+                      </div>
                       <div className="flex space-x-1">
-                        <button className="p-2 text-white">
+                        <button
+                          className="p-2 text-white"
+                          onClick={() => {
+                            getMinter(ticket);
+
+                            setShowDetailModal(true);
+                          }}
+                        >
                           <Info />
                         </button>
                         {ticket.owner !== account ? (
                           <button
                             className="p-2 text-primary"
                             onClick={() => {
-                              handleSubmit(ticket);
+                              getAccountBalance();
+                              setSelectedTicket({
+                                itemId: ticket.itemId,
+                                image: ticket.image,
+                                name: ticket.name,
+                                tokenId: ticket.tokenId,
+                                price: ticket.price,
+                              });
+                              setShowCheckoutModal(true);
                             }}
                           >
                             <Cart />
@@ -471,7 +507,7 @@ function Tickets() {
                       type="button"
                       onClick={() => {
                         // handleSubmit(selectedTicket.itemId, selectedTicket.price);
-                        confirmCheckout(
+                        handleSubmit(
                           selectedTicket.itemId,
                           selectedTicket.price
                         );
@@ -670,6 +706,162 @@ function Tickets() {
                       >
                         {copy ? "Copied" : "Copy"}
                       </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Transition.Child>
+          </div>
+        </Dialog>
+      </Transition>
+      <Transition
+        show={showDetailModal}
+        enter="transition duration-100 ease-out"
+        enterFrom="transform scale-95 opacity-0"
+        enterTo="transform scale-100 opacity-100"
+        leave="transition duration-75 ease-out"
+        leaveFrom="transform scale-100 opacity-100"
+        leaveTo="transform scale-95 opacity-0"
+      >
+        <Dialog
+          as="div"
+          className="fixed inset-0 z-20 overflow-y-auto "
+          onClose={() => setShowDetailModal(false)}
+        >
+          <div className="px-4 text-center">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <Dialog.Overlay className="fixed inset-0 bg-black opacity-80" />
+            </Transition.Child>
+            <span
+              className="inline-block h-screen align-middle"
+              aria-hidden="true"
+            >
+              &#8203;
+            </span>
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <div className="inline-block w-full max-w-2xl my-8 text-left align-middle transition-all transform text-white bg-background shadow-lg rounded-2xl">
+                {/*header*/}
+                <div className="relative flex items-center justify-center p-5 border-b border-solid border-white">
+                  <h3 className="text-2xl">Ticket Detail</h3>
+                  <button
+                    className="absolute right-5 p-3 text-white"
+                    onClick={() => setShowDetailModal(false)}
+                  >
+                    <Close />
+                  </button>
+                </div>
+                {/*body*/}
+                <div className="relative p-6 space-y-3">
+                  <div className="flex">
+                    <div className="w-4/12 space-y-3">
+                      <div className="h-64 w-48 rounded-lg">
+                        <img
+                          src={selectedTicket.image}
+                          alt=""
+                          className="h-full w-full object-cover rounded-lg"
+                        />
+                      </div>
+                      {!selectedTicket.active ? (
+                        <div className="flex items-center space-x-2 ml-3">
+                          <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute h-2 w-2 rounded-full bg-green-500 opacity-75"></span>
+                            <span className="h-2 w-2 rounded-full bg-green-500"></span>
+                          </span>
+                          <p>Available</p>
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-2 ml-3">
+                          <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute h-2 w-2 rounded-full bg-red-500 opacity-75"></span>
+                            <span className="h-2 w-2 rounded-full bg-red-500"></span>
+                          </span>
+                          <p>Used</p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="w-8/12 space-y-3">
+                      <div className="space-y-1">
+                        <p>Ticket ID</p>
+                        <p className="text-text">{selectedTicket.tokenId}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <p>Organized by</p>
+                        <div className="flex justify-between">
+                          <p className="text-text">
+                            {selectedTicket.organizer}
+                          </p>
+                          {selectedTicket.eventOwner && (
+                            <p className="text-text">
+                              {`${selectedTicket.eventOwner.slice(
+                                0,
+                                5
+                              )} ... ${selectedTicket.eventOwner.slice(-6)}`}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <p>Event name</p>
+                        <p className="text-text">{selectedTicket.eventName}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <p>Ticket name</p>
+                        <p className="text-text">{selectedTicket.name}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <p>Location</p>
+                        <p className="text-text">{selectedTicket.location}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <p>Start at date</p>
+                        <p className="text-text">
+                          {selectedTicket.startDate} at{" "}
+                          {selectedTicket.startTime}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p>End at date</p>
+                        <p className="text-text">
+                          {selectedTicket.endDate} at {selectedTicket.endTime}
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-5">
+                          <BNB className="h-6 w-6" />
+                          <p className="text-xl">
+                            {selectedTicket.price / 10 ** 8} BNB
+                          </p>
+                        </div>
+                        {selectedTicket.price ? (
+                          <p className="text-text">
+                            {(
+                              (bnb * selectedTicket.price) /
+                              10 ** 8
+                            ).toLocaleString(undefined, {
+                              maximumFractionDigits: 2,
+                            })}{" "}
+                            THB
+                          </p>
+                        ) : (
+                          <p className="text-text">0 THB</p>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
