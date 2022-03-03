@@ -49,6 +49,10 @@ function Tickets() {
   const [bnb, setBnb] = useState(0);
   const [balance, setBalance] = useState();
   const [copy, setCopy] = useState(false);
+  const [filter, setFilter] = useState({
+    available: true,
+    used: false,
+  });
 
   const isMounted = useRef(true);
 
@@ -187,6 +191,41 @@ function Tickets() {
     <>
       <div className="h-full w-full flex justify-end text-white bg-background">
         <div className="h-full w-2/12 fixed p-5 space-y-10 left-0 flex flex-col items-center shadow-lg bg-modal-button">
+          <div className="w-full space-y-3">
+            <p className="w-full text-xl font-bold">Ticket Status</p>
+            <label class="w-fit flex items-center hover:cursor-pointer">
+              <div className="h-5 w-5 flex items-center justify-center rounded-md border-2 border-white">
+                <input
+                  type="checkbox"
+                  class="h-3 w-3 appearance-none rounded-sm checked:bg-primary"
+                  checked={filter.available}
+                  onClick={() => {
+                    setFilter({
+                      ...filter,
+                      available: !filter.available,
+                    });
+                  }}
+                />
+              </div>
+              <span class="ml-2 select-none">Available</span>
+            </label>
+            <label class="w-fit flex items-center hover:cursor-pointer">
+              <div className="h-5 w-5 flex items-center justify-center rounded-md border-2 border-white">
+                <input
+                  type="checkbox"
+                  class="h-3 w-3 appearance-none rounded-sm checked:bg-primary"
+                  checked={filter.used}
+                  onClick={() => {
+                    setFilter({
+                      ...filter,
+                      used: !filter.used,
+                    });
+                  }}
+                />
+              </div>
+              <span class="ml-2 select-none">Used</span>
+            </label>
+          </div>
           <div className="w-full space-y-3">
             <p className="w-full text-xl font-bold">Sort by</p>
             <Listbox value={sortBy} onChange={setSortBy}>
@@ -331,12 +370,12 @@ function Tickets() {
                         <span class="relative flex h-2 w-2">
                           <span
                             class={`${
-                              !ticket.active ? "bg-green-500" : "bg-red-500"
+                              ticket.active ? "bg-green-500" : "bg-red-500"
                             } animate-ping absolute h-2 w-2 rounded-full opacity-75`}
                           ></span>
                           <span
                             className={`${
-                              !ticket.active ? "bg-green-500" : "bg-red-500"
+                              ticket.active ? "bg-green-500" : "bg-red-500"
                             } h-2 w-2 rounded-full`}
                           ></span>
                         </span>
