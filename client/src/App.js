@@ -48,14 +48,6 @@ function App() {
   });
 
   const connect = async () => {
-    // if (account.length === 0) {
-    //   const accounts = await window.ethereum.request({
-    //     method: "eth_requestAccounts",
-    //   });
-    //   if (accounts.length !== 0) {
-    //     setAccount(accounts[0]);
-    //   }
-    // }
     if (account.length === 0) {
       const connectAccount = await connectWallet();
       if (connectAccount) {
@@ -109,10 +101,6 @@ function App() {
               <Route path="/confirm/:id" element={<Confirm />} />
               <Route path="account/*" element={<Account />} />
               <Route path="verify-request" element={<VerifyRequest />} />
-              {/* <Route
-                path="simple"
-                element={<SimpleStorage account={account} />}
-              /> */}
             </Routes>
           </div>
         </CustomScrollbars>
