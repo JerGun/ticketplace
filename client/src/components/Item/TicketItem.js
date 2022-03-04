@@ -57,10 +57,9 @@ function TicketItem() {
     fetchHistory();
     fetchBNB();
     if (isMounted) {
-      ticket &&
-        setTimeout(() => {
-          setLoadingState(true);
-        }, 1000);
+      setTimeout(() => {
+        setLoadingState(true);
+      }, 1000);
     }
   }, []);
 

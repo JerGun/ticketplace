@@ -33,14 +33,7 @@ const listOption = [
 function Tickets() {
   const [account, setAccount] = useState();
   const [sortBy, setSortBy] = useState(listOption[0]);
-  const [selectedTicket, setSelectedTicket] = useState({
-    image: "",
-    organizer: "",
-    name: "",
-    tokenId: "",
-    price: "",
-  });
-  const [tickets, setTickets] = useState([]);
+  const [tickets, setTickets] = useState();
   const [loadingState, setLoadingState] = useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -49,6 +42,13 @@ function Tickets() {
   const [bnb, setBnb] = useState(0);
   const [balance, setBalance] = useState();
   const [copy, setCopy] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState({
+    image: "",
+    organizer: "",
+    name: "",
+    tokenId: "",
+    price: "",
+  });
   const [filter, setFilter] = useState({
     available: true,
     used: false,
@@ -200,7 +200,7 @@ function Tickets() {
                   type="checkbox"
                   class="h-3 w-3 appearance-none rounded-sm checked:bg-primary"
                   checked={filter.available}
-                  onClick={() => {
+                  onChange={() => {
                     setFilter({
                       ...filter,
                       available: !filter.available,
@@ -216,7 +216,7 @@ function Tickets() {
                   type="checkbox"
                   class="h-3 w-3 appearance-none rounded-sm checked:bg-primary"
                   checked={filter.used}
-                  onClick={() => {
+                  onChange={() => {
                     setFilter({
                       ...filter,
                       used: !filter.used,
@@ -302,7 +302,7 @@ function Tickets() {
             </div>
           )}
           <div className="h-auto w-full grid grid-cols-2 gap-5 pb-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {!loadingState && tickets.length === 0
+            {!loadingState
               ? [...Array(5)].map((x, i) => (
                   <div
                     key={i}
