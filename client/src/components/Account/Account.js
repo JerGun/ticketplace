@@ -126,103 +126,119 @@ function Account() {
   return (
     <>
       <div className="h-full w-full text-wh flex justify-center py-10 bg-background">
-        <div className="h-full w-10/12">
-          <div className="relative flex flex-col space-y-5 items-center">
-            <div className="absolute flex right-0 space-x-5">
-              <Link
-                to="/verify-request"
-                data-tip="Achieve Verify"
-                className="h-11 w-11 p-3 flex justify-center items-center rounded-lg text-white bg-input"
-              >
-                <Verify />
-              </Link>
-              <button
-                data-tip="Share"
-                className="h-11 w-11 flex justify-center items-center rounded-lg bg-input"
-                onClick={copyURL}
-                disabled={shareDisabled}
-              >
-                {share === true ? <Check className="text-white" /> : <Share />}
-              </button>
-              <Link
-                to={info.email.length ? "/account/settings" : "/account/setup"}
-                data-tip="Settings"
-                className="h-11 w-11 p-3 flex justify-center items-center rounded-lg text-white bg-input"
-              >
-                <Setting />
-              </Link>
-
-              <ReactTooltip
-                effect="solid"
-                place="top"
-                offset={{ top: 2, left: 20 }}
-                backgroundColor="#353840"
-                style={{ opacity: 1 }}
-              />
-            </div>
-            <div className="h-36 w-36">
-              <div className="relative h-full w-full">
-                <label
-                  htmlFor="upload-button"
-                  className="absolute h-full w-full rounded-full hover:cursor-pointer"
+        <div className="h-full w-full flex flex-col items-center">
+          <div className="w-full flex flex-col space-y-5 items-center">
+            <div className="relative w-10/12 flex flex-col space-y-5 items-center">
+              <div className="absolute flex right-0 space-x-5">
+                <Link
+                  to="/verify-request"
+                  data-tip="Achieve Verify"
+                  className="h-11 w-11 p-3 flex justify-center items-center rounded-lg text-white bg-input"
                 >
-                  {image.preview ? (
-                    <div className="relative h-full w-full group">
-                      <div className="absolute top-0 z-10 h-full w-full p-14 text-white opacity-0 group-hover:opacity-100">
-                        <Edit />
-                      </div>
-                      <div className="h-full w-full rounded-full group-hover:opacity-50">
-                        <img
-                          src={image.preview}
-                          alt="Profile"
-                          className="h-full w-full rounded-full object-cover"
-                        />
-                      </div>
-                    </div>
+                  <Verify />
+                </Link>
+                <button
+                  data-tip="Share"
+                  className="h-11 w-11 flex justify-center items-center rounded-lg bg-input"
+                  onClick={copyURL}
+                  disabled={shareDisabled}
+                >
+                  {share === true ? (
+                    <Check className="text-white" />
                   ) : (
-                    <div className="relative h-full w-full group">
-                      <div className="h-full w-full rounded-full bg-gradient-to-tr from-primary to-sky-200 group-hover:opacity-50"></div>
-                      <div className="absolute top-0 z-10 h-full w-full p-14 text-white opacity-0 group-hover:opacity-100">
-                        <Edit />
-                      </div>
-                    </div>
+                    <Share />
                   )}
-                </label>
-                <input
-                  type="file"
-                  id="upload-button"
-                  className="hidden"
-                  onChange={handleImageChange}
+                </button>
+                <Link
+                  to={
+                    info.email.length ? "/account/settings" : "/account/setup"
+                  }
+                  data-tip="Settings"
+                  className="h-11 w-11 p-3 flex justify-center items-center rounded-lg text-white bg-input"
+                >
+                  <Setting />
+                </Link>
+
+                <ReactTooltip
+                  effect="solid"
+                  place="top"
+                  offset={{ top: 2, left: 20 }}
+                  backgroundColor="#353840"
+                  style={{ opacity: 1 }}
                 />
               </div>
+              <div className="h-36 w-36">
+                <div className="relative h-full w-full">
+                  <label
+                    htmlFor="upload-button"
+                    className="absolute h-full w-full rounded-full hover:cursor-pointer"
+                  >
+                    {image.preview ? (
+                      <div className="relative h-full w-full group rounded-full">
+                        <div className="absolute z-10 h-full w-full flex justify-center items-center rounded-full text-white opacity-0 group-hover:opacity-100">
+                          <Edit className="scale-50"/>
+                        </div>
+                        <div className="h-full w-full rounded-full group-hover:opacity-50">
+                          <img
+                            src={image.preview}
+                            alt="Profile"
+                            className="h-full w-full rounded-full object-cover"
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="relative h-full w-full group rounded-full">
+                        <div className="h-full w-full rounded-full bg-gradient-to-tr from-primary to-sky-200 group-hover:opacity-50"></div>
+                        <div className="absolute top-0 z-10 h-full w-full p-14 text-white opacity-0 group-hover:opacity-100">
+                          <Edit className="scale-50"/>
+                        </div>
+                      </div>
+                    )}
+                  </label>
+                  <input
+                    type="file"
+                    id="upload-button"
+                    className="hidden"
+                    onChange={handleImageChange}
+                  />
+                </div>
+              </div>
+              <p className="text-4xl text-white">{info.name}</p>
+              <div className="flex space-x-3 text-text">
+                <p>{`${account.slice(0, 5)} ... ${account.slice(-6)}`}</p>
+                <button onClick={copyAddress} disabled={copyDisabled}>
+                  {copy === true ? <Check /> : <Copy />}
+                </button>
+              </div>
             </div>
-            <p className="text-4xl text-white">{info.name}</p>
-            <div className="flex space-x-3 text-text">
-              <p>{`${account.slice(0, 5)} ... ${account.slice(-6)}`}</p>
-              <button onClick={copyAddress} disabled={copyDisabled}>
-                {copy === true ? <Check /> : <Copy />}
-              </button>
-            </div>
-            <div className="w-full flex flex-col items-center">
-              <div className="h-18 flex items-center text-text">
-                <Link to="" className="relative h-full flex px-10 items-center">
-                  <p>Listing</p>
+            <div className="w-full flex flex-col">
+              <div className="h-18 flex items-center text-lg  text-text">
+                <Link to="" className="relative h-full flex px-20 items-center">
                   {location.pathname === "/account" ? (
-                    <span className="absolute h-1 w-full bottom-0 left-0 rounded-t-lg bg-primary"></span>
-                  ) : null}
+                    <>
+                      <p className="text-white">Listing</p>
+                      <span className="absolute h-1 w-full bottom-0 left-0 rounded-t-lg bg-primary"></span>
+                    </>
+                  ) : (
+                    <p>Listing</p>
+                  )}
                 </Link>
                 <Link
                   to={"owned"}
-                  className="relative h-full flex px-10 items-center"
+                  className="relative h-full flex px-20 items-center"
                 >
-                  <p>Owned</p>
                   {location.pathname === "/account/owned" ? (
-                    <span className="absolute h-1 w-full bottom-0 left-0 rounded-t-lg bg-primary"></span>
-                  ) : null}
+                    <>
+                      <p className="text-white">Owned</p>
+                      <span className="absolute h-1 w-full bottom-0 left-0 rounded-t-lg bg-primary"></span>
+                    </>
+                  ) : (
+                    <p>Owned</p>
+                  )}
                 </Link>
                 <Link
                   to={"created"}
-                  className="relative h-full flex px-10 items-center"
+                  className="relative h-full flex px-20 items-center"
                 >
                   <p>Created</p>
                   {location.pathname === "/account/created" ? (
@@ -230,10 +246,10 @@ function Account() {
                   ) : null}
                 </Link>
               </div>
-              <span className="h-1 w-full divider-x"></span>
+              <span className="h-0.5 w-full divider-x"></span>
             </div>
           </div>
-          <div className="h-full flex justify-center text-white">
+          <div className="h-full w-full flex justify-center text-white">
             <Routes>
               <Route path="" element={<Listing />} />
               <Route path=":owned" element={<Owned />} />
