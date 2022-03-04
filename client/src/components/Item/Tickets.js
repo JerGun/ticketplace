@@ -65,9 +65,10 @@ function Tickets() {
     loadTickets();
     fetchBNB();
     if (isMounted) {
-      setTimeout(() => {
-        setLoadingState(true);
-      }, 1000);
+      tickets &&
+        setTimeout(() => {
+          setLoadingState(true);
+        }, 1000);
     }
   }, [tickets]);
 

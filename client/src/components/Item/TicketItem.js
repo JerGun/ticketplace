@@ -57,7 +57,10 @@ function TicketItem() {
     fetchHistory();
     fetchBNB();
     if (isMounted) {
-      setLoadingState(true);
+      ticket &&
+        setTimeout(() => {
+          setLoadingState(true);
+        }, 1000);
     }
   }, []);
 
@@ -191,13 +194,51 @@ function TicketItem() {
 
   return (
     <>
-      {!loadingState && history && event ? (
-        <div className="h-full w-full flex justify-center items-center">
-          <Loading loading={loadingState} />
-        </div>
-      ) : (
-        <div className="h-auto w-full p-10 pb-32 bg-background">
-          <div className="h-full text-white">
+      <div className="h-auto w-full p-10 pb-32 bg-background">
+        <div className="h-full text-white">
+          {!loadingState ? (
+            <div className="h-full w-full mx-28 flex space-x-5 animate-pulse">
+              <div className="w-60 space-y-5">
+                <div className="h-80 w-full rounded-xl bg-input"></div>
+                <div className="h-11 w-full flex px-3 items-center rounded-lg bg-input">
+                  <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                </div>
+                <div className="h-fit w-full p-3 space-y-5 rounded-lg bg-input">
+                  <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                  <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                  <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                  <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                </div>
+              </div>
+              <div className="w-6/12">
+                <div className="w-full space-y-5">
+                  <div className="w-full space-y-5">
+                    <div className="h-3 w-1/2 rounded bg-hover bg-opacity-50"></div>
+                    <div className="h-3 w-1/2 rounded bg-hover bg-opacity-50"></div>
+                    <div className="h-3 w-1/2 rounded bg-hover bg-opacity-50"></div>
+                    <div className="h-3 w-1/2 rounded bg-hover bg-opacity-50"></div>
+                  </div>
+                  <div className="h-fit w-full py-5 pl-5 pr-3 space-y-5 rounded-lg bg-input">
+                    <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                    <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                    <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                  </div>
+                  <div className="h-fit w-full p-5 space-y-3 rounded-lg bg-input">
+                    <div className="h-3 w-1/2 rounded bg-hover bg-opacity-50"></div>
+                    <div className="h-3 w-1/2 rounded bg-hover bg-opacity-50"></div>
+                    <div className="h-3 w-1/2 rounded bg-hover bg-opacity-50"></div>
+                  </div>
+                  <div className="h-fit w-full py-5 pl-5 pr-3 space-y-5 rounded-lg bg-input">
+                    <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                    <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                    <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                    <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                    <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
             <div className="h-full w-full mx-28 flex space-x-5">
               <div className="w-60 space-y-5">
                 <div className="h-80 w-full rounded-xl bg-input">
@@ -498,9 +539,9 @@ function TicketItem() {
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
-      )}
+      </div>
       <Transition
         show={showCancelModal}
         enter="transition duration-100 ease-out"
