@@ -249,7 +249,7 @@ function Account() {
               <span className="h-0.5 w-full divider-x"></span>
             </div>
           </div>
-          <div>
+          <div className="w-full">
             <div className="h-full w-full flex justify-center text-white">
               <Routes>
                 <Route path="" element={<Listing />} />
