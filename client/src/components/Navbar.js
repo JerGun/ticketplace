@@ -66,7 +66,7 @@ function Navbar({ connectWallet, account }) {
               >
                 Create Event
               </Link>
-              {location.pathname === "/ticket/create" ? (
+              {location.pathname === "/event/create" ? (
                 <span className="absolute h-1 w-full bottom-0 left-0 rounded-t-lg bg-primary"></span>
               ) : null}
             </div>
