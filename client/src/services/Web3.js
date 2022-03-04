@@ -179,6 +179,17 @@ export const fetchTicket = (tokenId) => {
   });
 };
 
+export const fetchOwnedListings = (isCreator) => {
+  return new Promise(function (res, rej) {
+    web3.eth.getAccounts().then((accounts) => {
+      eventContract.methods
+        .fetchOwnedListings(accounts[0])
+        .call()
+        .then((result) => res(result));
+    });
+  });
+};
+
 export const fetchMarketItem = (tokenId) => {
   return new Promise(function (res, rej) {
     eventContract.methods

@@ -183,6 +183,28 @@ contract Event is ERC1155 {
         return items;
     }
 
+    function fetchOwnedListings(address account) public view returns (MarketItem[] memory) {
+        uint256 itemCount = _itemIds.current();
+        uint256 tokenCount = 0;
+        uint256 currentIndex = 0;
+
+        for (uint256 i = 0; i < itemCount; i++) {
+            if (ticketInMarket[i + 1].seller == account) {
+                tokenCount += 1;
+            }
+        }
+
+        MarketItem[] memory items = new MarketItem[](tokenCount);
+        for (uint256 i = 0; i < itemCount; i++) {
+            if (ticketInMarket[i + 1].seller == account) {
+                MarketItem storage currentItem = ticketInMarket[i + 1];
+                items[currentIndex] = currentItem;
+                currentIndex += 1;
+            }
+        }
+        return items;
+    }
+
     function fetchCreatedEvents(address account)
         public
         view
