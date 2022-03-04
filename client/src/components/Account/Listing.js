@@ -13,6 +13,7 @@ import {
   getAccount,
   getBalance,
   getUri,
+  fetchEvent,
 } from "../../services/Web3";
 
 import { ReactComponent as More } from "../../assets/icons/more.svg";
@@ -81,6 +82,7 @@ function Listing() {
         const meta = await axios.get(tokenUri);
         console.log(meta);
         let item = {
+          eventId: ticket.eventTokenId,
           tokenId: i.tokenId,
           image: meta.data.image,
           name: meta.data.name,

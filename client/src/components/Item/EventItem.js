@@ -121,7 +121,7 @@ function EventItem() {
 
   return (
     <>
-      <div className="sticky">
+      <div className="">
         {!loadingState ? (
           <div className="relative w-full flex justify-center shadow-lg animate-pulse">
             <div className="absolute h-full w-full pb-1 opacity-50 bg-white bg-opacity-30"></div>
