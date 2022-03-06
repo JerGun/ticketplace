@@ -10,7 +10,7 @@ jobs:
       matrix:
         node-version: [ 16.x ]
     steps:
-      - name: Development Code
+      - name: Checkout
         uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
@@ -32,8 +32,7 @@ jobs:
       - name: Deploy to Heroku
         uses: akhileshns/heroku-deploy@v3.12.12
         with:
-          args: deploy --dir=build --prod
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-          heroku_app_name: 'ticketplaces'
-          heroku_email: 'spirit_holder@hotmail.com'
+          heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+          heroku_email: ${{ secrets.HEROKU_EMAIL }}
           publish_dir: ./client/build
