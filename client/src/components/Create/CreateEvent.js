@@ -46,10 +46,8 @@ function CreateEvent() {
         if (response.data) {
           if (response.data.email) {
             if (response.data.email.length !== 0) {
-              if (response.data.verify) {
+              if (!response.data.verify) {
                 navigate("/account/settings");
-              } else {
-                navigate("/account/setup");
               }
               setVerify(response.data.verify);
             }
@@ -123,7 +121,10 @@ function CreateEvent() {
           </div>
           <div className="h-full w-full flex space-x-20">
             <div className="h-full w-3/12">
-              <p>Image</p>
+              <div className="flex space-x-1">
+                <p>Image</p>
+                <p className="text-red-500">*</p>
+              </div>
               <p className="text-sm text-sub-text">
                 File types supported: JPG, PNG
               </p>

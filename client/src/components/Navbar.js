@@ -1,14 +1,33 @@
 import { React, useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { connectWallet, getAccount } from "../services/Web3";
 
 import { ReactComponent as Search } from "../assets/icons/search.svg";
 import { ReactComponent as Wallet } from "../assets/icons/wallet.svg";
 import logo from "../assets/images/logo.png";
 
-function Navbar({ connectWallet, account }) {
+function Navbar() {
+  const [account, setAccount] = useState("");
+
   const location = useLocation();
 
-  useEffect(() => {}, [location]);
+  useEffect(() => {
+    fetchAccount();
+  }, [location, account]);
+
+  const connect = async () => {
+    if (account.length === 0) {
+      const connectAccount = await connectWallet();
+      if (connectAccount) {
+        setAccount(connectAccount);
+      }
+    }
+  };
+
+  const fetchAccount = async () => {
+    const account = await getAccount();
+    setAccount(account);
+  };
 
   return (
     <nav
@@ -76,7 +95,7 @@ function Navbar({ connectWallet, account }) {
               to={account.length !== 0 && "/account"}
               className="h-full flex items-center space-x-3 px-5"
               onClick={() => {
-                connectWallet();
+                connect();
               }}
             >
               {account.length !== 0 && (

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { HashRouter as Router, Route, Routes } from "react-router-dom";
 
 import { ReactComponent as Close } from "./assets/icons/close.svg";
@@ -59,7 +59,7 @@ function App() {
   return (
     <div className="w-full h-screen bg-background overflow-hidden">
       <Router>
-        <Navbar connectWallet={connect} account={account} />
+        <Navbar />
         <div
           className={
             network !== 97
