@@ -20,6 +20,7 @@ function AccountSetup() {
   const [nameRequired, setNameRequired] = useState(false);
   const [emailRequired, setEmailRequired] = useState(false);
   const [emailPattern, setEmailPattern] = useState(false);
+  const [emailExist, setEmailExist] = useState(false);
   const [submitDisable, setSubmitDisable] = useState(true);
 
   const navigate = useNavigate();
@@ -83,22 +84,38 @@ function AccountSetup() {
       : setNameRequired(false);
   };
 
-  const handleEmailChange = (e) => {
+  const handleEmailChange = async (e) => {
     const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     setFormInput({
       ...formInput,
-      email: e.target.value,
+      email: e.target.value.toLowerCase(),
     });
-    e.target.value.length === 0
-      ? (setEmailRequired(true), setEmailPattern(false))
-      : !pattern.test(e.target.value)
-      ? (setEmailRequired(false), setEmailPattern(true))
-      : (setEmailRequired(false), setEmailPattern(false));
+    await axios
+      .get(`${API_URL}/${e.target.value.toLowerCase()}`)
+      .then((response) => {
+        console.log(response);
+        e.target.value.length === 0
+          ? (setEmailRequired(true),
+            setEmailPattern(false),
+            setEmailExist(false))
+          : !pattern.test(e.target.value)
+          ? (setEmailRequired(false),
+            setEmailPattern(true),
+            setEmailExist(false))
+          : response.data && !response.data.verify
+          ? (setEmailRequired(false),
+            setEmailPattern(false),
+            setEmailExist(true))
+          : (setEmailRequired(false),
+            setEmailPattern(false),
+            setEmailExist(false));
+      })
+      .catch((err) => console.log(err));
   };
 
   return (
     <>
-      <div className="fixed h-full w-full p-10 bg-background">
+      <div className="h-fit w-full p-10 pb-32 bg-background">
         <div className="h-full mx-28 space-y-5 text-white">
           <p className="text-4xl font-bold py-5">
             Setup Your Ticketplace Account
@@ -110,71 +127,170 @@ function AccountSetup() {
               We will use this wallet to create your account
             </p>
           </div>
-          <div className="space-y-3">
-            <p>Name</p>
-            <div className="space-y-1">
-              <div
-                className={`${nameRequired && "border border-red-400"}
-              h-11 w-1/3 px-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover
-              `}
-              >
-                <input
-                  type="text"
-                  placeholder="Name"
-                  className="h-full w-full bg-transparent"
-                  onChange={handleNameChange}
-                />
+          <div className="flex">
+            <div className="w-1/2 space-y-5">
+              <div className="flex space-x-1 items-center">
+                <p className="text-red-500">*</p>
+                <p className="text-text text-sm">Required fields</p>
               </div>
-              {nameRequired && (
-                <div className="flex items-center space-x-3 text-sm text-red-400">
-                  <Close className="h-2 w-2" />
-                  <p>Name is required.</p>
+              <div className="space-y-3">
+                <div className="flex space-x-1">
+                  <p>Name</p>
+                  <p className="text-red-500">*</p>
                 </div>
-              )}
-            </div>
-          </div>
-          <div className="space-y-3">
-            <p>Email</p>
-            <div className="space-y-1">
-              <div
+                <div className="space-y-1">
+                  <div
+                    className={`${nameRequired && "border border-red-400"}
+              h-11 w-1/2 px-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover
+              `}
+                  >
+                    <input
+                      type="text"
+                      placeholder="Name"
+                      className="h-full w-full bg-transparent"
+                      onChange={handleNameChange}
+                    />
+                  </div>
+                  {nameRequired && (
+                    <div className="flex items-center space-x-3 text-sm text-red-400">
+                      <Close className="h-2 w-2" />
+                      <p>Name is required.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div className="flex space-x-1">
+                  <p>Email</p>
+                  <p className="text-red-500">*</p>
+                </div>
+                <div className="space-y-1">
+                  <div
+                    className={`${
+                      (emailRequired && "border border-red-400") ||
+                      (emailPattern && "border border-red-400")
+                    }
+              h-11 w-1/2 px-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover
+              `}
+                  >
+                    <input
+                      type="text"
+                      placeholder="email@email.com"
+                      className="h-full w-full bg-transparent"
+                      onChange={handleEmailChange}
+                    />
+                  </div>
+                  {emailRequired && (
+                    <div className="flex items-center space-x-3 text-sm text-red-400">
+                      <Close className="h-2 w-2" />
+                      <p>Email is required.</p>
+                    </div>
+                  )}
+                  {emailPattern && (
+                    <div className="flex items-center space-x-3 text-sm text-red-400">
+                      <Close className="h-2 w-2" />
+                      <p>Entered value does not match email format.</p>
+                    </div>
+                  )}
+                  {emailExist && (
+                    <div className="flex items-center space-x-3 text-sm text-red-400">
+                      <Close className="h-2 w-2" />
+                      <p>Email already exist.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <button
+                type="submit"
                 className={`${
-                  (emailRequired && "border border-red-400") ||
-                  (emailPattern && "border border-red-400")
-                }
-              h-11 w-1/3 px-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover
-              `}
+                  submitDisable && "opacity-50"
+                } h-11 w-24 flex justify-center items-center rounded-lg font-bold text-black bg-primary`}
+                onClick={handleSubmit}
+                disabled={submitDisable}
               >
-                <input
-                  type="text"
-                  placeholder="email@email.com"
-                  className="h-full w-full bg-transparent"
-                  onChange={handleEmailChange}
-                />
+                Save
+              </button>
+            </div>
+            <div className="w-1/2 space-y-5">
+              <div>
+                <p className="text-xl">Verification Form</p>
+                <p className="text-text">
+                  This form allows users to apply for Ticketplace account
+                  verification.
+                </p>
               </div>
-              {emailRequired && (
-                <div className="flex items-center space-x-3 text-sm text-red-400">
-                  <Close className="h-2 w-2" />
-                  <p>Email is required.</p>
+              <div className="space-y-3">
+                <p>
+                  Please provide a contact person's full name for your account.
+                </p>
+                <div className="space-y-1">
+                  <div
+                    className={`${nameRequired && "border border-red-400"}
+              h-11 w-1/2 px-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover
+              `}
+                  >
+                    <input
+                      type="text"
+                      placeholder="Full name"
+                      className="h-full w-full bg-transparent"
+                      onChange={handleNameChange}
+                    />
+                  </div>
                 </div>
-              )}
-              {emailPattern && (
-                <div className="flex items-center space-x-3 text-sm text-red-400">
-                  <Close className="h-2 w-2" />
-                  <p>Entered value does not match email format.</p>
+              </div>
+              <div className="space-y-3">
+                <p>
+                  Please provide proof of identity for your account, in the form
+                  of a Facebook, Twitter, or Instagram profile.
+                </p>
+                <div className="space-y-1">
+                  <div
+                    className={`${nameRequired && "border border-red-400"}
+              h-11 w-1/2 px-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover
+              `}
+                  >
+                    <input
+                      type="text"
+                      placeholder="Full name"
+                      className="h-full w-full bg-transparent"
+                      onChange={handleNameChange}
+                    />
+                  </div>
                 </div>
-              )}
+              </div>
+              <div className="space-y-3">
+                <p>
+                  Please provide a link to a public tweet / social media post
+                  that includes the wallet address of the Ticketplace profile
+                  you are requesting verification for.
+                </p>
+                <div className="space-y-2 text-text ">
+                  <p>
+                    Please post a message including "Hello @Ticketplace",
+                    followed by your wallet address.
+                  </p>
+                  <div className="w-fit p-3 space-y-2 rounded-lg bg-hover">
+                    <p>Hello @Ticketplace !</p>
+                    <p>[0x198BD436995F602fD43E215b195E3EC0C4f2b610]</p>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <div
+                    className={`${nameRequired && "border border-red-400"}
+              h-11 w-1/2 px-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover
+              `}
+                  >
+                    <input
+                      type="text"
+                      placeholder="https://www.social.com/user/post"
+                      className="h-full w-full bg-transparent"
+                      onChange={handleNameChange}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          <button
-            type="submit"
-            className={`${
-              submitDisable && "opacity-50"
-            } h-11 w-24 flex justify-center items-center rounded-lg font-bold text-black bg-primary`}
-            onClick={handleSubmit}
-            disabled={submitDisable}
-          >
-            Save
-          </button>
         </div>
       </div>
       <Transition show={sendingEmail}>
