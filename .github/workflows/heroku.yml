@@ -29,6 +29,10 @@ jobs:
         run: npm run build
         working-directory: ./client
 
+      - run: git config user.email "spirit_holder@hotmail.com"
+      - run: git config user.name "Pawaret"
+      - run: git add -A && git commit -m "Updated code"
+
       - name: Deploy to Heroku
         uses: akhileshns/heroku-deploy@v3.12.12
         with:
