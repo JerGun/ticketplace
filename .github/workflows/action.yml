@@ -1,46 +1,8 @@
-name: GitHub Pages
+name: CI/CD
 on:
   push:
     branches: [ main ]
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [ 16.x ]
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Setup Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v2
-      with:
-        node-version: ${{ matrix.node-version }}
-
-    - name: Install Packages
-      run: npm install
-      working-directory: ./client
-
-    - name: Install Web3
-      run: npm install web3
-      working-directory: ./client
-
-    - name: Build page
-      run: npm run build
-      working-directory: ./client
-
-    - name: Deploy to GitHub Pagess
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./client/build
-
-    - name: Deploy to Heroku
-    uses: akhileshns/heroku-deploy@v3.12.12
-    with:
-      heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-      heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
-      heroku_email: ${{ secrets.HEROKU_EMAIL }}
-      appdir: ./client/build
   deploy:
     runs-on: ubuntu-latest
     strategy:
