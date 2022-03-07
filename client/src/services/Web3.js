@@ -120,10 +120,7 @@ export const fetchCreatedEvents = () => {
       eventContract.methods
         .fetchCreatedEvents(accounts[0])
         .call()
-        .then((result) => {
-          console.log(result);
-          res(result);
-        });
+        .then((result) => res(result));
     });
   });
 };
