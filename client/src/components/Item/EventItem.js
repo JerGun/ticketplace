@@ -10,6 +10,7 @@ import {
   getAccount,
   fetchTicketsInEvent,
 } from "../../services/Web3";
+import { API_URL } from "../../config";
 
 import { ReactComponent as Cart } from "../../assets/icons/cart.svg";
 import { ReactComponent as Down } from "../../assets/icons/down.svg";
@@ -45,19 +46,52 @@ function EventItem() {
   }, []);
 
   useEffect(async () => {
-    const accounts = getAccount();
+    const account = await getAccount();
     const ticket = await fetchTickets();
     const event = await fecthEvent();
     setTickets(ticket);
     setEvent(event);
     fetchBNB();
-    if (event.owner === accounts[0]) setOwner(true);
+    if (event.owner === account) setOwner(true);
     if (isMounted) {
       setTimeout(() => {
         setLoadingState(true);
       }, 1000);
     }
   }, []);
+
+  const fecthEvent = async () => {
+    const event = await fetchEvent(params.eventId);
+    console.log(event);
+    const eventUri = await getUri(params.eventId);
+    const eventMeta = await axios.get(eventUri);
+    let item = {
+      owner: event.owner,
+      image: eventMeta.data.image,
+      name: eventMeta.data.name,
+      link: eventMeta.data.link,
+      description: eventMeta.data.description,
+      location: eventMeta.data.location,
+      startDate: eventMeta.data.startDate,
+      endDate: eventMeta.data.endDate,
+      startTime: eventMeta.data.startTime,
+      endTime: eventMeta.data.endTime,
+    };
+
+    const account = await getAccount();
+
+    await axios
+      .get(`${API_URL}/account/${event.owner}`)
+      .then((user) => {
+        if (user.data) {
+          item.organizer = event.owner;
+          item.organizerName = event.owner === account ? "you" : user.data.name;
+        } else item.ownerName = item.owner.slice(2, 9).toUpperCase();
+      })
+      .catch((err) => console.log(err));
+
+    return item;
+  };
 
   const fetchTickets = async () => {
     const ticketsData = await fetchTicketsInEvent(params.eventId);
@@ -84,26 +118,7 @@ function EventItem() {
         return item;
       })
     );
-    console.log(items);
     return items;
-  };
-
-  const fecthEvent = async () => {
-    const event = await fetchEvent(params.eventId);
-    const eventUri = await getUri(params.eventId);
-    const eventMeta = await axios.get(eventUri);
-    let item = {
-      image: eventMeta.data.image,
-      name: eventMeta.data.name,
-      link: eventMeta.data.link,
-      description: eventMeta.data.description,
-      location: eventMeta.data.location,
-      startDate: eventMeta.data.startDate,
-      endDate: eventMeta.data.endDate,
-      startTime: eventMeta.data.startTime,
-      endTime: eventMeta.data.endTime,
-    };
-    return item;
   };
 
   const handleChange = (event) => {
@@ -192,7 +207,7 @@ function EventItem() {
                   <div>
                     <div className="flex space-x-1">
                       <p>Created by</p>
-                      <p className="text-primary">{event.name}</p>
+                      <p className="text-primary">{event.organizerName}</p>
                     </div>
                     <p className="text-4xl">{event.name}</p>
                   </div>

@@ -286,7 +286,7 @@ function TicketItem() {
                     </button>
                     {ticket.list && (
                       <button
-                        className="h-11 w-full flex justify-center items-center rounded-lg font-bold text-black bg-primary hover:bg-primary-light"
+                        className="h-11 w-full flex justify-center items-center rounded-lg font-bold text-white bg-red-500 hover:bg-red-400"
                         onClick={() => setShowCancelModal(true)}
                       >
                         Cancel listing

@@ -21,6 +21,7 @@ import { ReactComponent as Cart } from "../../assets/icons/cart.svg";
 import { ReactComponent as Down } from "../../assets/icons/down.svg";
 import { ReactComponent as Close } from "../../assets/icons/close.svg";
 import { ReactComponent as Cancel } from "../../assets/icons/cancel.svg";
+import { ReactComponent as Price } from "../../assets/icons/price.svg";
 import { ReactComponent as BNB } from "../../assets/icons/bnb.svg";
 
 const listOption = [
@@ -62,13 +63,10 @@ function Tickets() {
 
   useEffect(() => {
     fetchAccount();
-    loadTickets();
     fetchBNB();
+    loadTickets();
     if (isMounted) {
-      tickets &&
-        setTimeout(() => {
-          setLoadingState(true);
-        }, 1000);
+      tickets && setLoadingState(true);
     }
   }, [tickets]);
 
@@ -423,7 +421,7 @@ function Tickets() {
                             }}
                           >
                             <div className="relative">
-                              <Cart />
+                              <Price />
                               <Cancel className="absolute top-0 scale-50 text-red-500 rounded-full bg-modal-button" />
                             </div>
                           </button>
