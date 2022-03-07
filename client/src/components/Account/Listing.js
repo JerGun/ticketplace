@@ -22,6 +22,8 @@ import { ReactComponent as Down } from "../../assets/icons/down.svg";
 import { ReactComponent as Info } from "../../assets/icons/info.svg";
 import { ReactComponent as Cancel } from "../../assets/icons/cancel.svg";
 import { ReactComponent as Cart } from "../../assets/icons/cart.svg";
+import { ReactComponent as Search } from "../../assets/icons/search.svg";
+import { ReactComponent as Price } from "../../assets/icons/price.svg";
 
 const listOption = [
   { title: "Recently Listed", value: "recently" },
@@ -32,7 +34,7 @@ const listOption = [
 
 function Listing() {
   const [account, setAccount] = useState();
-  const [tickets, setTickets] = useState([""]);
+  const [tickets, setTickets] = useState();
   const [loadingState, setLoadingState] = useState(false);
   const [sortBy, setSortBy] = useState(listOption[0]);
   const [bnb, setBnb] = useState(0);
@@ -48,9 +50,10 @@ function Listing() {
     price: "",
   });
   const [filter, setFilter] = useState({
-    items: true,
     available: true,
-    used: false,
+    used: true,
+    min: null,
+    max: null,
   });
 
   const isMounted = useRef(true);
@@ -60,13 +63,16 @@ function Listing() {
   }, []);
 
   useEffect(() => {
-    fetchAccount();
     loadTickets();
+    tickets && setLoadingState(true);
+  }, [tickets]);
+
+  useEffect(() => {
+    fetchAccount();
     fetchBNB();
+    loadTickets();
     if (isMounted) {
-      setTimeout(() => {
-        setLoadingState(true);
-      }, 1000);
+      console.log("asd");
     }
   }, []);
 
@@ -74,9 +80,9 @@ function Listing() {
     const test2 = await fetchCreatedEvents();
     const test = await fetchCreatedTickets();
     const data = await fetchOwnedListings();
-    console.log(data, test, test2);
+    // console.log(data, test, test2);
 
-    const items = await Promise.all(
+    let items = await Promise.all(
       data.map(async (i) => {
         const ticket = await fetchTicket(i.tokenId);
         const tokenUri = await getUri(i.tokenId);
@@ -101,7 +107,35 @@ function Listing() {
         return item;
       })
     );
-    console.log(items);
+
+    if (sortBy.title === "Oldest") {
+      items = items.reverse();
+    }
+    if (filter.available && filter.used) {
+      null;
+    } else {
+      if (filter.available) {
+        items = items.filter((i) => i.active);
+      }
+      if (filter.used) {
+        items = items.filter((i) => !i.active);
+      }
+    }
+    if (filter.min || filter.max) {
+      let temp = items;
+      if (filter.min && filter.max) {
+        temp = items.filter(
+          (i) =>
+            i.price >= filter.min * 10 ** 8 && i.price <= filter.max * 10 ** 8
+        );
+      } else {
+        if (filter.min)
+          temp = items.filter((i) => i.price >= filter.min * 10 ** 8);
+        if (filter.max)
+          temp = items.filter((i) => i.price <= filter.max * 10 ** 8);
+      }
+      items = temp;
+    }
 
     setTickets(items);
   };
@@ -124,9 +158,22 @@ function Listing() {
       });
   };
 
-  const handleChange = (event) => {
+  const handleMinChange = (event) => {
     let { value } = event.target;
     value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : null;
+    setFilter({
+      ...filter,
+      min: value,
+    });
+  };
+
+  const handleMaxChange = (event) => {
+    let { value } = event.target;
+    value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : null;
+    setFilter({
+      ...filter,
+      max: value,
+    });
   };
 
   const getMinter = async (ticket) => {
@@ -134,7 +181,6 @@ function Listing() {
     await axios
       .get(`${API_URL}/account/${ticket.eventOwner}`)
       .then((user) => {
-        console.log(user);
         if (user.data) organizer = user.data.name;
         else organizer = ticket.eventOwner.slice(2, 9).toUpperCase();
       })
@@ -158,6 +204,20 @@ function Listing() {
       active: ticket.active,
     });
     console.log(selectedTicket);
+  };
+
+  const resetFilter = () => {
+    setFilter({
+      ...filter,
+      available: false,
+      used: false,
+    });
+    setSortBy(listOption[0]);
+    setFilter({
+      ...filter,
+      min: null,
+      max: null,
+    });
   };
 
   return (
@@ -246,7 +306,8 @@ function Listing() {
               type="number"
               placeholder="1"
               min="1"
-              onChange={handleChange}
+              value={filter.min}
+              onChange={handleMinChange}
               className="h-full w-full bg-transparent"
             />
           </div>
@@ -258,17 +319,38 @@ function Listing() {
               type="number"
               placeholder="1"
               min="1"
-              onChange={handleChange}
+              value={filter.max}
+              onChange={handleMaxChange}
               className="h-full w-full bg-transparent"
             />
           </div>
         </div>
+        <button
+          type="submit"
+          onClick={resetFilter}
+          className="h-11 w-24 flex justify-center items-center rounded-lg font-bold text-black bg-primary"
+        >
+          Reset
+        </button>
       </div>
-      <div className="h-full w-full p-10">
+      <div className="h-full w-full px-10 py-3 space-y-3">
+        <div className="h-11 w-full space-x-3 px-3 flex items-center rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
+          <Search className="h-1/2" />
+          <input
+            type="text"
+            placeholder="Search tickets, organizers"
+            className="h-full w-full bg-transparent"
+          />
+        </div>
         {loadingState && tickets.length === 0 && (
           <div className="h-64 w-full border-2 rounded-lg flex items-center justify-center border-input">
             <h1 className="py-10 px-20 text-3xl">No items to display</h1>
           </div>
+        )}
+        {loadingState && tickets.length === 0 ? null : tickets && (
+          <p>
+            {tickets.length} {tickets.length > 1 ? "items" : "item"}
+          </p>
         )}
         <div className="h-auto w-full grid grid-cols-2 gap-5 pb-10 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {!loadingState
@@ -402,7 +484,7 @@ function Listing() {
                                 }}
                               >
                                 <div className="relative">
-                                  <Cart />
+                                  <Price />
                                   <Cancel className="absolute top-0 scale-50 text-red-500 rounded-full bg-modal-button" />
                                 </div>
                               </button>
