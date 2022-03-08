@@ -46,10 +46,10 @@ function Account() {
   useEffect(() => {}, [location]);
 
   useEffect(() => {
-    checkEmailVerified();
+    checkUser();
   }, []);
 
-  const checkEmailVerified = async () => {
+  const checkUser = async () => {
     const account = await getAccount();
     setAccount(account);
 

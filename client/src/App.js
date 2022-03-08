@@ -98,8 +98,9 @@ function App() {
               <Route path="event/:eventId" element={<EventItem />} />
               <Route path="account/setup" element={<SetUpOrganizer />} />
               <Route path="account/settings" element={<SettingAccount />} />
-              <Route path="/confirm/:id" element={<Confirm />} />
+              {/* <Route path="confirm/:id" element={<Confirm />} /> */}
               <Route path="account/*" element={<Account />} />
+              <Route path=":address" element={<Account />} />
               <Route path="verify-request" element={<VerifyRequest />} />
             </Routes>
           </div>
