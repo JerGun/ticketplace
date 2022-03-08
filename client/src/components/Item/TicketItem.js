@@ -29,6 +29,8 @@ import { ReactComponent as History } from "../../assets/icons/history.svg";
 import { ReactComponent as Close } from "../../assets/icons/close.svg";
 import { ReactComponent as Check } from "../../assets/icons/check.svg";
 import { ReactComponent as Transfer } from "../../assets/icons/transfer.svg";
+import { ReactComponent as Mint } from "../../assets/icons/mint.svg";
+import { ReactComponent as Cancel } from "../../assets/icons/cancel.svg";
 
 function TicketItem() {
   const [copy, setCopy] = useState(false);
@@ -152,7 +154,7 @@ function TicketItem() {
       params[1].value === contractAddress.toLocaleLowerCase() &&
       item.value === "0"
     )
-      return "Cancel Listing";
+      return "Cancel";
   };
 
   const signAccount = (params) => {
@@ -375,7 +377,7 @@ function TicketItem() {
                     <div className="flex text-sm space-x-1">
                       <p className="text-text">Organized by</p>
                       <a
-                        href={`${window.location.protocol}//${window.location.host}/${ticket.organizer}`}
+                        href={`${window.location.protocol}//${window.location.host}/#/${ticket.organizer}`}
                         className="text-primary"
                       >
                         {ticket.organizerName}
@@ -452,7 +454,34 @@ function TicketItem() {
                                     key={j}
                                     className="grid grid-cols-6 divider-x-b pl-5 py-3 text-white"
                                   >
-                                    <div className="flex space-x-1">
+                                    <div className="flex items-center space-x-3">
+                                      {signEvent(
+                                        item,
+                                        history.decoded.params
+                                      ) === "Minted" && (
+                                        <Mint className="h-4 w-4" />
+                                      )}
+                                      {signEvent(
+                                        item,
+                                        history.decoded.params
+                                      ) === "List" && (
+                                        <Price className="h-4 w-4" />
+                                      )}
+                                      {signEvent(
+                                        item,
+                                        history.decoded.params
+                                      ) === "Buy" && (
+                                        <Transfer className="h-4 w-4 scale-125" />
+                                      )}
+                                      {signEvent(
+                                        item,
+                                        history.decoded.params
+                                      ) === "Cancel" && (
+                                        <div className="relative scale-90 h-4 w-4">
+                                          <Price />
+                                          <Cancel className="absolute top-0 scale-50 rounded-full bg-modal-button" />
+                                        </div>
+                                      )}
                                       <p className="text-text">
                                         {signEvent(
                                           item,
