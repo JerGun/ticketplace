@@ -14,7 +14,7 @@ function Home() {
             Ticketplace is a ticket exchange website. that uses Blockchain
             technology to solve the problem of ticket fraud.
           </p>
-          <Link to="/simple" className="h-12 w-24 px-14 flex justify-center items-center rounded-lg font-bold text-black bg-primary">
+          <Link to="/tickets" className="h-12 w-24 px-14 flex justify-center items-center rounded-lg font-bold text-black bg-primary">
             Explore
           </Link>
         </div>
