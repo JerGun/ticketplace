@@ -20,6 +20,7 @@ import ListTicket from "./components/ListTicket";
 import Events from "./components/Item/Events";
 import EventItem from "./components/Item/EventItem";
 import { connectWallet, getNetwork } from "./services/Web3";
+import ConnectWallet from "./components/ConnectWallet";
 
 function App() {
   const [account, setAccount] = useState("");
