@@ -243,11 +243,13 @@ function TicketItem() {
             <div className="h-full w-full mx-28 flex space-x-5">
               <div className="w-60 space-y-5">
                 <div className="h-80 w-full rounded-xl bg-input">
-                  <img
-                    src={ticket.image}
-                    alt=""
-                    className="h-full w-full object-cover rounded-lg"
-                  />
+                  <a href={ticket.image} target="_blank">
+                    <img
+                      src={ticket.image}
+                      alt=""
+                      className="h-full w-full object-cover rounded-lg"
+                    />
+                  </a>
                 </div>
                 <div className="h-fit w-full flex justify-between items-center p-3 rounded-lg bg-input">
                   <p>Token ID</p>
