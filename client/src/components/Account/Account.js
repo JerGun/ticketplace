@@ -248,7 +248,8 @@ function Account() {
                     <div className="w-full relative inline-block">
                       <Listbox.Button
                         className={`${
-                          location.pathname === "/account/created"
+                          location.pathname === "/account/created" ||
+                          location.pathname === "/account/created_events"
                             ? "text-white"
                             : "text-text"
                         } h-11 w-full inline-flex justify-between px-20 items-center rounded-lg`}
@@ -264,39 +265,29 @@ function Account() {
                         leaveFrom="transform opacity-100 scale-100"
                         leaveTo="transform opacity-0 scale-95"
                       >
-                        <Listbox.Options className="absolute w-full mt-5 left-0 p-1 bg-input rounded-xl shadow-lg">
+                        <Listbox.Options className="absolute w-full mt-7 left-0 p-1 bg-hover rounded-xl shadow-lg">
                           {listOption?.map((item, i) => (
                             <Listbox.Option key={i} value={item}>
-                              {({ active }) => (
-                                <Link
-                                  to={`created${
-                                    item.value === "events"
-                                      ? `_${item.value}`
-                                      : ""
-                                  }`}
-                                  className={`
-                                      ${
-                                        active && "bg-background"
-                                      } group flex rounded-lg items-center space-x-5 w-full px-5 py-2 text-lg`}
-                                >
-                                  <div className="flex flex-col items-start">
-                                    <p
-                                      className={
-                                        active ? "text-white" : "text-white"
-                                      }
-                                    >
-                                      {item.title}
-                                    </p>
-                                  </div>
-                                </Link>
-                              )}
+                              <Link
+                                to={`created${
+                                  item.value === "events"
+                                    ? `_${item.value}`
+                                    : ""
+                                }`}
+                                className="group flex rounded-lg items-center space-x-5 w-full px-5 py-2 text-lg hover:bg-background"
+                              >
+                                <div className="flex flex-col items-start">
+                                  <p className="text-white">{item.title}</p>
+                                </div>
+                              </Link>
                             </Listbox.Option>
                           ))}
                         </Listbox.Options>
                       </Transition>
                     </div>
                   </Listbox>
-                  {location.pathname === "/account/created" ? (
+                  {location.pathname === "/account/created" ||
+                  location.pathname === "/account/created_events" ? (
                     <span className="absolute h-1 w-full bottom-0 left-0 rounded-t-lg bg-primary"></span>
                   ) : null}
                 </div>
@@ -311,11 +302,11 @@ function Account() {
                 <Route path="/owned" element={<Owned />} />
                 <Route
                   path="/created"
-                  element={<Created itemType={listOption[0]} />}
+                  element={<Created itemType={listOption[0].value} />}
                 />
                 <Route
                   path="/created_events"
-                  element={<Created itemType={listOption[1]} />}
+                  element={<Created itemType={listOption[1].value} />}
                 />
               </Routes>
             </div>
