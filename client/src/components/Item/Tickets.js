@@ -1,7 +1,9 @@
 import React, { Fragment, useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { Dialog, Listbox, Transition } from "@headlessui/react";
 import { Link } from "react-router-dom";
+import { Dialog, Listbox, Transition } from "@headlessui/react";
+import ReactTooltip from "react-tooltip";
+import { API_URL } from "../../config";
 import {
   buyTicket,
   cancelListing,
@@ -12,8 +14,6 @@ import {
   getBalance,
   getUri,
 } from "../../services/Web3";
-import ReactTooltip from "react-tooltip";
-import { API_URL } from "../../config";
 
 import { ReactComponent as Left } from "../../assets/icons/left.svg";
 import { ReactComponent as Info } from "../../assets/icons/info.svg";
@@ -73,10 +73,6 @@ function Tickets() {
   useEffect(() => {
     fetchAccount();
     fetchBNB();
-    loadTickets();
-    if (isMounted) {
-      // console.log("mounted");
-    }
   }, []);
 
   const loadTickets = async () => {
@@ -252,15 +248,12 @@ function Tickets() {
   const resetFilter = () => {
     setFilter({
       ...filter,
-      available: false,
-      used: false,
-    });
-    setSortBy(listOption[0]);
-    setFilter({
-      ...filter,
+      available: true,
+      used: true,
       min: "",
       max: "",
     });
+    setSortBy(listOption[0]);
   };
 
   return (
@@ -319,7 +312,7 @@ function Tickets() {
                   leaveFrom="transform opacity-100 scale-100"
                   leaveTo="transform opacity-0 scale-95"
                 >
-                  <Listbox.Options className="absolute w-full mt-3 p-1 bg-white rounded-xl shadow-lg">
+                  <Listbox.Options className="absolute w-full mt-3 p-1 bg-hover rounded-xl shadow-lg">
                     {listOption?.map((item, i) => (
                       <Listbox.Option key={i} value={item}>
                         {({ active }) => (
@@ -330,11 +323,7 @@ function Tickets() {
                                     } group flex rounded-lg items-center space-x-5 w-full px-5 py-2 text-lg`}
                           >
                             <div className="flex flex-col items-start">
-                              <p
-                                className={active ? "text-white" : "text-input"}
-                              >
-                                {item.title}
-                              </p>
+                              <p className="text-white">{item.title}</p>
                             </div>
                           </button>
                         )}
