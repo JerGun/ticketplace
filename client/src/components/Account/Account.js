@@ -1,5 +1,5 @@
 import { React, useState, Fragment, useEffect } from "react";
-import { Dialog, Transition } from "@headlessui/react";
+import { Dialog, Listbox, Transition } from "@headlessui/react";
 import {
   Routes,
   Route,
@@ -17,6 +17,7 @@ import { ReactComponent as Check } from "../../assets/icons/check.svg";
 import { ReactComponent as Setting } from "../../assets/icons/setting.svg";
 import { ReactComponent as Share } from "../../assets/icons/share.svg";
 import { ReactComponent as Edit } from "../../assets/icons/edit.svg";
+import { ReactComponent as Down } from "../../assets/icons/down.svg";
 import { ReactComponent as Verify } from "../../assets/icons/verify.svg";
 
 import Owned from "../Account/Owned";
@@ -25,6 +26,11 @@ import { getAccount } from "../../services/Web3";
 import Listing from "./Listing";
 
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
+
+const listOption = [
+  { title: "Tickets", value: "tickets" },
+  { title: "Events", value: "events" },
+];
 
 function Account() {
   const [account, setAccount] = useState("");
@@ -39,6 +45,7 @@ function Account() {
   const [copyDisabled, setCopyDisabled] = useState();
   const [shareDisabled, setShareDisabled] = useState();
   const [image, setImage] = useState({ preview: "", raw: "" });
+  const [itemType, setItemType] = useState(listOption[0]);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -236,15 +243,63 @@ function Account() {
                     <p>Owned</p>
                   )}
                 </Link>
-                <Link
-                  to={"created"}
-                  className="relative h-full flex px-20 items-center"
-                >
-                  <p>Created</p>
+                <div className="relative h-full flex items-center">
+                  <Listbox value={itemType} onChange={setItemType}>
+                    <div className="w-full relative inline-block">
+                      <Listbox.Button
+                        className={`${
+                          location.pathname === "/account/created"
+                            ? "text-white"
+                            : "text-text"
+                        } h-11 w-full inline-flex justify-between px-20 items-center rounded-lg`}
+                      >
+                        <p>Created</p>
+                      </Listbox.Button>
+                      <Transition
+                        as={Fragment}
+                        enter="transition ease-out duration-100"
+                        enterFrom="transform opacity-0 scale-95"
+                        enterTo="transform opacity-100 scale-100"
+                        leave="transition ease-in duration-75"
+                        leaveFrom="transform opacity-100 scale-100"
+                        leaveTo="transform opacity-0 scale-95"
+                      >
+                        <Listbox.Options className="absolute w-full mt-5 left-0 p-1 bg-input rounded-xl shadow-lg">
+                          {listOption?.map((item, i) => (
+                            <Listbox.Option key={i} value={item}>
+                              {({ active }) => (
+                                <Link
+                                  to={`created${
+                                    item.value === "events"
+                                      ? `_${item.value}`
+                                      : ""
+                                  }`}
+                                  className={`
+                                      ${
+                                        active && "bg-background"
+                                      } group flex rounded-lg items-center space-x-5 w-full px-5 py-2 text-lg`}
+                                >
+                                  <div className="flex flex-col items-start">
+                                    <p
+                                      className={
+                                        active ? "text-white" : "text-white"
+                                      }
+                                    >
+                                      {item.title}
+                                    </p>
+                                  </div>
+                                </Link>
+                              )}
+                            </Listbox.Option>
+                          ))}
+                        </Listbox.Options>
+                      </Transition>
+                    </div>
+                  </Listbox>
                   {location.pathname === "/account/created" ? (
                     <span className="absolute h-1 w-full bottom-0 left-0 rounded-t-lg bg-primary"></span>
                   ) : null}
-                </Link>
+                </div>
               </div>
               <span className="h-0.5 w-full divider-x"></span>
             </div>
@@ -253,8 +308,15 @@ function Account() {
             <div className="h-full w-full flex justify-center text-white">
               <Routes>
                 <Route path="" element={<Listing />} />
-                <Route path=":owned" element={<Owned />} />
-                <Route path=":create" element={<Created />} />
+                <Route path="/owned" element={<Owned />} />
+                <Route
+                  path="/created"
+                  element={<Created itemType={listOption[0]} />}
+                />
+                <Route
+                  path="/created_events"
+                  element={<Created itemType={listOption[1]} />}
+                />
               </Routes>
             </div>
           </div>
