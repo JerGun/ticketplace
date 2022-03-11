@@ -1,7 +1,8 @@
-import { React, useState, useEffect, useRef, Fragment } from "react";
+import React, { useState, useEffect, useRef, Fragment } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { Dialog, Listbox, Transition } from "@headlessui/react";
+import ReactTooltip from "react-tooltip";
 import { API_URL } from "../../config";
 import {
   cancelListing,
@@ -18,7 +19,6 @@ import {
 
 import { ReactComponent as Down } from "../../assets/icons/down.svg";
 import { ReactComponent as Cancel } from "../../assets/icons/cancel.svg";
-import { ReactComponent as Cart } from "../../assets/icons/cart.svg";
 import { ReactComponent as Search } from "../../assets/icons/search.svg";
 import { ReactComponent as Price } from "../../assets/icons/price.svg";
 import { ReactComponent as Info } from "../../assets/icons/info.svg";
@@ -36,12 +36,12 @@ function Listing() {
   const [account, setAccount] = useState();
   const [tickets, setTickets] = useState();
   const [loadingState, setLoadingState] = useState(false);
-  const [sortBy, setSortBy] = useState(listOption[0]);
   const [bnb, setBnb] = useState(0);
   const [balance, setBalance] = useState();
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState();
+  const [sortBy, setSortBy] = useState(listOption[0]);
   const [filter, setFilter] = useState({
     keyword: "",
     available: true,
@@ -64,10 +64,6 @@ function Listing() {
   useEffect(() => {
     fetchAccount();
     fetchBNB();
-    loadTickets();
-    if (isMounted) {
-      // console.log("mounted");
-    }
   }, []);
 
   const loadTickets = async () => {
@@ -159,11 +155,6 @@ function Listing() {
     setAccount(account);
   };
 
-  const getAccountBalance = async () => {
-    const balance = await getBalance();
-    setBalance(balance);
-  };
-
   const fetchBNB = async () => {
     await axios
       .get("https://api.coingecko.com/api/v3/coins/binancecoin")
@@ -197,15 +188,12 @@ function Listing() {
   const resetFilter = () => {
     setFilter({
       ...filter,
-      available: false,
-      used: false,
-    });
-    setSortBy(listOption[0]);
-    setFilter({
-      ...filter,
+      available: true,
+      used: true,
       min: "",
       max: "",
     });
+    setSortBy(listOption[0]);
   };
 
   const getMinter = async (ticket) => {
@@ -219,6 +207,7 @@ function Listing() {
       .catch((err) => console.log(err));
 
     setSelectedTicket({
+      eventId: ticket.eventId,
       eventName: ticket.eventName,
       eventOwner: ticket.eventOwner,
       organizer: organizer,
@@ -240,7 +229,7 @@ function Listing() {
   return (
     <>
       <div className="h-full w-full flex text-white bg-background">
-        <div className="sticky top-0 h-screen w-2/12 p-5 space-y-10 shadow-lg bg-modal-button">
+        <div className="sticky top-0 h-screen w-2/12 p-5 space-y-10 flex flex-col items-center shadow-lg bg-modal-button">
           <div className="w-full space-y-3">
             <p className="w-full text-xl font-bold">Ticket Status</p>
             <label className="w-fit flex items-center hover:cursor-pointer">
@@ -293,7 +282,7 @@ function Listing() {
                   leaveFrom="transform opacity-100 scale-100"
                   leaveTo="transform opacity-0 scale-95"
                 >
-                  <Listbox.Options className="absolute w-full mt-3 p-1 bg-white rounded-xl shadow-lg">
+                  <Listbox.Options className="absolute w-full mt-3 p-1 bg-hover rounded-xl shadow-lg">
                     {listOption?.map((item, i) => (
                       <Listbox.Option key={i} value={item}>
                         {({ active }) => (
@@ -304,11 +293,7 @@ function Listing() {
                                     } group flex rounded-lg items-center space-x-5 w-full px-5 py-2 text-lg`}
                           >
                             <div className="flex flex-col items-start">
-                              <p
-                                className={active ? "text-white" : "text-input"}
-                              >
-                                {item.title}
-                              </p>
+                              <p className="text-white">{item.title}</p>
                             </div>
                           </button>
                         )}
@@ -320,29 +305,32 @@ function Listing() {
             </Listbox>
           </div>
           <div className="w-full space-y-3">
-            <p className="text-xl font-bold">Min Price</p>
-            <div className="h-11 w-full space-x-3 px-3 flex items-center rounded-lg shadow-lg bg-hover hover:bg-hover-light focus-within:bg-hover-light">
-              <input
-                type="number"
-                placeholder="1"
-                min="1"
-                value={filter.min}
-                onChange={handleMinChange}
-                className="h-full w-full bg-transparent"
-              />
+            <p className="w-full text-xl font-bold">Price</p>
+            <div className="h-11 w-full flex items-center rounded-lg shadow-lg px-3 text-white bg-hover hover:bg-hover-light">
+              Binance Coin (BNB)
             </div>
-          </div>
-          <div className="w-full space-y-3">
-            <p className="text-xl font-bold">Max Price</p>
-            <div className="h-11 w-full space-x-3 px-3 flex items-center rounded-lg shadow-lg bg-hover hover:bg-hover-light focus-within:bg-hover-light">
-              <input
-                type="number"
-                placeholder="1"
-                min="1"
-                value={filter.max}
-                onChange={handleMaxChange}
-                className="h-full w-full bg-transparent"
-              />
+            <div className="flex items-center space-x-5">
+              <div className="h-11 w-1/2 space-x-3 px-3 flex items-center rounded-lg shadow-lg bg-hover hover:bg-hover-light focus-within:bg-hover-light">
+                <input
+                  type="number"
+                  placeholder="Min"
+                  min="1"
+                  value={filter.min}
+                  onChange={handleMinChange}
+                  className="h-full w-full bg-transparent"
+                />
+              </div>
+              <p>to</p>
+              <div className="h-11 w-1/2 space-x-3 px-3 flex items-center rounded-lg shadow-lg bg-hover hover:bg-hover-light focus-within:bg-hover-light">
+                <input
+                  type="number"
+                  placeholder="Max"
+                  min="1"
+                  value={filter.max}
+                  onChange={handleMaxChange}
+                  className="h-full w-full bg-transparent"
+                />
+              </div>
             </div>
           </div>
           <button
@@ -354,7 +342,7 @@ function Listing() {
           </button>
         </div>
         <div className="h-full w-10/12 px-10 pt-5 pb-14 space-y-5">
-          <div className="h-11 w-1/3 space-x-3 px-3 flex items-center rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
+          <div className="h-11 w-1/2 space-x-3 px-3 flex items-center rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
             <Search className="h-1/2" />
             <input
               type="text"
@@ -679,24 +667,28 @@ function Listing() {
                         <div className="space-y-1">
                           <p>Organized by</p>
                           <div className="flex justify-between">
-                            <p className="text-text">
+                            <p
+                              className="text-text"
+                              data-tip={selectedTicket.eventOwner}
+                            >
                               {selectedTicket.organizer}
                             </p>
-                            {selectedTicket.eventOwner && (
-                              <p className="text-text">
-                                {`${selectedTicket.eventOwner.slice(
-                                  0,
-                                  5
-                                )} ... ${selectedTicket.eventOwner.slice(-6)}`}
-                              </p>
-                            )}
                           </div>
+                          <ReactTooltip
+                            effect="solid"
+                            place="top"
+                            offset={{ top: 5, left: 0 }}
+                            backgroundColor="#5A5A5C"
+                          />
                         </div>
                         <div className="space-y-1">
                           <p>Event name</p>
-                          <p className="text-text">
+                          <a
+                            href={`/#/event/${selectedTicket.eventId}`}
+                            className="text-primary"
+                          >
                             {selectedTicket.eventName}
-                          </p>
+                          </a>
                         </div>
                         <div className="space-y-1">
                           <p>Ticket name</p>
