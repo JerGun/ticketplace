@@ -346,29 +346,32 @@ function Tickets() {
             </Listbox>
           </div>
           <div className="w-full space-y-3">
-            <p className="text-xl font-bold">Min Price</p>
-            <div className="h-11 w-full space-x-3 px-3 flex items-center rounded-lg shadow-lg bg-hover hover:bg-hover-light focus-within:bg-hover-light">
-              <input
-                type="number"
-                placeholder="1"
-                min="1"
-                value={filter.min}
-                onChange={handleMinChange}
-                className="h-full w-full bg-transparent"
-              />
+            <p className="w-full text-xl font-bold">Price</p>
+            <div className="h-11 w-full flex items-center rounded-lg shadow-lg px-3 text-white bg-hover hover:bg-hover-light">
+              Binance Coin (BNB)
             </div>
-          </div>
-          <div className="w-full space-y-3">
-            <p className="text-xl font-bold">Max Price</p>
-            <div className="h-11 w-full space-x-3 px-3 flex items-center rounded-lg shadow-lg bg-hover hover:bg-hover-light focus-within:bg-hover-light">
-              <input
-                type="number"
-                placeholder="1"
-                min="1"
-                value={filter.max}
-                onChange={handleMaxChange}
-                className="h-full w-full bg-transparent"
-              />
+            <div className="flex items-center space-x-5">
+              <div className="h-11 w-1/2 space-x-3 px-3 flex items-center rounded-lg shadow-lg bg-hover hover:bg-hover-light focus-within:bg-hover-light">
+                <input
+                  type="number"
+                  placeholder="Min"
+                  min="1"
+                  value={filter.min}
+                  onChange={handleMinChange}
+                  className="h-full w-full bg-transparent"
+                />
+              </div>
+              <p>to</p>
+              <div className="h-11 w-1/2 space-x-3 px-3 flex items-center rounded-lg shadow-lg bg-hover hover:bg-hover-light focus-within:bg-hover-light">
+                <input
+                  type="number"
+                  placeholder="Max"
+                  min="1"
+                  value={filter.max}
+                  onChange={handleMaxChange}
+                  className="h-full w-full bg-transparent"
+                />
+              </div>
             </div>
           </div>
           <button
@@ -380,7 +383,7 @@ function Tickets() {
           </button>
         </div>
         <div className="h-fit w-10/12 p-10 pb-20 space-y-5">
-          <div className="h-11 w-1/3 space-x-3 px-3 flex items-center rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
+          <div className="h-11 w-1/2 space-x-3 px-3 flex items-center rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
             <Search className="h-1/2" />
             <input
               type="text"
