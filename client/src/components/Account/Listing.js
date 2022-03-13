@@ -33,19 +33,19 @@ const listOption = [
 ];
 
 function Listing() {
-  const [account, setAccount] = useState();
   const [tickets, setTickets] = useState();
   const [loadingState, setLoadingState] = useState(false);
   const [bnb, setBnb] = useState(0);
-  const [balance, setBalance] = useState();
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState();
   const [sortBy, setSortBy] = useState(listOption[0]);
   const [filter, setFilter] = useState({
     keyword: "",
-    available: true,
-    used: true,
+    listing: false,
+    sold: false,
+    available: false,
+    used: false,
     min: "",
     max: "",
   });
@@ -62,15 +62,11 @@ function Listing() {
   }, [tickets]);
 
   useEffect(() => {
-    fetchAccount();
     fetchBNB();
   }, []);
 
   const loadTickets = async () => {
-    const test2 = await fetchCreatedEvents();
-    const test = await fetchCreatedTickets();
     const data = await fetchOwnedListings();
-    // console.log(data, test, test2);
 
     let items = await Promise.all(
       data.map(async (i) => {
@@ -107,6 +103,16 @@ function Listing() {
 
     items = items.reverse();
 
+    if (filter.listing && filter.sold) {
+      null;
+    } else {
+      if (filter.listing) {
+        items = items.filter((i) => !i.sold);
+      }
+      if (filter.sold) {
+        items = items.filter((i) => i.sold);
+      }
+    }
     if (filter.available && filter.used) {
       null;
     } else {
@@ -150,11 +156,6 @@ function Listing() {
     setTickets(items);
   };
 
-  const fetchAccount = async () => {
-    const account = await getAccount();
-    setAccount(account);
-  };
-
   const fetchBNB = async () => {
     await axios
       .get("https://api.coingecko.com/api/v3/coins/binancecoin")
@@ -188,8 +189,10 @@ function Listing() {
   const resetFilter = () => {
     setFilter({
       ...filter,
-      available: true,
-      used: true,
+      listing: false,
+      sold: false,
+      available: false,
+      used: false,
       min: "",
       max: "",
     });
@@ -231,6 +234,43 @@ function Listing() {
       <div className="h-full w-full flex text-white bg-background">
         <div className="sticky top-0 h-screen w-2/12 p-5 space-y-10 flex flex-col items-center shadow-lg bg-modal-button">
           <div className="w-full space-y-3">
+            <p className="w-full text-xl font-bold">Listing Status</p>
+            <label className="w-fit flex items-center hover:cursor-pointer">
+              <div className="h-5 w-5 flex items-center justify-center rounded-md border-2 border-white">
+                <input
+                  type="checkbox"
+                  className="h-3 w-3 appearance-none rounded-sm checked:bg-primary"
+                  checked={filter.listing}
+                  onChange={() => {
+                    setFilter({
+                      ...filter,
+                      listing: true,
+                      sold: false,
+                    });
+                  }}
+                />
+              </div>
+              <span className="ml-2 select-none">Listing</span>
+            </label>
+            <label className="w-fit flex items-center hover:cursor-pointer">
+              <div className="h-5 w-5 flex items-center justify-center rounded-md border-2 border-white">
+                <input
+                  type="checkbox"
+                  className="h-3 w-3 appearance-none rounded-sm checked:bg-primary"
+                  checked={filter.sold}
+                  onChange={() => {
+                    setFilter({
+                      ...filter,
+                      listing: false,
+                      sold: true,
+                    });
+                  }}
+                />
+              </div>
+              <span className="ml-2 select-none">Sold</span>
+            </label>
+          </div>
+          <div className="w-full space-y-3">
             <p className="w-full text-xl font-bold">Ticket Status</p>
             <label className="w-fit flex items-center hover:cursor-pointer">
               <div className="h-5 w-5 flex items-center justify-center rounded-md border-2 border-white">
@@ -241,7 +281,8 @@ function Listing() {
                   onChange={() => {
                     setFilter({
                       ...filter,
-                      available: !filter.available,
+                      available: true,
+                      used: false,
                     });
                   }}
                 />
@@ -257,7 +298,8 @@ function Listing() {
                   onChange={() => {
                     setFilter({
                       ...filter,
-                      used: !filter.used,
+                      available: false,
+                      used: true,
                     });
                   }}
                 />
