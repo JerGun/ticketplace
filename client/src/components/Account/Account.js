@@ -265,7 +265,7 @@ function Account() {
                         leaveFrom="transform opacity-100 scale-100"
                         leaveTo="transform opacity-0 scale-95"
                       >
-                        <Listbox.Options className="absolute w-full mt-7 left-0 p-1 bg-hover rounded-xl shadow-lg">
+                        <Listbox.Options className="absolute w-full z-30 mt-7 left-0 p-1 bg-hover rounded-xl shadow-lg">
                           {listOption?.map((item, i) => (
                             <Listbox.Option key={i} value={item}>
                               <Link
