@@ -239,7 +239,7 @@ function EventItem() {
         <div className="h-full w-full flex text-white bg-background">
           <div className="sticky top-0 h-screen min-h-full w-2/12 p-5 space-y-10 shadow-lg bg-modal-button">
             <div className="w-full space-y-3">
-              <p className="w-full text-2xl font-bold">Sort by</p>
+              <p className="w-full text-2xl font-bold">Sort</p>
               <Listbox value={sortBy} onChange={setSortBy}>
                 <div className="w-full relative inline-block rounded-lg shadow-lg bg-hover hover:bg-hover-light">
                   <Listbox.Button className="h-11 w-full inline-flex justify-between px-3 items-center space-x-3 text-white rounded-lg">

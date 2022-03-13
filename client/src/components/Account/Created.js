@@ -22,7 +22,7 @@ import { ReactComponent as Location } from "../../assets/icons/location.svg";
 import { ReactComponent as Ticket } from "../../assets/icons/ticket.svg";
 
 const listOption = [
-  { title: "Recently Listed", value: "recently" },
+  { title: "Recently Created", value: "recently" },
   { title: "Oldest", value: "oldest" },
 ];
 
@@ -212,7 +212,7 @@ function Created({ itemType }) {
         <div className="sticky top-0 h-screen w-2/12 flex flex-col items-center p-5 space-y-10 shadow-lg bg-modal-button">
           {itemType === "tickets" && (
             <div className="w-full space-y-3">
-              <p className="w-full text-xl font-bold">Ticket Status</p>
+              <p className="w-full text-xl font-bold">Status</p>
               <label className="w-fit flex items-center hover:cursor-pointer">
                 <div className="h-5 w-5 flex items-center justify-center rounded-md border-2 border-white">
                   <input
@@ -248,7 +248,7 @@ function Created({ itemType }) {
             </div>
           )}
           <div className="w-full space-y-3">
-            <p className="w-full text-xl font-bold">Sort by</p>
+            <p className="w-full text-xl font-bold">Sort</p>
             <Listbox value={sortBy} onChange={setSortBy}>
               <div className="w-full relative inline-block rounded-lg shadow-lg bg-hover hover:bg-hover-light">
                 <Listbox.Button className="h-11 w-full inline-flex justify-between px-3 items-center space-x-3 text-white rounded-lg">

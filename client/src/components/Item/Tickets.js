@@ -209,6 +209,7 @@ function Tickets() {
       .catch((err) => console.log(err));
 
     setSelectedTicket({
+      eventId: ticket.eventId,
       eventName: ticket.eventName,
       eventOwner: ticket.eventOwner,
       organizer: organizer,
@@ -296,7 +297,7 @@ function Tickets() {
             </label>
           </div>
           <div className="w-full space-y-3">
-            <p className="w-full text-xl font-bold">Sort by</p>
+            <p className="w-full text-xl font-bold">Sort</p>
             <Listbox value={sortBy} onChange={setSortBy}>
               <div className="w-full relative inline-block rounded-lg shadow-lg bg-hover hover:bg-hover-light">
                 <Listbox.Button className="h-11 w-full inline-flex justify-between px-3 items-center space-x-3 text-white rounded-lg">
@@ -958,7 +959,12 @@ function Tickets() {
                       </div>
                       <div className="space-y-1">
                         <p>Event name</p>
-                        <p className="text-text">{selectedTicket.eventName}</p>
+                        <a
+                            href={`/#/event/${selectedTicket.eventId}`}
+                            className="text-primary"
+                          >
+                            {selectedTicket.eventName}
+                          </a>
                       </div>
                       <div className="space-y-1">
                         <p>Ticket name</p>

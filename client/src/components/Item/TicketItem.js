@@ -388,7 +388,7 @@ function TicketItem() {
                       <div className="inline-flex space-x-1">
                         <p className="text-text">Owned by</p>
                         <a
-                          href={`${window.location.protocol}//${window.location.host}/${ticket.owner}`}
+                          href={`${window.location.protocol}//${window.location.host}/#/${ticket.owner}`}
                         >
                           {ticket.ownerName}
                         </a>
