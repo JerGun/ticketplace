@@ -12,7 +12,7 @@ Frontend        | 25%       | 15%
 Backend         | 10%       | 10%
 Implement       | 20%       | 10%
 Others          | 10%       | 5%
-**Total**       | **100%**  | **70%**
+**Total**       | **100%**  | **90%**
 ---
 ## Features 🕹
 - Connect wallet via MetaMask
@@ -24,12 +24,12 @@ Others          | 10%       | 5%
 - Resell ticket
 - Cancel listing
 - Fast checkout
+- Filter events or tickets
 ---
 
 ## Under Development 🚧
-- Filter events or tickets
-- Edit event & ticket
-- Verify Request (Profile setup)
+- **Verify Request (Profile setup)**
+- **Edit event & ticket**
 - Transfer ticket to others
 - Other users profile
 ---
