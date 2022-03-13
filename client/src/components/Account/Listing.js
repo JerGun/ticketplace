@@ -371,7 +371,7 @@ function Listing() {
           )}
           <div className="h-auto w-full grid grid-cols-2 gap-5 pb-10 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {!loadingState
-              ? [...Array(5)].map((x, i) => (
+              ? [...Array(10)].map((x, i) => (
                   <div
                     key={i}
                     className="h-fit w-full rounded-lg shadow-lg animate-pulse bg-modal-button"
