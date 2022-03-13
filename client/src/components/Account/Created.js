@@ -44,8 +44,16 @@ function Created({ itemType }) {
   }, []);
 
   useEffect(() => {
+    // if (itemType === "tickets") {
+    //   loadTickets();
+    //   tickets && setLoadingState(true);
+    // } else {
+    //   loadEvents();
+    //   events && setLoadingState(true);
+    // }
     loadTickets();
     tickets && setLoadingState(true);
+    loadEvents();
   }, [tickets]);
 
   useEffect(() => {
@@ -53,9 +61,7 @@ function Created({ itemType }) {
   }, [itemType]);
 
   const loadTickets = async () => {
-    const test2 = await fetchCreatedEvents();
     const data = await fetchCreatedTickets();
-    console.log(data);
 
     let items = await Promise.all(
       data.map(async (i) => {
@@ -113,61 +119,44 @@ function Created({ itemType }) {
     setTickets(items);
   };
 
-  // const loadEvents = async () => {
-  //   const data = await fetchCreatedEvents();
-  //   console.log(data);
+  const loadEvents = async () => {
+    const data = await fetchCreatedEvents();
 
-  //   let items = await Promise.all(
-  //     data.map(async (i) => {
-  //       const event = await fetchEvent(ticket.eventTokenId);
-  //       const eventUri = await getUri(ticket.eventTokenId);
-  //       const eventMeta = await axios.get(eventUri);
-  //       let item = {
-  //         eventId: ticket.eventTokenId,
-  //         eventName: eventMeta.data.name,
-  //         eventOwner: event.owner,
-  //         itemId: ticketInMarket.itemId,
-  //         tokenId: i.tokenId,
-  //         owner: i.owner,
-  //         image: ticketMeta.data.image,
-  //         name: ticketMeta.data.name,
-  //         link: ticketMeta.data.link,
-  //         description: ticketMeta.data.description,
-  //         location: ticketMeta.data.location,
-  //         startDate: ticketMeta.data.startDate,
-  //         endDate: ticketMeta.data.endDate,
-  //         startTime: ticketMeta.data.startTime,
-  //         endTime: ticketMeta.data.endTime,
-  //         active: ticket.active,
-  //       };
-  //       return item;
-  //     })
-  //   );
+    let items = await Promise.all(
+      data.map(async (i) => {
+        const eventUri = await getUri(i.tokenId);
+        const eventMeta = await axios.get(eventUri);
+        let item = {
+          tokenId: i.tokenId,
+          owner: i.owner,
+          image: eventMeta.data.image,
+          name: eventMeta.data.name,
+          link: eventMeta.data.link,
+          description: eventMeta.data.description,
+          location: eventMeta.data.location,
+          startDate: eventMeta.data.startDate,
+          endDate: eventMeta.data.endDate,
+          startTime: eventMeta.data.startTime,
+          endTime: eventMeta.data.endTime,
+        };
+        return item;
+      })
+    );
 
-  //   items = items.reverse();
+    items = items.reverse();
 
-  //   if (filter.available && filter.used) {
-  //     null;
-  //   } else {
-  //     if (filter.available) {
-  //       items = items.filter((i) => i.active);
-  //     }
-  //     if (filter.used) {
-  //       items = items.filter((i) => !i.active);
-  //     }
-  //   }
-  //   if (filter.keyword) {
-  //     const temp = items.filter((i) =>
-  //       new RegExp(filter.keyword, "i").test(i.name)
-  //     );
-  //     items = temp;
-  //   }
-  //   if (sortBy.title === "Oldest") {
-  //     items = items.reverse();
-  //   }
+    if (filter.keyword) {
+      const temp = items.filter((i) =>
+        new RegExp(filter.keyword, "i").test(i.name)
+      );
+      items = temp;
+    }
+    if (sortBy.title === "Oldest") {
+      items = items.reverse();
+    }
 
-  //   setTickets(items);
-  // };
+    setEvents(items);
+  };
 
   const resetFilter = () => {
     setFilter({
@@ -197,7 +186,6 @@ function Created({ itemType }) {
       tokenId: ticket.tokenId,
       image: ticket.image,
       name: ticket.name,
-      price: ticket.price,
       description: ticket.description,
       startDate: ticket.startDate,
       endDate: ticket.endDate,
@@ -326,7 +314,7 @@ function Created({ itemType }) {
               </p>
             )
           )}
-          <div className="h-auto w-full grid grid-cols-2 gap-5 pb-10 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          {tickets && <div className="h-auto w-full grid grid-cols-2 gap-5 pb-10 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {!loadingState
               ? [...Array(5)].map((x, i) => (
                   <div
@@ -407,7 +395,91 @@ function Created({ itemType }) {
                     </div>
                   </div>
                 ))}
-          </div>
+          </div>}
+          {events && <div className="h-auto w-full grid grid-cols-2 gap-5 pb-10 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            {loadingState
+              ? [...Array(5)].map((x, i) => (
+                  <div
+                    key={i}
+                    className="h-fit w-full rounded-lg shadow-lg animate-pulse bg-modal-button"
+                  >
+                    <div className="p-3 space-y-3 shadow-lg">
+                      <div className="h-72 w-full rounded-lg bg-hover bg-opacity-50"></div>
+                      <div className="h-18 w-full flex flex-col items-start space-y-3">
+                        <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                        <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                        <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                        <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                      </div>
+                    </div>
+                    <div className="px-3 py-2 flex items-center space-x-5 justify-between text-text">
+                      <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                      <div className="w-fit flex space-x-1"></div>
+                    </div>
+                  </div>
+                ))
+              : <div></div>
+              // tickets.map((ticket, i) => (
+              //     <div
+              //       key={i}
+              //       className="h-fit w-full rounded-lg shadow-lg float-right bg-modal-button"
+              //     >
+              //       <Link
+              //         to={`/event/${ticket.eventId}/ticket/${ticket.tokenId}`}
+              //       >
+              //         <div className="p-3 space-y-3 shadow-lg">
+              //           <div className="h-72 w-full">
+              //             <img
+              //               src={ticket.image}
+              //               alt=""
+              //               className="h-full w-full object-cover rounded-lg"
+              //             />
+              //           </div>
+              //           <div className="w-full flex flex-col items-start">
+              //             <p className="text-sm text-primary">
+              //               {ticket.startDate} - {ticket.endDate}
+              //             </p>
+              //             <p className="w-10/12 truncate text-text">
+              //               {ticket.eventName}
+              //             </p>
+              //             <p className="w-10/12 truncate">{ticket.name}</p>
+              //           </div>
+              //         </div>
+              //       </Link>
+              //       <div className="h-12 px-3 py-2 flex items-center space-x-5 justify-between text-text">
+              //         <div className="flex items-center space-x-2">
+              //           <span className="relative flex h-2 w-2">
+              //             <span
+              //               className={`${
+              //                 ticket.active ? "bg-green-500" : "bg-red-500"
+              //               } animate-ping absolute h-2 w-2 rounded-full opacity-75`}
+              //             ></span>
+              //             <span
+              //               className={`${
+              //                 ticket.active ? "bg-green-500" : "bg-red-500"
+              //               } h-2 w-2 rounded-full`}
+              //             ></span>
+              //           </span>
+              //           <p className="w-full text-sm truncate">
+              //             Token ID: {ticket.tokenId}
+              //           </p>
+              //         </div>
+              //         <div className="flex space-x-1">
+              //           <button
+              //             className="p-2 text-white"
+              //             onClick={() => {
+              //               getMinter(ticket);
+              //               setShowDetailModal(true);
+              //             }}
+              //           >
+              //             <Info />
+              //           </button>
+              //         </div>
+              //       </div>
+              //     </div>
+              //   ))
+                }
+          </div>}
         </div>
       </div>
       <Transition
@@ -506,11 +578,10 @@ function Created({ itemType }) {
                         </div>
                         <div className="w-fit space-y-1">
                           <p>Organized by</p>
-                          <div
-                            className="flex justify-between"
-                          >
-                            <p className="text-text"
-                            data-tip={selectedTicket.eventOwner}
+                          <div className="flex justify-between">
+                            <p
+                              className="text-text"
+                              data-tip={selectedTicket.eventOwner}
                             >
                               {selectedTicket.organizer}
                             </p>
