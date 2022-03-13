@@ -4,7 +4,6 @@ import { Link, useParams } from "react-router-dom";
 import ReactTooltip from "react-tooltip";
 import axios from "axios";
 import formatter from "../../formatter";
-import Loading from "../Loading";
 import {
   contractAddress,
   getUri,
