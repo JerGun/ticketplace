@@ -11,13 +11,15 @@ import {
   fetchEvent,
   fetchMarketItem,
   fetchTicket,
+  fetchTicketsInEvent,
 } from "../../services/Web3";
 
 import { ReactComponent as Down } from "../../assets/icons/down.svg";
 import { ReactComponent as Search } from "../../assets/icons/search.svg";
-import { ReactComponent as More } from "../../assets/icons/more.svg";
 import { ReactComponent as Info } from "../../assets/icons/info.svg";
 import { ReactComponent as Close } from "../../assets/icons/close.svg";
+import { ReactComponent as Location } from "../../assets/icons/location.svg";
+import { ReactComponent as Ticket } from "../../assets/icons/ticket.svg";
 
 const listOption = [
   { title: "Recently Listed", value: "recently" },
@@ -44,21 +46,31 @@ function Created({ itemType }) {
   }, []);
 
   useEffect(() => {
-    // if (itemType === "tickets") {
-    //   loadTickets();
-    //   tickets && setLoadingState(true);
-    // } else {
-    //   loadEvents();
-    //   events && setLoadingState(true);
-    // }
-    loadTickets();
-    tickets && setLoadingState(true);
-    loadEvents();
-  }, [tickets]);
-
-  useEffect(() => {
     console.log(itemType);
+    setLoadingState(false);
+    if (isMounted) {
+      setTickets();
+      setEvents();
+    }
   }, [itemType]);
+
+  if (itemType === "tickets") {
+    useEffect(() => {
+      setLoadingState(false);
+      if (isMounted) {
+        loadTickets();
+        tickets && setLoadingState(true);
+      }
+    }, [tickets]);
+  } else {
+    useEffect(() => {
+      setLoadingState(false);
+      if (isMounted) {
+        loadEvents();
+        events && setLoadingState(true);
+      }
+    }, [events]);
+  }
 
   const loadTickets = async () => {
     const data = await fetchCreatedTickets();
@@ -126,18 +138,16 @@ function Created({ itemType }) {
       data.map(async (i) => {
         const eventUri = await getUri(i.tokenId);
         const eventMeta = await axios.get(eventUri);
+        const ticketInEvent = await fetchTicketsInEvent(i.tokenId);
         let item = {
           tokenId: i.tokenId,
           owner: i.owner,
           image: eventMeta.data.image,
           name: eventMeta.data.name,
-          link: eventMeta.data.link,
-          description: eventMeta.data.description,
           location: eventMeta.data.location,
           startDate: eventMeta.data.startDate,
           endDate: eventMeta.data.endDate,
-          startTime: eventMeta.data.startTime,
-          endTime: eventMeta.data.endTime,
+          tickets: ticketInEvent.length,
         };
         return item;
       })
@@ -199,7 +209,7 @@ function Created({ itemType }) {
   return (
     <>
       <div className="h-full w-full flex text-white bg-background">
-        <div className="sticky top-0 h-screen w-2/12 p-5 space-y-10 shadow-lg bg-modal-button">
+        <div className="sticky top-0 h-screen w-2/12 flex flex-col items-center p-5 space-y-10 shadow-lg bg-modal-button">
           {itemType === "tickets" && (
             <div className="w-full space-y-3">
               <p className="w-full text-xl font-bold">Ticket Status</p>
@@ -300,186 +310,187 @@ function Created({ itemType }) {
               className="h-full w-full bg-transparent"
             />
           </div>
-          {loadingState && tickets.length === 0 && (
-            <div className="h-64 w-full border-2 rounded-lg flex items-center justify-center border-input">
-              <h1 className="py-10 px-20 text-3xl">No items to display</h1>
-            </div>
+          {tickets && itemType === "tickets" && (
+            <>
+              {loadingState && tickets.length === 0 && (
+                <div className="h-64 w-full border-2 rounded-lg flex items-center justify-center border-input">
+                  <h1 className="py-10 px-20 text-3xl">No items to display</h1>
+                </div>
+              )}
+              {loadingState && tickets.length === 0 ? (
+                <span></span>
+              ) : (
+                <p>
+                  {tickets?.length} {tickets?.length > 1 ? "items" : "item"}
+                </p>
+              )}
+            </>
           )}
-          {loadingState && tickets.length === 0 ? (
-            <span></span>
-          ) : (
-            tickets && (
-              <p>
-                {tickets.length} {tickets.length > 1 ? "items" : "item"}
-              </p>
-            )
+          {events && itemType === "events" && (
+            <>
+              {loadingState && events.length === 0 && (
+                <div className="h-64 w-full border-2 rounded-lg flex items-center justify-center border-input">
+                  <h1 className="py-10 px-20 text-3xl">No items to display</h1>
+                </div>
+              )}
+              {loadingState && events.length === 0 ? (
+                <span></span>
+              ) : (
+                <p>
+                  {events?.length} {events?.length > 1 ? "items" : "item"}
+                </p>
+              )}
+            </>
           )}
-          {tickets && <div className="h-auto w-full grid grid-cols-2 gap-5 pb-10 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {!loadingState
-              ? [...Array(5)].map((x, i) => (
-                  <div
-                    key={i}
-                    className="h-fit w-full rounded-lg shadow-lg animate-pulse bg-modal-button"
-                  >
-                    <div className="p-3 space-y-3 shadow-lg">
-                      <div className="h-72 w-full rounded-lg bg-hover bg-opacity-50"></div>
-                      <div className="h-18 w-full flex flex-col items-start space-y-3">
-                        <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
-                        <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
-                        <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
-                        <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
-                      </div>
-                    </div>
-                    <div className="px-3 py-2 flex items-center space-x-5 justify-between text-text">
-                      <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
-                      <div className="w-fit flex space-x-1"></div>
-                    </div>
-                  </div>
-                ))
-              : tickets.map((ticket, i) => (
-                  <div
-                    key={i}
-                    className="h-fit w-full rounded-lg shadow-lg float-right bg-modal-button"
-                  >
-                    <Link
-                      to={`/event/${ticket.eventId}/ticket/${ticket.tokenId}`}
+          {itemType === "tickets" && (
+            <div className="h-auto w-full grid grid-cols-2 gap-5 pb-10 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              {!loadingState
+                ? [...Array(10)].map((x, i) => (
+                    <div
+                      key={i}
+                      className="h-fit w-full rounded-lg shadow-lg animate-pulse bg-modal-button"
                     >
                       <div className="p-3 space-y-3 shadow-lg">
-                        <div className="h-72 w-full">
-                          <img
-                            src={ticket.image}
-                            alt=""
-                            className="h-full w-full object-cover rounded-lg"
-                          />
-                        </div>
-                        <div className="w-full flex flex-col items-start">
-                          <p className="text-sm text-primary">
-                            {ticket.startDate} - {ticket.endDate}
-                          </p>
-                          <p className="w-10/12 truncate text-text">
-                            {ticket.eventName}
-                          </p>
-                          <p className="w-10/12 truncate">{ticket.name}</p>
+                        <div className="h-72 w-full rounded-lg bg-hover bg-opacity-50"></div>
+                        <div className="h-18 w-full flex flex-col items-start space-y-3">
+                          <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                          <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                          <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                          <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
                         </div>
                       </div>
-                    </Link>
-                    <div className="h-12 px-3 py-2 flex items-center space-x-5 justify-between text-text">
-                      <div className="flex items-center space-x-2">
-                        <span className="relative flex h-2 w-2">
-                          <span
-                            className={`${
-                              ticket.active ? "bg-green-500" : "bg-red-500"
-                            } animate-ping absolute h-2 w-2 rounded-full opacity-75`}
-                          ></span>
-                          <span
-                            className={`${
-                              ticket.active ? "bg-green-500" : "bg-red-500"
-                            } h-2 w-2 rounded-full`}
-                          ></span>
-                        </span>
+                      <div className="px-3 py-2 flex items-center space-x-5 justify-between text-text">
+                        <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                      </div>
+                    </div>
+                  ))
+                : tickets &&
+                  tickets.map((ticket, i) => (
+                    <div
+                      key={i}
+                      className="h-fit w-full rounded-lg shadow-lg float-right bg-modal-button"
+                    >
+                      <Link
+                        to={`/event/${ticket.eventId}/ticket/${ticket.tokenId}`}
+                      >
+                        <div className="p-3 space-y-3 shadow-lg">
+                          <div className="h-72 w-full">
+                            <img
+                              src={ticket.image}
+                              alt=""
+                              className="h-full w-full object-cover rounded-lg"
+                            />
+                          </div>
+                          <div className="w-full flex flex-col items-start">
+                            <p className="text-sm text-primary">
+                              {ticket.startDate} - {ticket.endDate}
+                            </p>
+                            <p className="w-10/12 truncate text-text">
+                              {ticket.eventName}
+                            </p>
+                            <p className="w-10/12 truncate">{ticket.name}</p>
+                          </div>
+                        </div>
+                      </Link>
+                      <div className="h-12 px-3 py-2 flex items-center space-x-5 justify-between text-text">
+                        <div className="flex items-center space-x-2">
+                          <span className="relative flex h-2 w-2">
+                            <span
+                              className={`${
+                                ticket.active ? "bg-green-500" : "bg-red-500"
+                              } animate-ping absolute h-2 w-2 rounded-full opacity-75`}
+                            ></span>
+                            <span
+                              className={`${
+                                ticket.active ? "bg-green-500" : "bg-red-500"
+                              } h-2 w-2 rounded-full`}
+                            ></span>
+                          </span>
+                          <p className="w-full text-sm truncate">
+                            Token ID: {ticket.tokenId}
+                          </p>
+                        </div>
+                        <div className="flex space-x-1">
+                          <button
+                            className="p-2 text-white"
+                            onClick={() => {
+                              getMinter(ticket);
+                              setShowDetailModal(true);
+                            }}
+                          >
+                            <Info />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+            </div>
+          )}
+          {itemType === "events" && (
+            <div className="h-auto w-full grid grid-cols-1 gap-5 pb-10 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
+              {!loadingState
+                ? [...Array(6)].map((x, i) => (
+                    <div
+                      key={i}
+                      className="h-fit w-full rounded-lg shadow-lg animate-pulse bg-modal-button"
+                    >
+                      <div className="p-3 space-y-3 shadow-lg">
+                        <div className="h-72 w-full rounded-lg bg-hover bg-opacity-50"></div>
+                        <div className="h-18 w-full flex flex-col items-start space-y-3">
+                          <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                          <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                          <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                          <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                        </div>
+                      </div>
+                      <div className="px-3 py-4 flex items-center space-x-5 justify-between text-text">
+                        <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
+                      </div>
+                    </div>
+                  ))
+                : events &&
+                  events.map((event, i) => (
+                    <div
+                      key={i}
+                      className="h-fit w-full rounded-lg shadow-lg float-right bg-modal-button"
+                    >
+                      <Link to={`/event/${event.tokenId}`}>
+                        <div className="p-3 space-y-3 shadow-lg">
+                          <div className="h-72 w-full">
+                            <img
+                              src={event.image}
+                              alt=""
+                              className="h-full w-full object-cover rounded-lg"
+                            />
+                          </div>
+                          <div className="w-full flex flex-col items-start">
+                            <p className="text-sm text-primary">
+                              {event.startDate} - {event.endDate}
+                            </p>
+                            <p className="w-10/12 truncate">{event.name}</p>
+                            <div className="flex items-center space-x-1">
+                              <Location className="h-4 w-4" />
+                              <p>{event.location}</p>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <Ticket className="h-4 w-4" />
+                              <p>
+                                {event.tickets}{" "}
+                                {event.tickets > 1 ? "tickets" : "ticket"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                      <div className="h-12 px-3 py-2 flex items-center space-x-5 justify-between text-text">
                         <p className="w-full text-sm truncate">
-                          Token ID: {ticket.tokenId}
+                          Token ID: {event.tokenId}
                         </p>
                       </div>
-                      <div className="flex space-x-1">
-                        <button
-                          className="p-2 text-white"
-                          onClick={() => {
-                            getMinter(ticket);
-                            setShowDetailModal(true);
-                          }}
-                        >
-                          <Info />
-                        </button>
-                      </div>
                     </div>
-                  </div>
-                ))}
-          </div>}
-          {events && <div className="h-auto w-full grid grid-cols-2 gap-5 pb-10 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {loadingState
-              ? [...Array(5)].map((x, i) => (
-                  <div
-                    key={i}
-                    className="h-fit w-full rounded-lg shadow-lg animate-pulse bg-modal-button"
-                  >
-                    <div className="p-3 space-y-3 shadow-lg">
-                      <div className="h-72 w-full rounded-lg bg-hover bg-opacity-50"></div>
-                      <div className="h-18 w-full flex flex-col items-start space-y-3">
-                        <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
-                        <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
-                        <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
-                        <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
-                      </div>
-                    </div>
-                    <div className="px-3 py-2 flex items-center space-x-5 justify-between text-text">
-                      <div className="h-3 w-full rounded bg-hover bg-opacity-50"></div>
-                      <div className="w-fit flex space-x-1"></div>
-                    </div>
-                  </div>
-                ))
-              : <div></div>
-              // tickets.map((ticket, i) => (
-              //     <div
-              //       key={i}
-              //       className="h-fit w-full rounded-lg shadow-lg float-right bg-modal-button"
-              //     >
-              //       <Link
-              //         to={`/event/${ticket.eventId}/ticket/${ticket.tokenId}`}
-              //       >
-              //         <div className="p-3 space-y-3 shadow-lg">
-              //           <div className="h-72 w-full">
-              //             <img
-              //               src={ticket.image}
-              //               alt=""
-              //               className="h-full w-full object-cover rounded-lg"
-              //             />
-              //           </div>
-              //           <div className="w-full flex flex-col items-start">
-              //             <p className="text-sm text-primary">
-              //               {ticket.startDate} - {ticket.endDate}
-              //             </p>
-              //             <p className="w-10/12 truncate text-text">
-              //               {ticket.eventName}
-              //             </p>
-              //             <p className="w-10/12 truncate">{ticket.name}</p>
-              //           </div>
-              //         </div>
-              //       </Link>
-              //       <div className="h-12 px-3 py-2 flex items-center space-x-5 justify-between text-text">
-              //         <div className="flex items-center space-x-2">
-              //           <span className="relative flex h-2 w-2">
-              //             <span
-              //               className={`${
-              //                 ticket.active ? "bg-green-500" : "bg-red-500"
-              //               } animate-ping absolute h-2 w-2 rounded-full opacity-75`}
-              //             ></span>
-              //             <span
-              //               className={`${
-              //                 ticket.active ? "bg-green-500" : "bg-red-500"
-              //               } h-2 w-2 rounded-full`}
-              //             ></span>
-              //           </span>
-              //           <p className="w-full text-sm truncate">
-              //             Token ID: {ticket.tokenId}
-              //           </p>
-              //         </div>
-              //         <div className="flex space-x-1">
-              //           <button
-              //             className="p-2 text-white"
-              //             onClick={() => {
-              //               getMinter(ticket);
-              //               setShowDetailModal(true);
-              //             }}
-              //           >
-              //             <Info />
-              //           </button>
-              //         </div>
-              //       </div>
-              //     </div>
-              //   ))
-                }
-          </div>}
+                  ))}
+            </div>
+          )}
         </div>
       </div>
       <Transition
