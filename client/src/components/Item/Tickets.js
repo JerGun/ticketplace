@@ -53,8 +53,8 @@ function Tickets() {
   });
   const [filter, setFilter] = useState({
     keyword: "",
-    available: true,
-    used: true,
+    available: false,
+    used: false,
     min: "",
     max: "",
   });
@@ -249,8 +249,8 @@ function Tickets() {
   const resetFilter = () => {
     setFilter({
       ...filter,
-      available: true,
-      used: true,
+      available: false,
+      used: false,
       min: "",
       max: "",
     });
@@ -272,7 +272,8 @@ function Tickets() {
                   onChange={() => {
                     setFilter({
                       ...filter,
-                      available: !filter.available,
+                      available: true,
+                      used: false,
                     });
                   }}
                 />
@@ -288,7 +289,8 @@ function Tickets() {
                   onChange={() => {
                     setFilter({
                       ...filter,
-                      used: !filter.used,
+                      available: false,
+                      used: true,
                     });
                   }}
                 />
@@ -960,11 +962,11 @@ function Tickets() {
                       <div className="space-y-1">
                         <p>Event name</p>
                         <a
-                            href={`/#/event/${selectedTicket.eventId}`}
-                            className="text-primary"
-                          >
-                            {selectedTicket.eventName}
-                          </a>
+                          href={`/#/event/${selectedTicket.eventId}`}
+                          className="text-primary"
+                        >
+                          {selectedTicket.eventName}
+                        </a>
                       </div>
                       <div className="space-y-1">
                         <p>Ticket name</p>
