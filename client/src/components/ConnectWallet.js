@@ -7,11 +7,13 @@ function ConnectWallet() {
   const [account, setAccount] = useState("");
 
   const connect = async () => {
-    if (account.length === 0) {
+    if (window.ethereum) {
       const connectAccount = await connectWallet();
       if (connectAccount) {
         setAccount(connectAccount);
       }
+    } else {
+      window.open("https://metamask.io/download/", "_blank");
     }
   };
 

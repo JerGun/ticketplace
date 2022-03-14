@@ -16,9 +16,13 @@ function Navbar() {
   }, [location, account]);
 
   const connect = async () => {
-    const connectAccount = await connectWallet();
-    if (connectAccount) {
-      setAccount(connectAccount);
+    if (window.ethereum) {
+      const connectAccount = await connectWallet();
+      if (connectAccount) {
+        setAccount(connectAccount);
+      }
+    } else {
+      window.open("https://metamask.io/download/", "_blank");
     }
   };
 
