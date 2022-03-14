@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { HashRouter as Router, Route, Routes } from "react-router-dom";
-
-import { ReactComponent as Close } from "./assets/icons/close.svg";
+import { connectWallet, getAccount, getNetwork } from "./services/Web3";
 
 import Navbar from "./components/Navbar";
 import Tickets from "./components/Item/Tickets";
@@ -19,8 +18,9 @@ import VerifyRequest from "./components/VerifyRequest";
 import ListTicket from "./components/ListTicket";
 import Events from "./components/Item/Events";
 import EventItem from "./components/Item/EventItem";
-import { connectWallet, getNetwork } from "./services/Web3";
 import ConnectWallet from "./components/ConnectWallet";
+
+import { ReactComponent as Close } from "./assets/icons/close.svg";
 
 function App() {
   const [account, setAccount] = useState("");
@@ -30,7 +30,7 @@ function App() {
     if (window.ethereum) {
       const networkId = await getNetwork();
       setNetwork(networkId);
-      await connect();
+      await loadAccount();
     }
   }, [account]);
 
@@ -48,13 +48,9 @@ function App() {
     }
   });
 
-  const connect = async () => {
-    if (account.length === 0) {
-      const connectAccount = await connectWallet();
-      if (connectAccount) {
-        setAccount(connectAccount);
-      }
-    }
+  const loadAccount = async () => {
+    const connectAccount = await getAccount();
+    setAccount(connectAccount);
   };
 
   return (
@@ -72,40 +68,41 @@ function App() {
             Your wallet is connected to other network. To use Ticketplace,
             please switch to BSC Testnet network.
           </p>
-          <button>
-            <Close />
-          </button>
         </div>
-        <CustomScrollbars>
-          <div className="h-full">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="tickets" element={<Tickets />} />
-              <Route
-                path="event/:eventId/ticket/:ticketId"
-                element={<TicketItem />}
-              />
-              {/* <Route path="ticket/create" element={<CreateTicket />} /> */}
-              <Route path="event/create" element={<CreateEvent />} />
-              <Route
-                path="event/:eventId/ticket/create"
-                element={<CreateTicket />}
-              />
-              <Route
-                path="event/:eventId/ticket/:tokenId/sell"
-                element={<ListTicket />}
-              />
-              <Route path="events" element={<Events />} />
-              <Route path="event/:eventId" element={<EventItem />} />
-              <Route path="account/setup" element={<SetUpOrganizer />} />
-              <Route path="account/settings" element={<SettingAccount />} />
-              {/* <Route path="confirm/:id" element={<Confirm />} /> */}
-              <Route path="account/*" element={<Account />} />
-              <Route path=":address" element={<Account />} />
-              <Route path="verify-request" element={<VerifyRequest />} />
-            </Routes>
-          </div>
-        </CustomScrollbars>
+        {!account ? (
+          <ConnectWallet />
+        ) : (
+          <CustomScrollbars>
+            <div className="h-full">
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="tickets" element={<Tickets />} />
+                <Route
+                  path="event/:eventId/ticket/:ticketId"
+                  element={<TicketItem />}
+                />
+                {/* <Route path="ticket/create" element={<CreateTicket />} /> */}
+                <Route path="event/create" element={<CreateEvent />} />
+                <Route
+                  path="event/:eventId/ticket/create"
+                  element={<CreateTicket />}
+                />
+                <Route
+                  path="event/:eventId/ticket/:tokenId/sell"
+                  element={<ListTicket />}
+                />
+                <Route path="events" element={<Events />} />
+                <Route path="event/:eventId" element={<EventItem />} />
+                <Route path="account/setup" element={<SetUpOrganizer />} />
+                <Route path="account/settings" element={<SettingAccount />} />
+                {/* <Route path="confirm/:id" element={<Confirm />} /> */}
+                <Route path="account/*" element={<Account />} />
+                <Route path=":address" element={<Account />} />
+                <Route path="verify-request" element={<VerifyRequest />} />
+              </Routes>
+            </div>
+          </CustomScrollbars>
+        )}
       </Router>
     </div>
   );

@@ -16,11 +16,9 @@ function Navbar() {
   }, [location, account]);
 
   const connect = async () => {
-    if (account.length === 0) {
-      const connectAccount = await connectWallet();
-      if (connectAccount) {
-        setAccount(connectAccount);
-      }
+    const connectAccount = await connectWallet();
+    if (connectAccount) {
+      setAccount(connectAccount);
     }
   };
 
@@ -32,7 +30,9 @@ function Navbar() {
   return (
     <nav
       className={`${
-        location.pathname === "/" ? " bg-indigo-500" : "shadow-lg bg-background"
+        location.pathname === "/" && account
+          ? " bg-indigo-500"
+          : "shadow-lg bg-background"
       } sticky top-0 w-full z-20 h-18 grid grid-cols-8 items-center`}
     >
       <div className="col-span-2 px-5 text-white">
@@ -77,7 +77,7 @@ function Navbar() {
           }
         ></span>
         <div className="h-full flex items-center">
-          {account.length !== 0 && (
+          {account && (
             <div className="relative h-full w-fit flex items-center hover:text-white">
               <Link
                 to="/event/create"
@@ -92,16 +92,16 @@ function Navbar() {
           )}
           <div className="relative h-full w-fit hover:text-white">
             <Link
-              to={account.length !== 0 && "/account"}
+              to={account?.length !== 0 && "/account"}
               className="h-full flex items-center space-x-3 px-5"
               onClick={() => {
                 connect();
               }}
             >
-              {account.length !== 0 && (
-                <p>{`${account.slice(0, 5)} ... ${account.slice(-6)}`}</p>
+              {account && (
+                <p>{`${account?.slice(0, 5)} ... ${account?.slice(-6)}`}</p>
               )}
-              {account.length === 0 && <p>Connect wallet</p>}
+              {!account && <p>Connect wallet</p>}
               <Wallet />
             </Link>
             {location.pathname === "/account" ||
