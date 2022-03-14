@@ -12,10 +12,19 @@ import CustomScrollbars from "../CustomScrollbars";
 import { getAccount, getUri, mintTicket } from "../../services/Web3";
 
 import { ReactComponent as Calendar } from "../../assets/icons/calendar.svg";
+import { ReactComponent as Close } from "../../assets/icons/close.svg";
 
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
 
 function CreateTicket() {
+  const [tempStartDate, setTempStartDate] = useState();
+  const [tempEndDate, setTempEndDate] = useState();
+  const [startTime, setStartTime] = useState("Start Time");
+  const [endTime, setEndTime] = useState("End Time");
+  const [fileUrl, setFileUrl] = useState(null);
+  const [bnb, setBnb] = useState(0);
+  const [priceRequired, setPriceRequired] = useState(false);
+  const [pricePattern, setPricePattern] = useState(false);
   const [formInput, setFormInput] = useState({
     name: "",
     link: "",
@@ -24,12 +33,6 @@ function CreateTicket() {
     quantity: "",
     price: "",
   });
-  const [tempStartDate, setTempStartDate] = useState();
-  const [tempEndDate, setTempEndDate] = useState();
-  const [startTime, setStartTime] = useState("Start Time");
-  const [endTime, setEndTime] = useState("End Time");
-  const [fileUrl, setFileUrl] = useState(null);
-  const [bnb, setBnb] = useState(0);
 
   const params = useParams();
   const navigate = useNavigate();
@@ -73,10 +76,12 @@ function CreateTicket() {
   const handlePriceChange = (e) => {
     let { value } = e.target;
     value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : null;
-    setFormInput({
-      ...formInput,
-      price: value,
-    });
+    setFormInput({ ...formInput, price: value });
+    e.target.value.length === 0
+      ? (setPriceRequired(true), setPricePattern(false))
+      : parseFloat(e.target.value) < 0.001
+      ? (setPriceRequired(false), setPricePattern(true))
+      : (setPriceRequired(false), setPricePattern(false));
   };
 
   const handleSubmit = async () => {
@@ -113,9 +118,7 @@ function CreateTicket() {
       mintTicket(url, params.eventId, quantity, price * 10 ** 8)
         .then((result) => {
           console.log(result);
-          navigate(
-            `/event/${params.eventId}`
-          );
+          navigate(`/event/${params.eventId}`);
         })
         .catch((err) => console.log(err));
     } catch (err) {
@@ -420,9 +423,24 @@ function CreateTicket() {
                   <p>BNB</p>
                 </div>
               </div>
+              {priceRequired && (
+                <div className="flex items-center space-x-3 text-sm text-red-400">
+                  <Close className="h-2 w-2" />
+                  <p>Price is required.</p>
+                </div>
+              )}
+              {pricePattern && (
+                <div className="flex items-center space-x-3 text-sm text-red-400">
+                  <Close className="h-2 w-2" />
+                  <p>Price must more than 0.001 BNB.</p>
+                </div>
+              )}
               {formInput.price ? (
                 <p className="text-sm text-text">
-                  {(bnb * formInput.price).toLocaleString(undefined, {maximumFractionDigits: 2})} THB
+                  {(bnb * formInput.price).toLocaleString(undefined, {
+                    maximumFractionDigits: 2,
+                  })}{" "}
+                  THB
                 </p>
               ) : (
                 <p className="text-sm text-sub-text">0 THB</p>
