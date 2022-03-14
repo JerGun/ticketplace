@@ -38,6 +38,8 @@ function TicketItem() {
   const [showSellModal, setShowSellModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showAddFundsModal, setShowAddFundsModal] = useState(false);
+  const [priceRequired, setPriceRequired] = useState(false);
+  const [pricePattern, setPricePattern] = useState(false);
   const [ticket, setTicket] = useState([]);
   const [history, setHistory] = useState([]);
   const [owner, setOwner] = useState(false);
@@ -178,14 +180,19 @@ function TicketItem() {
     let { value } = e.target;
     value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : null;
     setPrice(value);
+    e.target.value.length === 0
+      ? (setPriceRequired(true), setPricePattern(false))
+      : parseFloat(e.target.value) < 0.001
+      ? (setPriceRequired(false), setPricePattern(true))
+      : (setPriceRequired(false), setPricePattern(false));
   };
 
   const handleSubmit = async (itemId, price) => {
     await buyTicket(itemId, price).catch((err) => console.log(err));
   };
 
-  const handleSell = async (ticketId, price) => {
-    await createMarketItem(ticketId, price).catch((err) => console.log(err));
+  const handleSell = async (ticketId) => {
+    parseFloat(price) > 0.001 && (await createMarketItem(ticketId, price));
   };
 
   const handleCancel = async (itemId) => {
@@ -700,7 +707,10 @@ function TicketItem() {
                 {/*body*/}
                 <div className="relative p-6 space-y-3">
                   <div className="space-y-3">
-                    <p>Price</p>
+                    <div className="flex space-x-1">
+                      <p>Price</p>
+                      <p className="text-red-500">*</p>
+                    </div>
                     <div className="flex space-x-5">
                       <div className="h-11 w-full px-3 flex items-center space-x-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
                         <input
@@ -715,6 +725,18 @@ function TicketItem() {
                         <p>BNB</p>
                       </div>
                     </div>
+                    {priceRequired && (
+                      <div className="flex items-center space-x-3 text-sm text-red-400">
+                        <Close className="h-2 w-2" />
+                        <p>Price is required.</p>
+                      </div>
+                    )}
+                    {pricePattern && (
+                      <div className="flex items-center space-x-3 text-sm text-red-400">
+                        <Close className="h-2 w-2" />
+                        <p>Price must more than 0.001 BNB.</p>
+                      </div>
+                    )}
                     {price ? (
                       <p className="text-sm text-text">
                         {(bnb * price).toLocaleString(undefined, {
@@ -730,12 +752,15 @@ function TicketItem() {
                 {/*footer*/}
                 <div className="flex items-center justify-center p-6 border-t border-solid border-white">
                   <button
-                    className="h-11 w-fit px-5 flex justify-center items-center rounded-lg font-bold text-black bg-primary hover:bg-primary-light"
+                    className={`${priceRequired && "opacity-50"} ${
+                      pricePattern && "opacity-50"
+                    }  h-11 w-fit px-5 flex justify-center items-center rounded-lg font-bold text-black bg-primary hover:bg-primary-light`}
                     type="button"
                     onClick={() => {
-                      handleSell(params.ticketId, price);
+                      handleSell(params.ticketId);
                       setShowSellModal(false);
                     }}
+                    disabled={priceRequired || pricePattern}
                   >
                     Complete listing
                   </button>
