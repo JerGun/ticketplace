@@ -7,11 +7,11 @@ Ticketplace is a ticket exchange website. that uses Blockchain technology to sol
 ## Project Percentage Division
 Section         | Total (%) | Progress (%)
 --------------  | ----------| -----------
-Smart Contract  | 35%       | 30%
-Frontend        | 25%       | 15%
+Smart Contract  | 35%       | 35%
+Frontend        | 25%       | 20%
 Backend         | 10%       | 10%
-Implement       | 20%       | 10%
-Others          | 10%       | 5%
+Implement       | 20%       | 15%
+Others          | 10%       | 10%
 **Total**       | **100%**  | **90%**
 ---
 ## Features 🕹
