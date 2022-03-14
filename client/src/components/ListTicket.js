@@ -70,7 +70,7 @@ function ListTicket() {
 
   const handleQuantityChange = (e) => {
     let { value } = e.target;
-    value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : null;
+    value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : "";
     setFormInput({
       ...formInput,
       quantity: value,
@@ -79,7 +79,7 @@ function ListTicket() {
 
   const handlePriceChange = (e) => {
     let { value } = e.target;
-    value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : null;
+    value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : "";
     setFormInput({
       ...formInput,
       price: value,

@@ -193,7 +193,7 @@ function TicketItem() {
 
   const handlePriceChange = (e) => {
     let { value } = e.target;
-    value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : null;
+    value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : "";
     setPrice(value);
     e.target.value.length === 0
       ? (setPriceRequired(true), setPricePattern(false))
@@ -207,7 +207,7 @@ function TicketItem() {
   };
 
   const handleSell = async (ticketId) => {
-    parseFloat(price) > 0.001 && (await createMarketItem(ticketId, price));
+    parseFloat(price) >= 0.001 && (await createMarketItem(ticketId, price));
   };
 
   const handleCancel = async (itemId) => {
