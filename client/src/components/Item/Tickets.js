@@ -533,6 +533,7 @@ function Tickets() {
           </div>
         </div>
       </div>
+      {/* Checkout Modal */}
       <Transition
         show={showCheckoutModal}
         enter="transition duration-100 ease-out"
@@ -686,80 +687,7 @@ function Tickets() {
           />
         )}
       </Transition>
-      <Transition
-        show={showCancelModal}
-        enter="transition duration-100 ease-out"
-        enterFrom="transform scale-95 opacity-0"
-        enterTo="transform scale-100 opacity-100"
-        leave="transition duration-75 ease-out"
-        leaveFrom="transform scale-100 opacity-100"
-        leaveTo="transform scale-95 opacity-0"
-      >
-        <Dialog
-          as="div"
-          className="fixed inset-0 z-20 overflow-y-auto"
-          onClose={() => setShowCancelModal(false)}
-        >
-          <div className="px-4 text-center">
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0"
-              enterTo="opacity-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <Dialog.Overlay className="fixed inset-0 bg-black opacity-80" />
-            </Transition.Child>
-
-            {/* This element is to trick the browser into centering the modal contents. */}
-            <span
-              className="inline-block h-screen align-middle"
-              aria-hidden="true"
-            >
-              &#8203;
-            </span>
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 scale-95"
-              enterTo="opacity-100 scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 scale-100"
-              leaveTo="opacity-0 scale-95"
-            >
-              <div className="inline-block w-full max-w-xl my-8 text-left align-middle transition-all transform text-white bg-background shadow-lg rounded-2xl">
-                {/*header*/}
-                <div className="relative flex items-center justify-center p-5 border-b border-solid border-white">
-                  <h3 className="text-2xl">
-                    Are you sure you want to cancel your listing?
-                  </h3>
-                  <button
-                    className="absolute right-5 p-3 text-white"
-                    onClick={() => setShowCancelModal(false)}
-                  >
-                    <Close />
-                  </button>
-                </div>
-                {/*body*/}
-                <div className="relative p-6 space-y-3 flex justify-center">
-                  <button
-                    className="h-11 w-fit px-5 flex justify-center items-center rounded-lg font-bold text-black bg-primary hover:bg-primary-light"
-                    type="button"
-                    onClick={() => {
-                      handleCancel(selectedTicket.itemId);
-                      setShowCancelModal(false);
-                    }}
-                  >
-                    Confirm
-                  </button>
-                </div>
-              </div>
-            </Transition.Child>
-          </div>
-        </Dialog>
-      </Transition>
+      {/* Add Funds Modal */}
       <Transition
         show={showAddFundsModal}
         enter="transition duration-100 ease-out"
@@ -852,6 +780,82 @@ function Tickets() {
           </div>
         </Dialog>
       </Transition>
+      {/* Cancel Listing Modal */}
+      <Transition
+        show={showCancelModal}
+        enter="transition duration-100 ease-out"
+        enterFrom="transform scale-95 opacity-0"
+        enterTo="transform scale-100 opacity-100"
+        leave="transition duration-75 ease-out"
+        leaveFrom="transform scale-100 opacity-100"
+        leaveTo="transform scale-95 opacity-0"
+      >
+        <Dialog
+          as="div"
+          className="fixed inset-0 z-20 overflow-y-auto"
+          onClose={() => setShowCancelModal(false)}
+        >
+          <div className="px-4 text-center">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <Dialog.Overlay className="fixed inset-0 bg-black opacity-80" />
+            </Transition.Child>
+
+            {/* This element is to trick the browser into centering the modal contents. */}
+            <span
+              className="inline-block h-screen align-middle"
+              aria-hidden="true"
+            >
+              &#8203;
+            </span>
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <div className="inline-block w-full max-w-xl my-8 text-left align-middle transition-all transform text-white bg-background shadow-lg rounded-2xl">
+                {/*header*/}
+                <div className="relative flex items-center justify-center p-5 border-b border-solid border-white">
+                  <h3 className="text-2xl">
+                    Are you sure you want to cancel your listing?
+                  </h3>
+                  <button
+                    className="absolute right-5 p-3 text-white"
+                    onClick={() => setShowCancelModal(false)}
+                  >
+                    <Close />
+                  </button>
+                </div>
+                {/*body*/}
+                <div className="relative p-6 space-y-3 flex justify-center">
+                  <button
+                    className="h-11 w-fit px-5 flex justify-center items-center rounded-lg font-bold text-black bg-primary hover:bg-primary-light"
+                    type="button"
+                    onClick={() => {
+                      handleCancel(selectedTicket.itemId);
+                      setShowCancelModal(false);
+                    }}
+                  >
+                    Confirm
+                  </button>
+                </div>
+              </div>
+            </Transition.Child>
+          </div>
+        </Dialog>
+      </Transition>
+      {/* Detail Modal */}
       <Transition
         show={showDetailModal}
         enter="transition duration-100 ease-out"

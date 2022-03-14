@@ -14,6 +14,7 @@ import {
   buyTicket,
   createMarketItem,
   cancelListing,
+  getBalance,
 } from "../../services/Web3";
 import { API_URL } from "../../config";
 
@@ -29,9 +30,11 @@ import { ReactComponent as Close } from "../../assets/icons/close.svg";
 import { ReactComponent as Check } from "../../assets/icons/check.svg";
 import { ReactComponent as Transfer } from "../../assets/icons/transfer.svg";
 import { ReactComponent as Mint } from "../../assets/icons/mint.svg";
+import { ReactComponent as Left } from "../../assets/icons/left.svg";
 import { ReactComponent as Cancel } from "../../assets/icons/cancel.svg";
 
 function TicketItem() {
+  const [account, setAccount] = useState();
   const [copy, setCopy] = useState(false);
   const [buttonDisabled, setButtonDisabled] = useState();
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
@@ -40,12 +43,13 @@ function TicketItem() {
   const [showAddFundsModal, setShowAddFundsModal] = useState(false);
   const [priceRequired, setPriceRequired] = useState(false);
   const [pricePattern, setPricePattern] = useState(false);
-  const [ticket, setTicket] = useState([]);
+  const [ticket, setTicket] = useState();
   const [history, setHistory] = useState([]);
   const [owner, setOwner] = useState(false);
   const [loadingState, setLoadingState] = useState(false);
   const [event, setEvent] = useState();
   const [bnb, setBnb] = useState();
+  const [balance, setBalance] = useState();
   const [price, setPrice] = useState("");
 
   const params = useParams();
@@ -57,19 +61,18 @@ function TicketItem() {
 
   useEffect(() => {
     loadTicket();
+    ticket && setLoadingState(true);
+  }, [ticket]);
+
+  useEffect(() => {
+    fetchAccount();
     fetchHistory();
     fetchBNB();
-    if (isMounted) {
-      setTimeout(() => {
-        setLoadingState(true);
-      }, 1000);
-    }
   }, []);
 
   const loadTicket = async () => {
     const account = await getAccount();
     const ticket = await fetchTicket(params.ticketId);
-    console.log(ticket);
     const ticketUri = await getUri(params.ticketId);
     const ticketMeta = await axios.get(ticketUri);
 
@@ -82,7 +85,6 @@ function TicketItem() {
     let data = { itemId: "" };
     if (ticket.list) {
       data = await fetchMarketItem(params.ticketId);
-      console.log(data, params.ticketId);
     }
 
     let item = {
@@ -123,6 +125,11 @@ function TicketItem() {
       .catch((err) => console.log(err));
 
     setTicket(item);
+  };
+
+  const fetchAccount = async () => {
+    const account = await getAccount();
+    setAccount(account);
   };
 
   const fetchHistory = async () => {
@@ -176,6 +183,14 @@ function TicketItem() {
     }, 2000);
   };
 
+  const copyAddress = () => {
+    navigator.clipboard.writeText(account);
+    setCopy(true);
+    setTimeout(() => {
+      setCopy(false);
+    }, 1000);
+  };
+
   const handlePriceChange = (e) => {
     let { value } = e.target;
     value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : null;
@@ -197,6 +212,11 @@ function TicketItem() {
 
   const handleCancel = async (itemId) => {
     await cancelListing(itemId).catch((err) => console.log(err));
+  };
+
+  const getAccountBalance = async () => {
+    const balance = await getBalance();
+    setBalance(balance);
   };
 
   return (
@@ -337,7 +357,10 @@ function TicketItem() {
                     </div>
                     <button
                       className="h-11 w-full flex justify-center items-center rounded-lg font-bold text-black bg-primary"
-                      onClick={() => setShowCheckoutModal(true)}
+                      onClick={() => {
+                        getAccountBalance();
+                        setShowCheckoutModal(true);
+                      }}
                     >
                       Buy for {ticket.price / 10 ** 8} BNB
                     </button>
@@ -578,6 +601,253 @@ function TicketItem() {
           )}
         </div>
       </div>
+      {/* Checkout Modal */}
+      {ticket && (
+        <Transition
+          show={showCheckoutModal}
+          enter="transition duration-100 ease-out"
+          enterFrom="transform scale-95 opacity-0"
+          enterTo="transform scale-100 opacity-100"
+          leave="transition duration-75 ease-out"
+          leaveFrom="transform scale-100 opacity-100"
+          leaveTo="transform scale-95 opacity-0"
+        >
+          <Dialog
+            as="div"
+            className="fixed inset-0 z-20 overflow-y-auto "
+            onClose={() => setShowCheckoutModal(false)}
+          >
+            <div className="px-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0"
+                enterTo="opacity-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <Dialog.Overlay className="fixed inset-0 bg-black opacity-80" />
+              </Transition.Child>
+
+              {/* This element is to trick the browser into centering the modal contents. */}
+              <span
+                className="inline-block h-screen align-middle"
+                aria-hidden="true"
+              >
+                &#8203;
+              </span>
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <div className="inline-block w-full max-w-xl my-8 text-left align-middle transition-all transform text-white bg-background shadow-lg rounded-2xl">
+                  {/*header*/}
+                  <div className="relative flex items-center justify-center p-5 border-b border-solid border-white">
+                    <h3 className="text-2xl">Complete checkout</h3>
+                    <button
+                      className="absolute right-5 p-3 text-white"
+                      onClick={() => setShowCheckoutModal(false)}
+                    >
+                      <Close />
+                    </button>
+                  </div>
+                  {/*body*/}
+                  <div className="relative p-6 space-y-3">
+                    <p>Items</p>
+                    <div className="flex justify-between">
+                      <div className="flex space-x-5">
+                        <div className="h-24 w-16 rounded-lg bg-white">
+                          <img
+                            src={ticket.image}
+                            alt=""
+                            className="h-full w-full object-cover rounded-lg"
+                          />
+                        </div>
+                        <div className="space-y-3">
+                          <p>{ticket.organizerName}</p>
+                          <p className="text-xl">{ticket.name}</p>
+                          <p className="text-sm text-text">
+                            Token ID: {ticket.tokenId}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex flex-col justify-center text-right space-y-3">
+                        <div className="flex items-center space-x-5">
+                          <BNB className="h-6 w-6" />
+                          <p className="text-xl">
+                            {ticket.price / 10 ** 8} BNB
+                          </p>
+                        </div>
+                        {ticket.price ? (
+                          <p className="text-sm text-text">
+                            {((bnb * ticket.price) / 10 ** 8).toLocaleString(
+                              undefined,
+                              {
+                                maximumFractionDigits: 2,
+                              }
+                            )}{" "}
+                            THB
+                          </p>
+                        ) : (
+                          <p className="text-sm text-sub-text">0 THB</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  {/*footer*/}
+                  <div className="flex items-center justify-center p-6 space-x-5 border-t border-solid border-white">
+                    <div className="relative h-fit w-fit">
+                      {balance / 10 ** 18 < ticket.price / 10 ** 8 && (
+                        <div
+                          data-tip="Not enough BNB to complete purchase"
+                          className="absolute h-full w-full z-10"
+                        ></div>
+                      )}
+                      <button
+                        className={`${
+                          balance / 10 ** 18 < ticket.price / 10 ** 8 &&
+                          "opacity-50 hover:bg-primary"
+                        } h-11 w-fit px-5 flex justify-center items-center rounded-lg font-bold text-black bg-primary hover:bg-primary-light`}
+                        type="button"
+                        onClick={() => {
+                          // handleSubmit(selectedTicket.itemId, selectedTicket.price);
+                          handleSubmit(ticket.itemId, ticket.price);
+                          setShowCheckoutModal(false);
+                        }}
+                        disabled={balance / 10 ** 18 < ticket.price / 10 ** 8}
+                      >
+                        Confirm checkout
+                      </button>
+                    </div>
+                    {balance / 10 ** 18 < ticket.price / 10 ** 8 && (
+                      <button
+                        className="h-11 w-fit px-5 flex justify-center items-center rounded-lg font-bold text-white bg-hover hover:bg-hover-light"
+                        type="button"
+                        onClick={() => {
+                          setShowCheckoutModal(false);
+                          setTimeout(() => {
+                            setShowAddFundsModal(true);
+                          }, 500);
+                        }}
+                      >
+                        Add funds
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </Transition.Child>
+            </div>
+          </Dialog>
+          {balance / 10 ** 18 < ticket.price / 10 ** 8 && (
+            <ReactTooltip
+              effect="solid"
+              place="top"
+              offset={{ top: 2, left: 0 }}
+              backgroundColor="#5A5A5C"
+            />
+          )}
+        </Transition>
+      )}
+      {/* Add Funds Modal */}
+      <Transition
+        show={showAddFundsModal}
+        enter="transition duration-100 ease-out"
+        enterFrom="transform scale-95 opacity-0"
+        enterTo="transform scale-100 opacity-100"
+        leave="transition duration-75 ease-out"
+        leaveFrom="transform scale-100 opacity-100"
+        leaveTo="transform scale-95 opacity-0"
+      >
+        <Dialog
+          as="div"
+          className="fixed inset-0 z-20 overflow-y-auto "
+          onClose={() => setShowAddFundsModal(false)}
+        >
+          <div className="px-4 text-center">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <Dialog.Overlay className="fixed inset-0 bg-black opacity-80" />
+            </Transition.Child>
+            <span
+              className="inline-block h-screen align-middle"
+              aria-hidden="true"
+            >
+              &#8203;
+            </span>
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <div className="inline-block w-full max-w-xl my-8 text-left align-middle transition-all transform text-white bg-background shadow-lg rounded-2xl">
+                {/*header*/}
+                <div className="relative flex items-center justify-center p-5 border-b border-solid border-white">
+                  <h3 className="text-2xl">Add funds</h3>
+                  <button
+                    className="absolute left-5 p-3 scale-50 text-white"
+                    onClick={() => {
+                      getAccountBalance();
+                      setShowAddFundsModal(false);
+                      setTimeout(() => {
+                        setShowCheckoutModal(true);
+                      }, 500);
+                    }}
+                  >
+                    <Left />
+                  </button>
+                  <button
+                    className="absolute right-5 p-3 text-white"
+                    onClick={() => setShowAddFundsModal(false)}
+                  >
+                    <Close />
+                  </button>
+                </div>
+                {/*body*/}
+                <div className="p-6 space-y-5 flex flex-col items-center">
+                  <p className="text-text">
+                    Send BNB from your exchange or wallet to the following
+                    address. Only send BNB!
+                  </p>
+                  <div className="w-full space-y-3">
+                    <p>Your Wallet Address</p>
+                    <div className="flex space-x-5">
+                      <div className="h-11 w-full px-3 flex items-center space-x-3 rounded-lg text-text bg-input">
+                        <p>{account}</p>
+                      </div>
+                      <button
+                        className="h-11 w-24 px-5 flex items-center justify-center space-x-3 rounded-lg font-bold text-black bg-primary hover:bg-primary-light"
+                        onClick={() => {
+                          copyAddress();
+                        }}
+                      >
+                        {copy ? "Copied" : "Copy"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Transition.Child>
+          </div>
+        </Dialog>
+      </Transition>
+      {/* Cancel Listing Modal */}
       <Transition
         show={showCancelModal}
         enter="transition duration-100 ease-out"
@@ -652,6 +922,7 @@ function TicketItem() {
           </div>
         </Dialog>
       </Transition>
+      {/* Listing Modal */}
       <Transition
         show={showSellModal}
         enter="transition duration-100 ease-out"
@@ -770,126 +1041,6 @@ function TicketItem() {
           </div>
         </Dialog>
       </Transition>
-      <Transition
-        show={showCheckoutModal}
-        enter="transition duration-100 ease-out"
-        enterFrom="transform scale-95 opacity-0"
-        enterTo="transform scale-100 opacity-100"
-        leave="transition duration-75 ease-out"
-        leaveFrom="transform scale-100 opacity-100"
-        leaveTo="transform scale-95 opacity-0"
-      >
-        <Dialog
-          as="div"
-          className="fixed inset-0 z-20 overflow-y-auto "
-          onClose={() => setShowCheckoutModal(false)}
-        >
-          <div className="px-4 text-center">
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0"
-              enterTo="opacity-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <Dialog.Overlay className="fixed inset-0 bg-black opacity-80" />
-            </Transition.Child>
-
-            {/* This element is to trick the browser into centering the modal contents. */}
-            <span
-              className="inline-block h-screen align-middle"
-              aria-hidden="true"
-            >
-              &#8203;
-            </span>
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 scale-95"
-              enterTo="opacity-100 scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 scale-100"
-              leaveTo="opacity-0 scale-95"
-            >
-              <div className="inline-block w-full max-w-xl my-8 text-left align-middle transition-all transform text-white bg-background shadow-lg rounded-2xl">
-                {/*header*/}
-                <div className="relative flex items-center justify-center p-5 border-b border-solid border-white">
-                  <h3 className="text-2xl">Complete checkout</h3>
-                  <button
-                    className="absolute right-5 p-3 text-white"
-                    onClick={() => setShowCheckoutModal(false)}
-                  >
-                    <Close />
-                  </button>
-                </div>
-                {/*body*/}
-                <div className="relative p-6 space-y-3">
-                  <p>Items</p>
-                  <div className="flex justify-between">
-                    <div className="flex space-x-5">
-                      <div className="h-24 w-16 rounded-lg bg-white">
-                        <img
-                          src={ticket.image}
-                          alt=""
-                          className="h-full w-full object-cover rounded-lg"
-                        />
-                      </div>
-                      <div className="space-y-3">
-                        <p>{ticket.organizerName}</p>
-                        <p className="text-xl">{ticket.name}</p>
-                        <p className="text-sm text-text">
-                          Token ID: {ticket.tokenId}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex flex-col justify-center text-right space-y-3">
-                      <div className="flex items-center space-x-5">
-                        <BNB className="h-6 w-6" />
-                        <p className="text-xl">{ticket.price / 10 ** 8} BNB</p>
-                      </div>
-                      {ticket.price ? (
-                        <p className="text-sm text-text">
-                          {((bnb * ticket.price) / 10 ** 8).toLocaleString(
-                            undefined,
-                            {
-                              maximumFractionDigits: 2,
-                            }
-                          )}{" "}
-                          THB
-                        </p>
-                      ) : (
-                        <p className="text-sm text-sub-text">0 THB</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                {/*footer*/}
-                <div className="flex items-center justify-center p-6 space-x-5 border-t border-solid border-white">
-                  <button
-                    className="h-11 w-fit px-5 flex justify-center items-center rounded-lg font-bold text-black bg-primary hover:bg-primary-light"
-                    type="button"
-                    onClick={() => {
-                      handleSubmit(ticket.itemId, ticket.price);
-                      setShowCheckoutModal(false);
-                    }}
-                  >
-                    Confirm checkout
-                  </button>
-                  <button
-                    className="h-11 w-fit px-5 flex justify-center items-center rounded-lg font-bold text-white bg-modal-button"
-                    type="button"
-                    onClick={() => setShowAddFundsModal(true)}
-                  >
-                    Add funds
-                  </button>
-                </div>
-              </div>
-            </Transition.Child>
-          </div>
-        </Dialog>
-      </Transition>
       <Transition show={copy}>
         <Transition.Child
           as={Fragment}
@@ -902,7 +1053,7 @@ function TicketItem() {
         >
           <Dialog
             onClose={() => setCopy(false)}
-            className="absolute bottom-10 right-10 py-3 px-6 rounded-lg shadow-lg bg-white"
+            className="absolute bottom-10 right-10 z-30 py-3 px-6 rounded-lg shadow-lg bg-white"
           >
             <p>Link copied!</p>
           </Dialog>

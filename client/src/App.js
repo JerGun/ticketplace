@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { HashRouter as Router, Route, Routes } from "react-router-dom";
-import { connectWallet, getAccount, getNetwork } from "./services/Web3";
+import { getAccount, getNetwork } from "./services/Web3";
 
 import Navbar from "./components/Navbar";
 import Tickets from "./components/Item/Tickets";
@@ -20,10 +20,8 @@ import Events from "./components/Item/Events";
 import EventItem from "./components/Item/EventItem";
 import ConnectWallet from "./components/ConnectWallet";
 
-import { ReactComponent as Close } from "./assets/icons/close.svg";
-
 function App() {
-  const [account, setAccount] = useState("");
+  const [account, setAccount] = useState("account");
   const [network, setNetwork] = useState(97);
 
   useEffect(async () => {
@@ -50,7 +48,7 @@ function App() {
 
   const loadAccount = async () => {
     const connectAccount = await getAccount();
-    setAccount(connectAccount);
+    connectAccount ? setAccount(connectAccount) : setAccount("");
   };
 
   return (

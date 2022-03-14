@@ -7,6 +7,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { ReactComponent as Close } from "../../assets/icons/close.svg";
 import { ReactComponent as Email } from "../../assets/icons/email.svg";
 import { useNavigate } from "react-router-dom";
+import { getAccount } from "../../services/Web3";
 
 function AccountSetup() {
   const [account, setAccount] = useState("");
@@ -27,15 +28,13 @@ function AccountSetup() {
 
   useEffect(async () => {
     if (window.ethereum) {
-      const web3 = new Web3(window.ethereum);
-      const accounts = await web3.eth.getAccounts();
-      setAccount(accounts[0]);
+      await loadAccount();
       setFormInput({
         ...formInput,
-        address: accounts[0],
+        address: account,
       });
       await axios
-        .get(`${API_URL}/account/${accounts[0]}`)
+        .get(`${API_URL}/account/${account}`)
         .then((response) => {
           if (response.data) {
             if (response.data.email) {
@@ -111,6 +110,11 @@ function AccountSetup() {
             setEmailExist(false));
       })
       .catch((err) => console.log(err));
+  };
+
+  const loadAccount = async () => {
+    const connectAccount = await getAccount();
+    setAccount(connectAccount);
   };
 
   return (

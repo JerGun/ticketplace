@@ -1,5 +1,4 @@
 import React, { Fragment, useEffect, useState } from "react";
-import Web3 from "web3";
 import axios from "axios";
 import { API_URL } from "../../config";
 import { Dialog, Transition } from "@headlessui/react";
@@ -7,6 +6,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { ReactComponent as Email } from "../../assets/icons/email.svg";
 import { ReactComponent as Close } from "../../assets/icons/close.svg";
 import { ReactComponent as Check } from "../../assets/icons/check.svg";
+import { getAccount } from "../../services/Web3";
 
 function AccountSettings() {
   const [account, setAccount] = useState();
@@ -31,11 +31,9 @@ function AccountSettings() {
 
   useEffect(async () => {
     if (window.ethereum) {
-      const web3 = new Web3(window.ethereum);
-      const accounts = await web3.eth.getAccounts();
-      setAccount(accounts[0]);
+      await loadAccount();
       await axios
-        .get(`${API_URL}/account/${accounts[0]}`)
+        .get(`${API_URL}/account/${account}`)
         .then((response) => {
           setInfo({
             ...info,
@@ -46,7 +44,7 @@ function AccountSettings() {
           });
           setFormInput({
             ...formInput,
-            address: accounts[0],
+            address: account,
             name: response.data.name,
             email: response.data.email,
           });
@@ -141,6 +139,11 @@ function AccountSettings() {
 
   const closeModal = () => {
     setShowModal(false);
+  };
+
+  const loadAccount = async () => {
+    const connectAccount = await getAccount();
+    setAccount(connectAccount);
   };
 
   return (
