@@ -34,6 +34,9 @@ module.exports = {
         "sub-text": "#89919A",
         alert: "#F54E4E",
       },
+      transitionProperty: {
+        width: "width",
+      },
     },
   },
   plugins: [require("@tailwindcss/line-clamp")],

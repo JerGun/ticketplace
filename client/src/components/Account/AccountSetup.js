@@ -1,71 +1,53 @@
 import React, { Fragment, useEffect, useState } from "react";
-import Web3 from "web3";
 import axios from "axios";
 import { API_URL } from "../../config";
-import { Dialog, Transition } from "@headlessui/react";
-
-import { ReactComponent as Close } from "../../assets/icons/close.svg";
-import { ReactComponent as Email } from "../../assets/icons/email.svg";
+import { Dialog, Transition, Disclosure } from "@headlessui/react";
 import { useNavigate } from "react-router-dom";
 import { getAccount } from "../../services/Web3";
 
+import { ReactComponent as Close } from "../../assets/icons/close.svg";
+import { ReactComponent as Email } from "../../assets/icons/email.svg";
+import { ReactComponent as Down } from "../../assets/icons/down.svg";
+
 function AccountSetup() {
   const [account, setAccount] = useState("");
-  const [formInput, setFormInput] = useState({
-    address: "",
-    name: "",
-    email: "",
-    verify: false,
-  });
   const [sendingEmail, setSendingEmail] = useState(false);
   const [nameRequired, setNameRequired] = useState(false);
   const [emailRequired, setEmailRequired] = useState(false);
   const [emailPattern, setEmailPattern] = useState(false);
   const [emailExist, setEmailExist] = useState(false);
-  const [submitDisable, setSubmitDisable] = useState(true);
+  const [formInput, setFormInput] = useState({
+    address: "",
+    name: "",
+    email: "",
+    verify: false,
+    fullName: "",
+    social: "",
+    post: "",
+  });
 
   const navigate = useNavigate();
 
   useEffect(async () => {
     if (window.ethereum) {
       await loadAccount();
-      setFormInput({
-        ...formInput,
-        address: account,
-      });
-      await axios
-        .get(`${API_URL}/account/${account}`)
-        .then((response) => {
-          if (response.data) {
-            if (response.data.email) {
-              navigate("/account/settings");
-            }
-          }
-        })
-        .catch((err) => console.log(err));
     }
   }, []);
 
-  useEffect(() => {
-    formInput.name.length > 0 && formInput.email.length > 0
-      ? !nameRequired && !emailRequired && !emailPattern
-        ? setSubmitDisable(false)
-        : setSubmitDisable(true)
-      : setSubmitDisable(true);
-  }, [formInput.name, formInput.email]);
-
   const handleSubmit = async () => {
     const { name, email } = formInput;
-    if (!name || !email) return;
+    if (!name || !email) {
+      setNameRequired(true);
+      setEmailRequired(true);
+      return;
+    }
 
     setSendingEmail(true);
-    setSubmitDisable(true);
 
     await axios
       .post(`${API_URL}/email`, formInput)
       .then((response) => {
         setTimeout(() => {
-          setSubmitDisable(false);
           setSendingEmail(false);
         }, 4000);
         console.log(response.data.msg);
@@ -101,7 +83,7 @@ function AccountSetup() {
           ? (setEmailRequired(false),
             setEmailPattern(true),
             setEmailExist(false))
-          : response.data && !response.data.verify
+          : response.data
           ? (setEmailRequired(false),
             setEmailPattern(false),
             setEmailExist(true))
@@ -115,6 +97,20 @@ function AccountSetup() {
   const loadAccount = async () => {
     const connectAccount = await getAccount();
     setAccount(connectAccount);
+    setFormInput({
+      ...formInput,
+      address: connectAccount,
+    });
+    await axios
+      .get(`${API_URL}/account/${account}`)
+      .then((response) => {
+        if (response.data) {
+          if (response.data.email) {
+            navigate("/account/settings");
+          }
+        }
+      })
+      .catch((err) => console.log(err));
   };
 
   return (
@@ -204,95 +200,134 @@ function AccountSetup() {
                   )}
                 </div>
               </div>
+              <div className="w-full">
+                <Disclosure>
+                  {({ open }) => (
+                    <>
+                      <Disclosure.Button className="w-1/2 transition-width duration-500 ease-out flex items-center justify-between px-4 py-2 text-left border-2 border-hover text-white rounded-lg focus:outline-none">
+                        <p>Verification Form</p>
+                        <div className="">
+                          <Down
+                            className={`${
+                              open ? "transform rotate-180" : ""
+                            } w-5 h-5 text-white`}
+                          />
+                        </div>
+                      </Disclosure.Button>
+                      <Transition
+                        enter="transition duration-100 ease-out"
+                        enterFrom="transform scale-95 opacity-0"
+                        enterTo="transform scale-100 opacity-100"
+                        leave="transition duration-75 ease-out"
+                        leaveFrom="transform scale-100 opacity-100"
+                        leaveTo="transform scale-95 opacity-0"
+                      >
+                        <Disclosure.Panel className="w-full space-y-5 pt-5">
+                          <p className="text-text">
+                            This form allows users to apply for Ticketplace
+                            account verification.
+                          </p>
+                          <div className="space-y-3">
+                            <p>
+                              Please provide a contact person's full name for
+                              your account.
+                            </p>
+                            <div className="space-y-1">
+                              <div className="h-11 w-1/2 px-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
+                                <input
+                                  type="text"
+                                  placeholder="Full name"
+                                  className="h-full w-full bg-transparent"
+                                  onChange={(e) =>
+                                    setFormInput({
+                                      ...formInput,
+                                      fullName: e.target.value,
+                                    })
+                                  }
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          <div className="space-y-3">
+                            <p>
+                              Please provide proof of identity for your account,
+                              in the form of a Facebook, Twitter, or Instagram
+                              profile.
+                            </p>
+                            <div className="space-y-1">
+                              <div className="h-11 w-1/2 px-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
+                                <input
+                                  type="text"
+                                  placeholder="https://www.social.com/user"
+                                  className="h-full w-full bg-transparent"
+                                  onChange={(e) =>
+                                    setFormInput({
+                                      ...formInput,
+                                      social: e.target.value,
+                                    })
+                                  }
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          <div className="space-y-3">
+                            <p>
+                              Please provide a link to a public tweet / social
+                              media post that includes the wallet address of the
+                              Ticketplace profile you are requesting
+                              verification for.
+                            </p>
+                            <div className="space-y-2 text-text ">
+                              <p>
+                                Please post a message including "Hello
+                                @Ticketplace", followed by your wallet address.
+                              </p>
+                              <div className="w-fit p-3 space-y-2 rounded-lg bg-hover">
+                                <p>Hello @Ticketplace !</p>
+                                <p>
+                                  [0x198BD436995F602fD43E215b195E3EC0C4f2b610]
+                                </p>
+                              </div>
+                            </div>
+                            <div className="space-y-1">
+                              <div className="h-11 w-1/2 px-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
+                                <input
+                                  type="text"
+                                  placeholder="https://www.social.com/user/post"
+                                  className="h-full w-full bg-transparent"
+                                  onChange={(e) =>
+                                    setFormInput({
+                                      ...formInput,
+                                      post: e.target.value,
+                                    })
+                                  }
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </Disclosure.Panel>
+                      </Transition>
+                    </>
+                  )}
+                </Disclosure>
+              </div>
               <button
                 type="submit"
                 className={`${
-                  submitDisable && "opacity-50"
+                  nameRequired || emailRequired || emailPattern || emailExist
+                    ? "opacity-50"
+                    : ""
                 } h-11 w-24 flex justify-center items-center rounded-lg font-bold text-black bg-primary`}
                 onClick={handleSubmit}
-                disabled={submitDisable}
+                disabled={
+                  (!formInput.name.length && nameRequired) ||
+                  emailRequired ||
+                  emailPattern ||
+                  emailExist
+                }
               >
                 Save
               </button>
-            </div>
-            <div className="w-1/2 space-y-5">
-              <div>
-                <p className="text-xl">Verification Form</p>
-                <p className="text-text">
-                  This form allows users to apply for Ticketplace account
-                  verification.
-                </p>
-              </div>
-              <div className="space-y-3">
-                <p>
-                  Please provide a contact person's full name for your account.
-                </p>
-                <div className="space-y-1">
-                  <div
-                    className={`${nameRequired && "border border-red-400"}
-              h-11 w-1/2 px-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover
-              `}
-                  >
-                    <input
-                      type="text"
-                      placeholder="Full name"
-                      className="h-full w-full bg-transparent"
-                      onChange={handleNameChange}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="space-y-3">
-                <p>
-                  Please provide proof of identity for your account, in the form
-                  of a Facebook, Twitter, or Instagram profile.
-                </p>
-                <div className="space-y-1">
-                  <div
-                    className={`${nameRequired && "border border-red-400"}
-              h-11 w-1/2 px-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover
-              `}
-                  >
-                    <input
-                      type="text"
-                      placeholder="Full name"
-                      className="h-full w-full bg-transparent"
-                      onChange={handleNameChange}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="space-y-3">
-                <p>
-                  Please provide a link to a public tweet / social media post
-                  that includes the wallet address of the Ticketplace profile
-                  you are requesting verification for.
-                </p>
-                <div className="space-y-2 text-text ">
-                  <p>
-                    Please post a message including "Hello @Ticketplace",
-                    followed by your wallet address.
-                  </p>
-                  <div className="w-fit p-3 space-y-2 rounded-lg bg-hover">
-                    <p>Hello @Ticketplace !</p>
-                    <p>[0x198BD436995F602fD43E215b195E3EC0C4f2b610]</p>
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <div
-                    className={`${nameRequired && "border border-red-400"}
-              h-11 w-1/2 px-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover
-              `}
-                  >
-                    <input
-                      type="text"
-                      placeholder="https://www.social.com/user/post"
-                      className="h-full w-full bg-transparent"
-                      onChange={handleNameChange}
-                    />
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
