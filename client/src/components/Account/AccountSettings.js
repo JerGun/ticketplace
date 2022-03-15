@@ -9,7 +9,7 @@ import { ReactComponent as Check } from "../../assets/icons/check.svg";
 import { getAccount } from "../../services/Web3";
 
 function AccountSettings() {
-  const [account, setAccount] = useState();
+  const [account, setAccount] = useState("");
   const [info, setInfo] = useState({
     address: "",
     name: "",
@@ -26,28 +26,33 @@ function AccountSettings() {
   const [emailRequired, setEmailRequired] = useState(false);
   const [emailPattern, setEmailPattern] = useState(false);
   const [submitDisable, setSubmitDisable] = useState(true);
-  const [success, setSuccess] = useState();
+  const [success, setSuccess] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
   useEffect(async () => {
     if (window.ethereum) {
       await loadAccount();
+      const connectAccount = await getAccount();
       await axios
-        .get(`${API_URL}/account/${account}`)
+        .get(`${API_URL}/account/${connectAccount}`)
         .then((response) => {
-          setInfo({
-            ...info,
-            name: response.data.name,
-            email: response.data.email,
-            img: response.data.img,
-            verify: response.data.verify,
-          });
-          setFormInput({
-            ...formInput,
-            address: account,
-            name: response.data.name,
-            email: response.data.email,
-          });
+          console.log(response);
+          if (response.data) {
+            console.log(response.data);
+            setInfo({
+              ...info,
+              name: response.data.name,
+              email: response.data.email,
+              img: response.data.img,
+              verify: response.data.verify,
+            });
+            setFormInput({
+              ...formInput,
+              address: account,
+              name: response.data.name,
+              email: response.data.email,
+            });
+          }
         })
         .catch((err) => console.log(err));
     }
@@ -125,7 +130,8 @@ function AccountSettings() {
   };
 
   const handleEmailChange = (e) => {
-    const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    const pattern =
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     setFormInput({
       ...formInput,
       email: e.target.value,
