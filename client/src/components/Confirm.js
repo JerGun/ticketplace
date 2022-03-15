@@ -33,7 +33,7 @@ function Confirm() {
             request a new verification email.
           </p>
           <a
-            href="#"
+            href="/#/account/settings"
             type="submit"
             className="h-11 w-fit px-10 flex justify-center items-center rounded-lg font-bold text-black bg-primary"
           >
@@ -45,7 +45,7 @@ function Confirm() {
           <ConfirmIcon />
           <p className="text-2xl font-bold">Your email has been verified!</p>
           <a
-            href="/ticket/create"
+            href="/#/ticket/create"
             className="h-11 w-fit px-10 flex justify-center items-center rounded-lg font-bold text-black bg-primary"
           >
             Back to Ticketplace
