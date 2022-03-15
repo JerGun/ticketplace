@@ -112,7 +112,8 @@ function Navbar() {
             location.pathname === "/account/setup" ||
             location.pathname === "/account/settings" ||
             location.pathname === "/account/owned" ||
-            location.pathname === "/account/created" ? (
+            location.pathname === "/account/created" ||
+            location.pathname === "/account/created_events" ? (
               <span className="absolute h-1 w-full bottom-0 left-0 rounded-t-lg bg-primary"></span>
             ) : null}
           </div>
