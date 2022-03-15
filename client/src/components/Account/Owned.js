@@ -5,23 +5,18 @@ import { Dialog, Listbox, Transition } from "@headlessui/react";
 import ReactTooltip from "react-tooltip";
 import { API_URL } from "../../config";
 import {
-  fetchCreatedEvents,
   getUri,
-  fetchCreatedTickets,
   fetchEvent,
   fetchMarketItem,
-  fetchTicket,
-  fetchTicketsInEvent,
-  fetchOwnedEvents,
   fetchOwnedTickets,
+  createMarketItem,
 } from "../../services/Web3";
 
+import { ReactComponent as Price } from "../../assets/icons/price.svg";
 import { ReactComponent as Down } from "../../assets/icons/down.svg";
 import { ReactComponent as Search } from "../../assets/icons/search.svg";
 import { ReactComponent as Info } from "../../assets/icons/info.svg";
 import { ReactComponent as Close } from "../../assets/icons/close.svg";
-import { ReactComponent as Location } from "../../assets/icons/location.svg";
-import { ReactComponent as Ticket } from "../../assets/icons/ticket.svg";
 
 const listOption = [
   { title: "Recently Created", value: "recently" },
@@ -30,13 +25,19 @@ const listOption = [
 
 function Owned() {
   const [tickets, setTickets] = useState();
-  const [events, setEvents] = useState();
   const [loadingState, setLoadingState] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showSellModal, setShowSellModal] = useState(false);
+  const [priceRequired, setPriceRequired] = useState(false);
+  const [pricePattern, setPricePattern] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState();
+  const [price, setPrice] = useState("");
+  const [bnb, setBnb] = useState();
   const [sortBy, setSortBy] = useState(listOption[0]);
   const [filter, setFilter] = useState({
     keyword: "",
+    you: false,
+    others: false,
     available: false,
     used: false,
   });
@@ -48,26 +49,36 @@ function Owned() {
   }, []);
 
   useEffect(() => {
-    if (isMounted) {
-      loadTickets();
-      tickets && setLoadingState(true);
-    }
+    loadTickets();
+    tickets && setLoadingState(true);
   }, [tickets]);
 
+  useEffect(() => {
+    fetchBNB();
+  }, []);
+
   const loadTickets = async () => {
-    const data = await fetchOwnedTickets();
+    let data = await fetchOwnedTickets(true, true);
+
+    if (filter.you || filter.others) {
+      if (filter.you) {
+        data = await fetchOwnedTickets(false, true);
+      }
+      if (filter.others) {
+        data = await fetchOwnedTickets(false, false);
+      }
+    }
 
     let items = await Promise.all(
       data.map(async (i) => {
         const ticketInMarket = await fetchMarketItem(i.tokenId);
-        const ticket = await fetchTicket(i.tokenId);
         const ticketUri = await getUri(i.tokenId);
         const ticketMeta = await axios.get(ticketUri);
-        const event = await fetchEvent(ticket.eventTokenId);
-        const eventUri = await getUri(ticket.eventTokenId);
+        const event = await fetchEvent(i.eventTokenId);
+        const eventUri = await getUri(i.eventTokenId);
         const eventMeta = await axios.get(eventUri);
         let item = {
-          eventId: ticket.eventTokenId,
+          eventId: i.eventTokenId,
           eventName: eventMeta.data.name,
           eventOwner: event.owner,
           itemId: ticketInMarket.itemId,
@@ -82,17 +93,17 @@ function Owned() {
           endDate: ticketMeta.data.endDate,
           startTime: ticketMeta.data.startTime,
           endTime: ticketMeta.data.endTime,
-          active: ticket.active,
+          list: i.list,
+          active: i.active,
         };
         return item;
       })
     );
 
     items = items.reverse();
+    items = items.filter((i) => !i.list);
 
-    if (filter.available && filter.used) {
-      null;
-    } else {
+    if (filter.available || filter.used) {
       if (filter.available) {
         items = items.filter((i) => i.active);
       }
@@ -113,9 +124,34 @@ function Owned() {
     setTickets(items);
   };
 
+  const fetchBNB = async () => {
+    await axios
+      .get("https://api.coingecko.com/api/v3/coins/binancecoin")
+      .then((result) => {
+        setBnb(result.data.market_data.current_price.thb.toFixed(2));
+      });
+  };
+
+  const handlePriceChange = (e) => {
+    let { value } = e.target;
+    value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : "";
+    setPrice(value);
+    e.target.value.length === 0
+      ? (setPriceRequired(true), setPricePattern(false))
+      : parseFloat(e.target.value) < 0.001
+      ? (setPriceRequired(false), setPricePattern(true))
+      : (setPriceRequired(false), setPricePattern(false));
+  };
+
+  const handleSell = async (ticketId) => {
+    parseFloat(price) >= 0.001 && (await createMarketItem(ticketId, price));
+  };
+
   const resetFilter = () => {
     setFilter({
       ...filter,
+      you: false,
+      others: false,
       available: false,
       used: false,
     });
@@ -156,6 +192,43 @@ function Owned() {
       <div className="h-full w-full flex text-white bg-background">
         <div className="sticky top-0 h-screen w-2/12 flex flex-col items-center p-5 space-y-10 shadow-lg bg-modal-button">
           <div className="w-full space-y-3">
+            <p className="w-full text-xl font-bold">Created by</p>
+            <label className="w-fit flex items-center hover:cursor-pointer">
+              <div className="h-5 w-5 flex items-center justify-center rounded-md border-2 border-white">
+                <input
+                  type="checkbox"
+                  className="h-3 w-3 appearance-none rounded-sm checked:bg-primary"
+                  checked={filter.you}
+                  onChange={() => {
+                    setFilter({
+                      ...filter,
+                      you: true,
+                      others: false,
+                    });
+                  }}
+                />
+              </div>
+              <span className="ml-2 select-none">You</span>
+            </label>
+            <label className="w-fit flex items-center hover:cursor-pointer">
+              <div className="h-5 w-5 flex items-center justify-center rounded-md border-2 border-white">
+                <input
+                  type="checkbox"
+                  className="h-3 w-3 appearance-none rounded-sm checked:bg-primary"
+                  checked={filter.others}
+                  onChange={() => {
+                    setFilter({
+                      ...filter,
+                      you: false,
+                      others: true,
+                    });
+                  }}
+                />
+              </div>
+              <span className="ml-2 select-none">Others</span>
+            </label>
+          </div>
+          <div className="w-full space-y-3">
             <p className="w-full text-xl font-bold">Ticket Status</p>
             <label className="w-fit flex items-center hover:cursor-pointer">
               <div className="h-5 w-5 flex items-center justify-center rounded-md border-2 border-white">
@@ -193,7 +266,7 @@ function Owned() {
             </label>
           </div>
           <div className="w-full space-y-3">
-            <p className="w-full text-xl font-bold">Sort by</p>
+            <p className="w-full text-xl font-bold">Sort</p>
             <Listbox value={sortBy} onChange={setSortBy}>
               <div className="w-full relative inline-block rounded-lg shadow-lg bg-hover hover:bg-hover-light">
                 <Listbox.Button className="h-11 w-full inline-flex justify-between px-3 items-center space-x-3 text-white rounded-lg">
@@ -342,6 +415,15 @@ function Owned() {
                         >
                           <Info />
                         </button>
+                        <button
+                          className="p-2 text-primary"
+                          onClick={() => {
+                            setSelectedTicket({ tokenId: ticket.tokenId });
+                            setShowSellModal(true);
+                          }}
+                        >
+                          <Price />
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -349,6 +431,126 @@ function Owned() {
           </div>
         </div>
       </div>
+      {/* Listing Modal */}
+      <Transition
+        show={showSellModal}
+        enter="transition duration-100 ease-out"
+        enterFrom="transform scale-95 opacity-0"
+        enterTo="transform scale-100 opacity-100"
+        leave="transition duration-75 ease-out"
+        leaveFrom="transform scale-100 opacity-100"
+        leaveTo="transform scale-95 opacity-0"
+      >
+        <Dialog
+          as="div"
+          className="fixed inset-0 z-20 overflow-y-auto "
+          onClose={() => setShowSellModal(false)}
+        >
+          <div className="px-4 text-center">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <Dialog.Overlay className="fixed inset-0 bg-black opacity-80" />
+            </Transition.Child>
+            <span
+              className="inline-block h-screen align-middle"
+              aria-hidden="true"
+            >
+              &#8203;
+            </span>
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <div className="inline-block w-full max-w-xl my-8 text-left align-middle transition-all transform text-white bg-background shadow-lg rounded-2xl">
+                {/*header*/}
+                <div className="relative flex items-center justify-center p-5 border-b border-solid border-white">
+                  <h3 className="text-2xl">List item for sale</h3>
+                  <button
+                    className="absolute right-5 p-3 text-white"
+                    onClick={() => setShowSellModal(false)}
+                  >
+                    <Close />
+                  </button>
+                </div>
+                {/*body*/}
+                <div className="relative p-6 space-y-3">
+                  <div className="space-y-3">
+                    <div className="flex space-x-1">
+                      <p>Price</p>
+                      <p className="text-red-500">*</p>
+                    </div>
+                    <div className="flex space-x-5">
+                      <div className="h-11 w-full px-3 flex items-center space-x-3 rounded-lg bg-input hover:bg-hover focus-within:bg-hover">
+                        <input
+                          type="number"
+                          placeholder="1"
+                          value={price}
+                          className="price h-full w-full bg-transparent"
+                          onChange={handlePriceChange}
+                        />
+                      </div>
+                      <div className="h-11 px-5 flex items-center space-x-3 rounded-lg bg-input">
+                        <p>BNB</p>
+                      </div>
+                    </div>
+                    {priceRequired && (
+                      <div className="flex items-center space-x-3 text-sm text-red-400">
+                        <Close className="h-2 w-2" />
+                        <p>Price is required.</p>
+                      </div>
+                    )}
+                    {pricePattern && (
+                      <div className="flex items-center space-x-3 text-sm text-red-400">
+                        <Close className="h-2 w-2" />
+                        <p>Price must more than 0.001 BNB.</p>
+                      </div>
+                    )}
+                    {price ? (
+                      <p className="text-sm text-text">
+                        {(bnb * price).toLocaleString(undefined, {
+                          maximumFractionDigits: 2,
+                        })}{" "}
+                        THB
+                      </p>
+                    ) : (
+                      <p className="text-sm text-sub-text">0 THB</p>
+                    )}
+                  </div>
+                </div>
+                {/*footer*/}
+                <div className="flex items-center justify-center p-6 border-t border-solid border-white">
+                  <button
+                    className={`${priceRequired && "opacity-50"} ${
+                      pricePattern && "opacity-50"
+                    }  h-11 w-fit px-5 flex justify-center items-center rounded-lg font-bold text-black bg-primary hover:bg-primary-light`}
+                    type="button"
+                    onClick={() => {
+                      handleSell(selectedTicket.tokenId);
+                      setShowSellModal(false);
+                    }}
+                    disabled={priceRequired || pricePattern}
+                  >
+                    Complete listing
+                  </button>
+                </div>
+              </div>
+            </Transition.Child>
+          </div>
+        </Dialog>
+      </Transition>
+      {/* Detail Modal */}
       <Transition
         show={showDetailModal}
         enter="transition duration-100 ease-out"
