@@ -137,13 +137,24 @@ function Account() {
           <div className="w-full flex flex-col space-y-5 items-center">
             <div className="relative w-10/12 flex flex-col space-y-5 items-center">
               <div className="absolute flex right-0 space-x-5">
-                <Link
-                  to="/verify-request"
-                  data-tip="Achieve Verify"
-                  className="h-11 w-11 p-3 flex justify-center items-center rounded-lg text-white bg-input"
-                >
-                  <Verify />
-                </Link>
+                {info.verify && (
+                  <>
+                    <Link
+                      to="/verify-request"
+                      data-tip="Achieve Verify"
+                      className="h-11 w-11 p-3 flex justify-center items-center rounded-lg text-white bg-input"
+                    >
+                      <Verify />
+                    </Link>
+                    <ReactTooltip
+                      effect="solid"
+                      place="top"
+                      offset={{ top: 2, left: 20 }}
+                      backgroundColor="#353840"
+                      style={{ opacity: 1 }}
+                    />
+                  </>
+                )}
                 <button
                   data-tip="Share"
                   className="h-11 w-11 flex justify-center items-center rounded-lg bg-input"
