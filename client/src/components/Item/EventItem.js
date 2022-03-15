@@ -123,7 +123,7 @@ function EventItem() {
 
   const handleChange = (event) => {
     let { value } = event.target;
-    value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : null;
+    value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : "";
   };
 
   const fetchBNB = async () => {

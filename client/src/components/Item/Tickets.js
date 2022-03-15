@@ -119,9 +119,7 @@ function Tickets() {
       })
       .reverse();
 
-    if (filter.available && filter.used) {
-      null;
-    } else {
+    if (filter.available || filter.used) {
       if (filter.available) {
         items = items.filter((i) => i.active);
       }
@@ -230,7 +228,7 @@ function Tickets() {
 
   const handleMinChange = (event) => {
     let { value } = event.target;
-    value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : null;
+    value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : "";
     setFilter({
       ...filter,
       min: value,
@@ -239,7 +237,7 @@ function Tickets() {
 
   const handleMaxChange = (event) => {
     let { value } = event.target;
-    value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : null;
+    value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : "";
     setFilter({
       ...filter,
       max: value,

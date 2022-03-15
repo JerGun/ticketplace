@@ -103,9 +103,7 @@ function Listing() {
 
     items = items.reverse();
 
-    if (filter.listing && filter.sold) {
-      null;
-    } else {
+    if (filter.listing || filter.sold) {
       if (filter.listing) {
         items = items.filter((i) => !i.sold);
       }
@@ -166,7 +164,7 @@ function Listing() {
 
   const handleMinChange = (event) => {
     let { value } = event.target;
-    value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : null;
+    value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : "";
     setFilter({
       ...filter,
       min: value,
@@ -175,7 +173,7 @@ function Listing() {
 
   const handleMaxChange = (event) => {
     let { value } = event.target;
-    value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : null;
+    value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : "";
     setFilter({
       ...filter,
       max: value,
