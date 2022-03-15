@@ -68,7 +68,6 @@ export const createMarketItem = (ticketId, price) => {
         .createMarketItem(ticketId, price * 10 ** 8)
         .send({ from: accounts[0] })
         .then((result) => {
-          window.location.reload();
           res(result);
         });
     });
@@ -82,7 +81,6 @@ export const cancelListing = (itemId) => {
         .cancelListing(itemId)
         .send({ from: accounts[0] })
         .then((result) => {
-          window.location.reload();
           res(result);
         });
     });
@@ -98,7 +96,6 @@ export const buyTicket = (itemId, price) => {
         .buyMarketItem(itemId)
         .send({ from: accounts[0], value: price * 10 ** 10 })
         .then((result) => {
-          window.location.reload();
           res(result);
         });
     });
@@ -147,11 +144,11 @@ export const fetchCreatedTickets = () => {
   });
 };
 
-export const fetchOwnedTickets = (isCreator) => {
+export const fetchOwnedTickets = (isAllOwned, isCreator) => {
   return new Promise(function (res, rej) {
     web3.eth.getAccounts().then((accounts) => {
       eventContract.methods
-        .fetchOwnedTickets(accounts[0], isCreator)
+        .fetchOwnedTickets(accounts[0], isAllOwned, isCreator)
         .call()
         .then((result) => res(result));
     });

@@ -183,7 +183,11 @@ contract Event is ERC1155 {
         return items;
     }
 
-    function fetchOwnedListings(address account) public view returns (MarketItem[] memory) {
+    function fetchOwnedListings(address account)
+        public
+        view
+        returns (MarketItem[] memory)
+    {
         uint256 itemCount = _itemIds.current();
         uint256 tokenCount = 0;
         uint256 currentIndex = 0;
@@ -265,35 +269,47 @@ contract Event is ERC1155 {
         return items;
     }
 
-    function fetchOwnedTickets(address account, bool isCreator)
-        public
-        view
-        returns (TicketItem[] memory)
-    {
+    function fetchOwnedTickets(
+        address account,
+        bool isAllOwned,
+        bool isCreator
+    ) public view returns (TicketItem[] memory) {
         uint256 totalTokenCount = _tokenIds.current();
         uint256 tokenCount = 0;
         uint256 currentIndex = 0;
 
-        if (isCreator) {
+        if (isAllOwned) {
             for (uint256 i = 0; i < totalTokenCount; i++) {
                 if (ticketToken[i + 1].owner == account) {
                     tokenCount += 1;
                 }
             }
         } else {
-            for (uint256 i = 0; i < totalTokenCount; i++) {
-                if (
-                    eventToken[ticketToken[i + 1].eventTokenId].owner !=
-                    account &&
-                    ticketToken[i + 1].owner == account
-                ) {
-                    tokenCount += 1;
+            if (isCreator) {
+                for (uint256 i = 0; i < totalTokenCount; i++) {
+                    if (
+                        eventToken[ticketToken[i + 1].eventTokenId].owner ==
+                        account &&
+                        ticketToken[i + 1].owner == account
+                    ) {
+                        tokenCount += 1;
+                    }
+                }
+            } else {
+                for (uint256 i = 0; i < totalTokenCount; i++) {
+                    if (
+                        eventToken[ticketToken[i + 1].eventTokenId].owner !=
+                        account &&
+                        ticketToken[i + 1].owner == account
+                    ) {
+                        tokenCount += 1;
+                    }
                 }
             }
         }
 
         TicketItem[] memory items = new TicketItem[](tokenCount);
-        if (isCreator) {
+        if (isAllOwned) {
             for (uint256 i = 0; i < totalTokenCount; i++) {
                 if (ticketToken[i + 1].owner == account) {
                     TicketItem storage currentItem = ticketToken[i + 1];
@@ -302,15 +318,29 @@ contract Event is ERC1155 {
                 }
             }
         } else {
-            for (uint256 i = 0; i < totalTokenCount; i++) {
-                if (
-                    eventToken[ticketToken[i + 1].eventTokenId].owner !=
-                    account &&
-                    ticketToken[i + 1].owner == account
-                ) {
-                    TicketItem storage currentItem = ticketToken[i + 1];
-                    items[currentIndex] = currentItem;
-                    currentIndex += 1;
+            if (isCreator) {
+                for (uint256 i = 0; i < totalTokenCount; i++) {
+                    if (
+                        eventToken[ticketToken[i + 1].eventTokenId].owner ==
+                        account &&
+                        ticketToken[i + 1].owner == account
+                    ) {
+                        TicketItem storage currentItem = ticketToken[i + 1];
+                        items[currentIndex] = currentItem;
+                        currentIndex += 1;
+                    }
+                }
+            } else {
+                for (uint256 i = 0; i < totalTokenCount; i++) {
+                    if (
+                        eventToken[ticketToken[i + 1].eventTokenId].owner !=
+                        account &&
+                        ticketToken[i + 1].owner == account
+                    ) {
+                        TicketItem storage currentItem = ticketToken[i + 1];
+                        items[currentIndex] = currentItem;
+                        currentIndex += 1;
+                    }
                 }
             }
         }
