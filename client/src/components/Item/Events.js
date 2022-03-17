@@ -5,7 +5,6 @@ import { ReactComponent as More } from "../../assets/icons/more.svg";
 import { Link } from "react-router-dom";
 import {
   fetchCreatedEvents,
-  fetchTicketsInEvent,
   getUri,
 } from "../../services/Web3";
 
