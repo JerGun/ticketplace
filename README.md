@@ -25,10 +25,10 @@ Others          | 10%       | 10%
 - Cancel listing
 - Fast checkout
 - Filter events or tickets
+- Verify Request (Profile setup)
 ---
 
 ## Under Development 🚧
-- **Verify Request (Profile setup)**
 - **Edit event & ticket**
 - Transfer ticket to others
 - Other users profile
