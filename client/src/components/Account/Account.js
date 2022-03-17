@@ -223,7 +223,7 @@ function Account() {
               </div>
               <p className="text-4xl text-white">{info.name}</p>
               <div className="flex space-x-3 text-text">
-                <p>{`${account.slice(0, 5)} ... ${account.slice(-6)}`}</p>
+                <p>{`${account?.slice(0, 5)} ... ${account?.slice(-6)}`}</p>
                 <button onClick={copyAddress} disabled={copyDisabled}>
                   {copy === true ? <Check /> : <Copy />}
                 </button>
