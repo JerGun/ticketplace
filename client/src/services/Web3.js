@@ -122,17 +122,6 @@ export const fetchCreatedEvents = () => {
   });
 };
 
-export const fetchOwnedEvents = () => {
-  return new Promise(function (res, rej) {
-    web3.eth.getAccounts().then((accounts) => {
-      eventContract.methods
-        .fetchOwnedEvents(accounts[0])
-        .call()
-        .then((result) => res(result));
-    });
-  });
-};
-
 export const fetchCreatedTickets = () => {
   return new Promise(function (res, rej) {
     web3.eth.getAccounts().then((accounts) => {
@@ -155,10 +144,28 @@ export const fetchOwnedTickets = (isAllOwned, isCreator) => {
   });
 };
 
+export const fetchEvents = () => {
+  return new Promise(function (res, rej) {
+    eventContract.methods
+      .fetchEvents()
+      .call()
+      .then((result) => res(result));
+  });
+};
+
 export const fetchEvent = (tokenId) => {
   return new Promise(function (res, rej) {
     eventContract.methods
       .fetchEvent(tokenId)
+      .call()
+      .then((result) => res(result));
+  });
+};
+
+export const fetchTickets = (tokenId) => {
+  return new Promise(function (res, rej) {
+    eventContract.methods
+      .fetchTickets()
       .call()
       .then((result) => res(result));
   });
@@ -173,7 +180,7 @@ export const fetchTicket = (tokenId) => {
   });
 };
 
-export const fetchOwnedListings = (isCreator) => {
+export const fetchOwnedListings = () => {
   return new Promise(function (res, rej) {
     web3.eth.getAccounts().then((accounts) => {
       eventContract.methods
