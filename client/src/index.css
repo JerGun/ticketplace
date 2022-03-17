@@ -68,6 +68,20 @@ input[type="number"] {
   background-color: #212428;
 }
 
+.divider-x-bottom {
+  position: relative;
+}
+.divider-x-bottom:before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 1px;
+  background-color: #212428;
+}
+
 .divider-y {
   position: relative;
 }
