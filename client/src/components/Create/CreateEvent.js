@@ -8,27 +8,30 @@ import "react-nice-dates/build/style.css";
 import { API_URL } from "../../config";
 import formatter from "../../formatter";
 import { getAccount, mintEvent } from "../../services/Web3";
+import { Listbox, Transition } from "@headlessui/react";
+import CustomScrollbars from "../CustomScrollbars";
 
 import { ReactComponent as Photo } from "../../assets/icons/photo.svg";
 import { ReactComponent as Calendar } from "../../assets/icons/calendar.svg";
-import { Listbox, Transition } from "@headlessui/react";
-import CustomScrollbars from "../CustomScrollbars";
+import { ReactComponent as Close } from "../../assets/icons/close.svg";
 
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
 
 function CreateEvent() {
   const [image, setImage] = useState({ preview: "", raw: "" });
+  const [tempStartDate, setTempStartDate] = useState("");
+  const [tempEndDate, setTempEndDate] = useState("");
+  const [startTime, setStartTime] = useState("Start Time");
+  const [endTime, setEndTime] = useState("End Time");
+  const [fileUrl, setFileUrl] = useState("");
+  const [verify, setVerify] = useState(false);
+  const [nameRequired, setNameRequired] = useState(false);
+  const [locationRequired, setLocationRequired] = useState(false);
   const [formInput, setFormInput] = useState({
     name: "",
     link: "",
     location: "",
   });
-  const [tempStartDate, setTempStartDate] = useState();
-  const [tempEndDate, setTempEndDate] = useState();
-  const [startTime, setStartTime] = useState("Start Time");
-  const [endTime, setEndTime] = useState("End Time");
-  const [fileUrl, setFileUrl] = useState(null);
-  const [verify, setVerify] = useState(false);
 
   const navigate = useNavigate();
 
@@ -86,6 +89,7 @@ function CreateEvent() {
       !fileUrl
     )
       return;
+
     let startDate = formatter.formatDate(new Date(tempStartDate));
     let endDate = formatter.formatDate(new Date(tempEndDate));
     const data = JSON.stringify({
@@ -108,6 +112,24 @@ function CreateEvent() {
     } catch (err) {
       console.log("Error uploading file: ", err);
     }
+  };
+
+  const handleNameChange = (e) => {
+    setFormInput({
+      ...formInput,
+      name: e.target.value,
+    });
+    !e.target.value.length ? setNameRequired(true) : setNameRequired(false);
+  };
+
+  const handleLocatinChange = (e) => {
+    setFormInput({
+      ...formInput,
+      location: e.target.value,
+    });
+    !e.target.value.length
+      ? setLocationRequired(true)
+      : setLocationRequired(false);
   };
 
   if (verify)
@@ -171,14 +193,15 @@ function CreateEvent() {
                     type="text"
                     placeholder="Event name"
                     className="h-full w-full bg-transparent"
-                    onChange={(e) =>
-                      setFormInput({
-                        ...formInput,
-                        name: e.target.value,
-                      })
-                    }
+                    onChange={handleNameChange}
                   />
                 </div>
+                {nameRequired && (
+                  <div className="flex items-center space-x-3 text-sm text-red-400">
+                    <Close className="h-2 w-2" />
+                    <p>Event name is required.</p>
+                  </div>
+                )}
               </div>
               <div className="space-y-3">
                 <div>
@@ -398,19 +421,39 @@ function CreateEvent() {
                     type="text"
                     placeholder="Location"
                     className="h-full w-full bg-transparent"
-                    onChange={(e) =>
-                      setFormInput({
-                        ...formInput,
-                        location: e.target.value,
-                      })
-                    }
+                    onChange={handleLocatinChange}
                   />
                 </div>
+                {locationRequired && (
+                  <div className="flex items-center space-x-3 text-sm text-red-400">
+                    <Close className="h-2 w-2" />
+                    <p>Location is required.</p>
+                  </div>
+                )}
               </div>
               <button
                 type="submit"
+                className={`${
+                  !formInput.name.length ||
+                  nameRequired ||
+                  !tempStartDate ||
+                  !tempEndDate ||
+                  startTime === "Start Time" ||
+                  endTime === "End Time" ||
+                  locationRequired
+                    ? "opacity-50"
+                    : ""
+                } h-11 w-24 flex justify-center items-center rounded-lg font-bold text-black bg-primary`}
                 onClick={handleSubmit}
-                className="h-11 w-24 flex justify-center items-center rounded-lg font-bold text-black bg-primary"
+                disabled={
+                  !formInput.name.length ||
+                  nameRequired ||
+                  !tempStartDate ||
+                  !tempEndDate ||
+                  startTime === "Start Time" ||
+                  endTime === "End Time" ||
+                  locationRequired
+                }
               >
                 Create
               </button>
