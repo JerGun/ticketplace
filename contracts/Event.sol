@@ -332,7 +332,7 @@ contract Event is ERC1155 {
     }
 
     function fetchEvents() public view returns (EventItem[] memory) {
-        uint256 itemCount = _itemIds.current();
+        uint256 itemCount = _tokenIds.current();
         uint256 tokenCount = 0;
         uint256 currentIndex = 0;
 
@@ -363,7 +363,7 @@ contract Event is ERC1155 {
     }
 
     function fetchTickets() public view returns (TicketItem[] memory) {
-        uint256 itemCount = _itemIds.current();
+        uint256 itemCount = _tokenIds.current();
         uint256 tokenCount = 0;
         uint256 currentIndex = 0;
 
