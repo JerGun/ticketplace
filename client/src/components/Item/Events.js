@@ -51,7 +51,7 @@ function Created() {
     setEvents(items);
   };
 
-  if (loadingState && events.length === 0)
+  if (loadingState && !events.length)
     return (
       <div className="h-64 w-full mt-5 border-2 rounded-lg flex items-center justify-center border-input">
         <h1 className="py-10 px-20 text-3xl">No items to display</h1>

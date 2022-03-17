@@ -60,9 +60,7 @@ function AccountSetup() {
       ...formInput,
       name: e.target.value,
     });
-    e.target.value.length === 0
-      ? setNameRequired(true)
-      : setNameRequired(false);
+    !e.target.value.length ? setNameRequired(true) : setNameRequired(false);
   };
 
   const handleEmailChange = async (e) => {
@@ -75,7 +73,7 @@ function AccountSetup() {
       .get(`${API_URL}/${e.target.value.toLowerCase()}`)
       .then((response) => {
         console.log(response);
-        e.target.value.length === 0
+        !e.target.value.length
           ? (setEmailRequired(true),
             setEmailPattern(false),
             setEmailExist(false))

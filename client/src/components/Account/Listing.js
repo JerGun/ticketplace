@@ -6,14 +6,10 @@ import ReactTooltip from "react-tooltip";
 import { API_URL } from "../../config";
 import {
   cancelListing,
-  fetchCreatedEvents,
-  fetchCreatedTickets,
   fetchEvent,
   fetchMarketItem,
   fetchOwnedListings,
   fetchTicket,
-  getAccount,
-  getBalance,
   getUri,
 } from "../../services/Web3";
 
@@ -33,12 +29,12 @@ const listOption = [
 ];
 
 function Listing() {
-  const [tickets, setTickets] = useState();
+  const [tickets, setTickets] = useState("");
   const [loadingState, setLoadingState] = useState(false);
   const [bnb, setBnb] = useState(0);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
-  const [selectedTicket, setSelectedTicket] = useState();
+  const [selectedTicket, setSelectedTicket] = useState("");
   const [sortBy, setSortBy] = useState(listOption[0]);
   const [filter, setFilter] = useState({
     keyword: "",
@@ -58,11 +54,14 @@ function Listing() {
 
   useEffect(() => {
     loadTickets();
-    tickets && setLoadingState(true);
-  }, [tickets]);
+  }, [sortBy, filter]);
 
-  useEffect(() => {
+  useEffect(async () => {
     fetchBNB();
+    await loadTickets();
+    if (isMounted) {
+      setLoadingState(true);
+    }
   }, []);
 
   const loadTickets = async () => {
@@ -395,12 +394,12 @@ function Listing() {
               className="h-full w-full bg-transparent"
             />
           </div>
-          {loadingState && tickets.length === 0 && (
+          {loadingState && !tickets.length && (
             <div className="h-64 w-full border-2 rounded-lg flex items-center justify-center border-input">
               <h1 className="py-10 px-20 text-3xl">No items to display</h1>
             </div>
           )}
-          {loadingState && tickets.length === 0 ? (
+          {loadingState && !tickets.length ? (
             <span></span>
           ) : (
             tickets && (

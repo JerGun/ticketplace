@@ -10,7 +10,6 @@ import CreateEvent from "./components/Create/CreateEvent";
 import CreateTicket from "./components/Create/CreateTicket";
 import TicketItem from "./components/Item/TicketItem";
 import CustomScrollbars from "./components/CustomScrollbars";
-import SimpleStorage from "./components/SimpleStorage";
 import SetUpOrganizer from "./components/Account/AccountSetup";
 import Confirm from "./components/Confirm";
 import SettingAccount from "./components/Account/AccountSettings";
@@ -54,7 +53,7 @@ function App() {
   return (
     <div className="w-full h-screen bg-background overflow-hidden">
       <Router>
-        <Navbar />
+        <Navbar/>
         <div
           className={
             network !== 97
@@ -79,7 +78,6 @@ function App() {
                   path="event/:eventId/ticket/:ticketId"
                   element={<TicketItem />}
                 />
-                {/* <Route path="ticket/create" element={<CreateTicket />} /> */}
                 <Route path="event/create" element={<CreateEvent />} />
                 <Route
                   path="event/:eventId/ticket/create"

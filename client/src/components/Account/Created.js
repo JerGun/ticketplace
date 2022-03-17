@@ -27,11 +27,11 @@ const listOption = [
 ];
 
 function Created({ itemType }) {
-  const [tickets, setTickets] = useState();
-  const [events, setEvents] = useState();
+  const [tickets, setTickets] = useState("");
+  const [events, setEvents] = useState("");
   const [loadingState, setLoadingState] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
-  const [selectedTicket, setSelectedTicket] = useState();
+  const [selectedTicket, setSelectedTicket] = useState("");
   const [sortBy, setSortBy] = useState(listOption[0]);
   const [filter, setFilter] = useState({
     keyword: "",
@@ -46,7 +46,6 @@ function Created({ itemType }) {
   }, []);
 
   useEffect(() => {
-    console.log(itemType);
     setLoadingState(false);
     if (isMounted) {
       setTickets();
@@ -55,21 +54,29 @@ function Created({ itemType }) {
   }, [itemType]);
 
   if (itemType === "tickets") {
-    useEffect(() => {
+    useEffect(async () => {
       setLoadingState(false);
+      await loadTickets();
       if (isMounted) {
-        loadTickets();
-        tickets && setLoadingState(true);
+        setLoadingState(true);
       }
-    }, [tickets]);
+    }, [itemType]);
+
+    useEffect(() => {
+      loadTickets();
+    }, [sortBy, filter]);
   } else {
-    useEffect(() => {
+    useEffect(async () => {
       setLoadingState(false);
+      await loadEvents();
       if (isMounted) {
-        loadEvents();
-        events && setLoadingState(true);
+        setLoadingState(true);
       }
-    }, [events]);
+    }, [itemType]);
+
+    useEffect(() => {
+      loadEvents();
+    }, [sortBy, filter]);
   }
 
   const loadTickets = async () => {
@@ -312,12 +319,12 @@ function Created({ itemType }) {
           </div>
           {tickets && itemType === "tickets" && (
             <>
-              {loadingState && tickets.length === 0 && (
+              {loadingState && !tickets.length && (
                 <div className="h-64 w-full border-2 rounded-lg flex items-center justify-center border-input">
                   <h1 className="py-10 px-20 text-3xl">No items to display</h1>
                 </div>
               )}
-              {loadingState && tickets.length === 0 ? (
+              {loadingState && !tickets.length ? (
                 <span></span>
               ) : (
                 <p>
@@ -328,12 +335,12 @@ function Created({ itemType }) {
           )}
           {events && itemType === "events" && (
             <>
-              {loadingState && events.length === 0 && (
+              {loadingState && !events.length && (
                 <div className="h-64 w-full border-2 rounded-lg flex items-center justify-center border-input">
                   <h1 className="py-10 px-20 text-3xl">No items to display</h1>
                 </div>
               )}
-              {loadingState && events.length === 0 ? (
+              {loadingState && !events.length ? (
                 <span></span>
               ) : (
                 <p>

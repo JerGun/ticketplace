@@ -42,8 +42,8 @@ function Account() {
   });
   const [copy, setCopy] = useState(false);
   const [share, setShare] = useState(false);
-  const [copyDisabled, setCopyDisabled] = useState();
-  const [shareDisabled, setShareDisabled] = useState();
+  const [copyDisabled, setCopyDisabled] = useState(false);
+  const [shareDisabled, setShareDisabled] = useState(false);
   const [image, setImage] = useState({ preview: "", raw: "" });
   const [itemType, setItemType] = useState(listOption[0]);
 
@@ -60,7 +60,7 @@ function Account() {
     const account = await getAccount();
     setAccount(account);
 
-    if (account.length === 0) {
+    if (!account.length) {
       return navigate("/");
     }
 

@@ -59,15 +59,14 @@ function TicketItem() {
     isMounted.current = false;
   }, []);
 
-  useEffect(() => {
-    loadTicket();
-    ticket && setLoadingState(true);
-  }, [ticket]);
-
-  useEffect(() => {
+  useEffect(async () => {
     fetchAccount();
     fetchHistory();
     fetchBNB();
+    await loadTicket();
+    if (isMounted) {
+      setLoadingState(true);
+    }
   }, []);
 
   const loadTicket = async () => {
@@ -195,7 +194,7 @@ function TicketItem() {
     let { value } = e.target;
     value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : "";
     setPrice(value);
-    e.target.value.length === 0
+    !e.target.value.length
       ? (setPriceRequired(true), setPricePattern(false))
       : parseFloat(e.target.value) < 0.001
       ? (setPriceRequired(false), setPricePattern(true))

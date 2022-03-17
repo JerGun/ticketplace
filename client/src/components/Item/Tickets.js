@@ -33,16 +33,16 @@ const listOption = [
 ];
 
 function Tickets() {
-  const [account, setAccount] = useState();
+  const [account, setAccount] = useState("");
   const [sortBy, setSortBy] = useState(listOption[0]);
-  const [tickets, setTickets] = useState();
+  const [tickets, setTickets] = useState("");
   const [loadingState, setLoadingState] = useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showAddFundsModal, setShowAddFundsModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [bnb, setBnb] = useState(0);
-  const [balance, setBalance] = useState();
+  const [balance, setBalance] = useState("");
   const [copy, setCopy] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState({
     image: "",
@@ -67,12 +67,15 @@ function Tickets() {
 
   useEffect(() => {
     loadTickets();
-    tickets && setLoadingState(true);
-  }, [tickets]);
+  }, [sortBy, filter]);
 
-  useEffect(() => {
+  useEffect(async () => {
     fetchAccount();
     fetchBNB();
+    await loadTickets();
+    if (isMounted) {
+      setLoadingState(true);
+    }
   }, []);
 
   const loadTickets = async () => {
@@ -386,12 +389,12 @@ function Tickets() {
               className="h-full w-full bg-transparent"
             />
           </div>
-          {loadingState && tickets.length === 0 && (
+          {loadingState && !tickets.length && (
             <div className="h-64 w-full mt-5 border-2 rounded-lg flex items-center justify-center border-input">
               <h1 className="py-10 px-20 text-3xl">No items to display</h1>
             </div>
           )}
-          {loadingState && tickets.length === 0 ? (
+          {loadingState && !tickets.length ? (
             <span></span>
           ) : (
             <p>

@@ -17,11 +17,11 @@ import { ReactComponent as Close } from "../../assets/icons/close.svg";
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
 
 function CreateTicket() {
-  const [tempStartDate, setTempStartDate] = useState();
-  const [tempEndDate, setTempEndDate] = useState();
+  const [tempStartDate, setTempStartDate] = useState("");
+  const [tempEndDate, setTempEndDate] = useState("");
   const [startTime, setStartTime] = useState("Start Time");
   const [endTime, setEndTime] = useState("End Time");
-  const [fileUrl, setFileUrl] = useState(null);
+  const [fileUrl, setFileUrl] = useState("");
   const [bnb, setBnb] = useState(0);
   const [priceRequired, setPriceRequired] = useState(false);
   const [pricePattern, setPricePattern] = useState(false);
@@ -77,7 +77,7 @@ function CreateTicket() {
     let { value } = e.target;
     value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : "";
     setFormInput({ ...formInput, price: value });
-    e.target.value.length === 0
+    !e.target.value.length
       ? (setPriceRequired(true), setPricePattern(false))
       : parseFloat(e.target.value) < 0.001
       ? (setPriceRequired(false), setPricePattern(true))

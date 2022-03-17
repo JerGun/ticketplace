@@ -115,7 +115,7 @@ function AccountSettings() {
       ...formInput,
       name: e.target.value,
     });
-    e.target.value.length === 0
+    !e.target.value.length
       ? setNameRequired(true)
       : setNameRequired(false);
   };
@@ -126,7 +126,7 @@ function AccountSettings() {
       ...formInput,
       email: e.target.value,
     });
-    e.target.value.length === 0
+    !e.target.value.length
       ? (setEmailRequired(true), setEmailPattern(false))
       : !pattern.test(e.target.value)
       ? (setEmailRequired(false), setEmailPattern(true))

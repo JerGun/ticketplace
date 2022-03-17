@@ -54,9 +54,7 @@ function EventItem() {
     fetchBNB();
     if (event.owner === account) setOwner(true);
     if (isMounted) {
-      setTimeout(() => {
-        setLoadingState(true);
-      }, 1000);
+      setLoadingState(true);
     }
   }, []);
 
@@ -309,7 +307,7 @@ function EventItem() {
             </div>
           </div>
           <div className="h-full w-10/12 p-10">
-            {loadingState && tickets.length === 0 ? (
+            {loadingState && !tickets.length ? (
               <div className="h-64 w-full border-2 rounded-lg flex items-center justify-center border-input">
                 <h1 className="py-10 px-20 text-3xl">No items to display</h1>
               </div>

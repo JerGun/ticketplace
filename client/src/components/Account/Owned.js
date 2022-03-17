@@ -50,11 +50,14 @@ function Owned() {
 
   useEffect(() => {
     loadTickets();
-    tickets && setLoadingState(true);
-  }, [tickets]);
+  }, [sortBy, filter]);
 
-  useEffect(() => {
+  useEffect(async () => {
     fetchBNB();
+    await loadTickets();
+    if (isMounted) {
+      setLoadingState(true);
+    }
   }, []);
 
   const loadTickets = async () => {
@@ -136,7 +139,7 @@ function Owned() {
     let { value } = e.target;
     value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : "";
     setPrice(value);
-    e.target.value.length === 0
+    !e.target.value.length
       ? (setPriceRequired(true), setPricePattern(false))
       : parseFloat(e.target.value) < 0.001
       ? (setPriceRequired(false), setPricePattern(true))
@@ -326,17 +329,21 @@ function Owned() {
               className="h-full w-full bg-transparent"
             />
           </div>
-          {loadingState && tickets.length === 0 && (
-            <div className="h-64 w-full border-2 rounded-lg flex items-center justify-center border-input">
-              <h1 className="py-10 px-20 text-3xl">No items to display</h1>
-            </div>
-          )}
-          {loadingState && tickets.length === 0 ? (
-            <span></span>
-          ) : (
-            <p>
-              {tickets?.length} {tickets?.length > 1 ? "items" : "item"}
-            </p>
+          {tickets && (
+            <>
+              {loadingState && !tickets.length && (
+                <div className="h-64 w-full border-2 rounded-lg flex items-center justify-center border-input">
+                  <h1 className="py-10 px-20 text-3xl">No items to display</h1>
+                </div>
+              )}
+              {loadingState && !tickets.length ? (
+                <span></span>
+              ) : (
+                <p>
+                  {tickets?.length} {tickets?.length > 1 ? "items" : "item"}
+                </p>
+              )}
+            </>
           )}
           <div className="h-auto w-full grid grid-cols-2 gap-5 pb-10 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {!loadingState
