@@ -68,6 +68,7 @@ export const createMarketItem = (ticketId, price) => {
         .createMarketItem(ticketId, price * 10 ** 8)
         .send({ from: accounts[0] })
         .then((result) => {
+          window.location.reload();
           res(result);
         });
     });
@@ -81,6 +82,7 @@ export const cancelListing = (itemId) => {
         .cancelListing(itemId)
         .send({ from: accounts[0] })
         .then((result) => {
+          window.location.reload();
           res(result);
         });
     });
@@ -96,6 +98,7 @@ export const buyTicket = (itemId, price) => {
         .buyMarketItem(itemId)
         .send({ from: accounts[0], value: price * 10 ** 10 })
         .then((result) => {
+          window.location.reload();
           res(result);
         });
     });
