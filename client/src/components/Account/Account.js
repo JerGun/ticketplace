@@ -17,7 +17,6 @@ import { ReactComponent as Check } from "../../assets/icons/check.svg";
 import { ReactComponent as Setting } from "../../assets/icons/setting.svg";
 import { ReactComponent as Share } from "../../assets/icons/share.svg";
 import { ReactComponent as Edit } from "../../assets/icons/edit.svg";
-import { ReactComponent as Down } from "../../assets/icons/down.svg";
 import { ReactComponent as Verify } from "../../assets/icons/verify.svg";
 
 import Owned from "../Account/Owned";
@@ -34,18 +33,19 @@ const listOption = [
 
 function Account() {
   const [account, setAccount] = useState("");
-  const [info, setInfo] = useState({
-    address: "",
-    name: "Unnamed",
-    email: "",
-    verify: false,
-  });
   const [copy, setCopy] = useState(false);
   const [share, setShare] = useState(false);
   const [copyDisabled, setCopyDisabled] = useState(false);
   const [shareDisabled, setShareDisabled] = useState(false);
   const [image, setImage] = useState({ preview: "", raw: "" });
   const [itemType, setItemType] = useState(listOption[0]);
+  const [info, setInfo] = useState({
+    address: "",
+    name: "Unnamed",
+    email: "",
+    verify: false,
+    verified: false,
+  });
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -74,6 +74,7 @@ function Account() {
               name: response.data.name,
               email: response.data.email,
               verify: response.data.verify,
+              verified: response.data.verified,
             });
           } else {
             setInfo({
@@ -221,7 +222,10 @@ function Account() {
                   />
                 </div>
               </div>
-              <p className="text-4xl text-white">{info.name}</p>
+              <div className="flex items-center space-x-3 text-primary">
+                <p className="text-4xl text-white">{info.name}</p>
+                {info.verified && <Verify />}
+              </div>
               <div className="flex space-x-3 text-text">
                 <p>{`${account?.slice(0, 5)} ... ${account?.slice(-6)}`}</p>
                 <button onClick={copyAddress} disabled={copyDisabled}>
