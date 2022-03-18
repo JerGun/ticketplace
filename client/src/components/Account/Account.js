@@ -206,8 +206,8 @@ function Account() {
                       </div>
                     ) : (
                       <div className="relative h-full w-full group rounded-full">
-                        <div className="h-full w-full rounded-full bg-gradient-to-tr from-primary to-sky-200 group-hover:opacity-50"></div>
-                        <div className="absolute top-0 z-10 h-full w-full p-14 text-white opacity-0 group-hover:opacity-100">
+                        <div className="absolute h-full w-full rounded-full bg-gradient-to-tr from-primary to-sky-200 group-hover:opacity-50"></div>
+                        <div className="absolute z-10 h-full w-full flex justify-center items-center rounded-full text-white opacity-0 group-hover:opacity-100">
                           <Edit className="scale-50" />
                         </div>
                       </div>
