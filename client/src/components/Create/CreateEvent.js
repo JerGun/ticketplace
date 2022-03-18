@@ -434,6 +434,7 @@ function CreateEvent() {
               <button
                 type="submit"
                 className={`${
+                  !fileUrl ||
                   !formInput.name.length ||
                   nameRequired ||
                   !tempStartDate ||
@@ -446,6 +447,7 @@ function CreateEvent() {
                 } h-11 w-24 flex justify-center items-center rounded-lg font-bold text-black bg-primary`}
                 onClick={handleSubmit}
                 disabled={
+                  !fileUrl ||
                   !formInput.name.length ||
                   nameRequired ||
                   !tempStartDate ||
