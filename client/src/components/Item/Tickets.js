@@ -34,23 +34,17 @@ const listOption = [
 
 function Tickets() {
   const [account, setAccount] = useState("");
-  const [sortBy, setSortBy] = useState(listOption[0]);
   const [tickets, setTickets] = useState("");
   const [loadingState, setLoadingState] = useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
-  const [showCancelModal, setShowCancelModal] = useState(false);
   const [showAddFundsModal, setShowAddFundsModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [bnb, setBnb] = useState(0);
   const [balance, setBalance] = useState("");
   const [copy, setCopy] = useState(false);
-  const [selectedTicket, setSelectedTicket] = useState({
-    image: "",
-    organizer: "",
-    name: "",
-    tokenId: "",
-    price: "",
-  });
+  const [selectedTicket, setSelectedTicket] = useState("");
+  const [sortBy, setSortBy] = useState(listOption[0]);
   const [filter, setFilter] = useState({
     keyword: "",
     available: false,
