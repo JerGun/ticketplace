@@ -23,6 +23,11 @@ function CreateTicket() {
   const [endTime, setEndTime] = useState("End Time");
   const [fileUrl, setFileUrl] = useState("");
   const [bnb, setBnb] = useState(0);
+  const [nameRequired, setNameRequired] = useState(false);
+  const [descriptionRequired, setDescriptionRequired] = useState(false);
+  const [locationRequired, setLocationRequired] = useState(false);
+  const [quantityRequired, setQuantityRequired] = useState(false);
+  const [quantityPattern, setQuantityPattern] = useState(false);
   const [priceRequired, setPriceRequired] = useState(false);
   const [pricePattern, setPricePattern] = useState(false);
   const [formInput, setFormInput] = useState({
@@ -64,6 +69,34 @@ function CreateTicket() {
     }
   }, []);
 
+  const handleNameChange = (e) => {
+    setFormInput({
+      ...formInput,
+      name: e.target.value,
+    });
+    !e.target.value.length ? setNameRequired(true) : setNameRequired(false);
+  };
+
+  const handleDescriptionChange = (e) => {
+    setFormInput({
+      ...formInput,
+      description: e.target.value,
+    });
+    !e.target.value.length
+      ? setDescriptionRequired(true)
+      : setDescriptionRequired(false);
+  };
+
+  const handleLocatinChange = (e) => {
+    setFormInput({
+      ...formInput,
+      location: e.target.value,
+    });
+    !e.target.value.length
+      ? setLocationRequired(true)
+      : setLocationRequired(false);
+  };
+
   const handleQuantityChange = (e) => {
     let { value } = e.target;
     value = !!value && Math.abs(value) >= 0 ? Math.abs(value) : "";
@@ -71,6 +104,11 @@ function CreateTicket() {
       ...formInput,
       quantity: value,
     });
+    !e.target.value.length
+      ? (setQuantityRequired(true), setQuantityPattern(false))
+      : e.target.value < 1
+      ? (setQuantityRequired(false), setQuantityPattern(true))
+      : (setQuantityRequired(false), setQuantityPattern(false));
   };
 
   const handlePriceChange = (e) => {
@@ -154,14 +192,15 @@ function CreateTicket() {
                   type="text"
                   placeholder="Ticket name"
                   className="h-full w-full bg-transparent"
-                  onChange={(e) =>
-                    setFormInput({
-                      ...formInput,
-                      name: e.target.value,
-                    })
-                  }
+                  onChange={handleNameChange}
                 />
               </div>
+              {nameRequired && (
+                <div className="flex items-center space-x-3 text-sm text-red-400">
+                  <Close className="h-2 w-2" />
+                  <p>Ticket name is required.</p>
+                </div>
+              )}
             </div>
             <div className="space-y-3">
               <div>
@@ -195,14 +234,15 @@ function CreateTicket() {
                   rows="8"
                   placeholder="Ticket detailed description."
                   className="h-full w-full bg-transparent"
-                  onChange={(e) =>
-                    setFormInput({
-                      ...formInput,
-                      description: e.target.value,
-                    })
-                  }
+                  onChange={handleDescriptionChange}
                 />
               </div>
+              {locationRequired && (
+                <div className="flex items-center space-x-3 text-sm text-red-400">
+                  <Close className="h-2 w-2" />
+                  <p>Description is required.</p>
+                </div>
+              )}
             </div>
             <DateRangePicker
               startDate={tempStartDate}
@@ -374,14 +414,15 @@ function CreateTicket() {
                   type="text"
                   placeholder="Location"
                   className="h-full w-full bg-transparent"
-                  onChange={(e) =>
-                    setFormInput({
-                      ...formInput,
-                      location: e.target.value,
-                    })
-                  }
+                  onChange={handleLocatinChange}
                 />
               </div>
+              {locationRequired && (
+                <div className="flex items-center space-x-3 text-sm text-red-400">
+                  <Close className="h-2 w-2" />
+                  <p>Location is required.</p>
+                </div>
+              )}
             </div>
             <div className="space-y-3">
               <div>
@@ -403,6 +444,18 @@ function CreateTicket() {
                   className="h-full w-full bg-transparent"
                 />
               </div>
+              {quantityRequired && (
+                <div className="flex items-center space-x-3 text-sm text-red-400">
+                  <Close className="h-2 w-2" />
+                  <p>Quantity is required.</p>
+                </div>
+              )}
+              {quantityPattern && (
+                <div className="flex items-center space-x-3 text-sm text-red-400">
+                  <Close className="h-2 w-2" />
+                  <p>Quantity must be equal to or greater than 1.</p>
+                </div>
+              )}
             </div>
             <div className="space-y-3">
               <div className="flex space-x-1">
@@ -448,8 +501,35 @@ function CreateTicket() {
             </div>
             <button
               type="submit"
+              className={`${
+                !formInput.name.length ||
+                nameRequired ||
+                !tempStartDate ||
+                !tempEndDate ||
+                startTime === "Start Time" ||
+                endTime === "End Time" ||
+                locationRequired ||
+                quantityRequired ||
+                quantityPattern ||
+                priceRequired ||
+                pricePattern
+                  ? "opacity-50"
+                  : ""
+              } h-11 w-24 flex justify-center items-center rounded-lg font-bold text-black bg-primary`}
               onClick={handleSubmit}
-              className="h-11 w-24 flex justify-center items-center rounded-lg font-bold text-black bg-primary hover:bg-primary-light"
+              disabled={
+                !formInput.name.length ||
+                nameRequired ||
+                !tempStartDate ||
+                !tempEndDate ||
+                startTime === "Start Time" ||
+                endTime === "End Time" ||
+                locationRequired ||
+                quantityRequired ||
+                quantityPattern ||
+                priceRequired ||
+                pricePattern
+              }
             >
               Create
             </button>
