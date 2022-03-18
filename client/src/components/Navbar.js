@@ -85,11 +85,15 @@ function Navbar() {
       );
 
       const totalItems = {
-        events: eventItems.filter((i) =>
-          new RegExp(e.target.value, "i").test(i.name)
+        events: eventItems.filter(
+          (i) =>
+            new RegExp(e.target.value, "i").test(i.name) ||
+            new RegExp(e.target.value, "i").test(i.tokenId)
         ),
-        tickets: ticketItems.filter((i) =>
-          new RegExp(e.target.value, "i").test(i.name)
+        tickets: ticketItems.filter(
+          (i) =>
+            new RegExp(e.target.value, "i").test(i.name) ||
+            new RegExp(e.target.value, "i").test(i.tokenId)
         ),
       };
 
