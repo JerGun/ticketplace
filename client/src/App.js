@@ -25,8 +25,7 @@ function App() {
 
   useEffect(async () => {
     if (window.ethereum) {
-      const networkId = await getNetwork();
-      setNetwork(networkId);
+      await loadNetwork();
       await loadAccount();
     }
   }, [account]);
@@ -50,22 +49,23 @@ function App() {
     connectAccount ? setAccount(connectAccount) : setAccount("");
   };
 
+  const loadNetwork = async () => {
+    const networkId = await getNetwork();
+    setNetwork(networkId);
+  };
+
   return (
     <div className="w-full h-screen bg-background overflow-hidden">
       <Router>
-        <Navbar/>
-        <div
-          className={
-            network !== 97
-              ? "absolute h-12 w-full flex justify-center items-center space-x-3 bg-alert"
-              : "hidden"
-          }
-        >
-          <p>
-            Your wallet is connected to other network. To use Ticketplace,
-            please switch to BSC Testnet network.
-          </p>
-        </div>
+        <Navbar />
+        {network !== 97 ? (
+          <div className="absolute h-12 w-full z-40 flex justify-center items-center space-x-3 bg-alert">
+            <p>
+              Your wallet is connected to other network. To use Ticketplace,
+              please switch to BSC Testnet network.
+            </p>
+          </div>
+        ) : null}
         {!account ? (
           <ConnectWallet />
         ) : (

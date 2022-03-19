@@ -237,7 +237,7 @@ function CreateTicket() {
                   onChange={handleDescriptionChange}
                 />
               </div>
-              {locationRequired && (
+              {descriptionRequired && (
                 <div className="flex items-center space-x-3 text-sm text-red-400">
                   <Close className="h-2 w-2" />
                   <p>Description is required.</p>

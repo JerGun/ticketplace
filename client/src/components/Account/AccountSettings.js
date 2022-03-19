@@ -115,9 +115,7 @@ function AccountSettings() {
       ...formInput,
       name: e.target.value,
     });
-    !e.target.value.length
-      ? setNameRequired(true)
-      : setNameRequired(false);
+    !e.target.value.length ? setNameRequired(true) : setNameRequired(false);
   };
 
   const handleEmailChange = (e) => {
@@ -144,6 +142,7 @@ function AccountSettings() {
     const verification = await axios.get(
       `${API_URL}/verification/${connectAccount}`
     );
+    console.log(verification);
 
     setInfo({
       ...info,
@@ -151,18 +150,18 @@ function AccountSettings() {
       email: profile.data.email,
       img: profile.data.img,
       verify: profile.data.verify,
-      fullName: verification.data.fullName,
-      social: verification.data.social,
-      post: verification.data.post,
+      fullName: verification.data ? verification.data.fullName : "",
+      social: verification.data ? verification.data.social : "",
+      post: verification.data ? verification.data.post : "",
     });
     setFormInput({
       ...formInput,
       address: profile.data.address,
       name: profile.data.name,
       email: profile.data.email,
-      fullName: verification.data.fullName,
-      social: verification.data.social,
-      post: verification.data.post,
+      fullName: verification.data ? verification.data.fullName : "",
+      social: verification.data ? verification.data.social : "",
+      post: verification.data ? verification.data.post : "",
     });
   };
 

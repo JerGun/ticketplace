@@ -45,7 +45,7 @@ function Confirm() {
           <ConfirmIcon />
           <p className="text-2xl font-bold">Your email has been verified!</p>
           <a
-            href="/#/ticket/create"
+            href="/#/event/create"
             className="h-11 w-fit px-10 flex justify-center items-center rounded-lg font-bold text-black bg-primary"
           >
             Back to Ticketplace
