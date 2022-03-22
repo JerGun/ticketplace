@@ -105,6 +105,17 @@ export const buyTicket = (itemId, price) => {
   });
 };
 
+export const setUri = (tokenId, tokenUri) => {
+  return new Promise(function (res, rej) {
+    web3.eth.getAccounts().then((accounts) => {
+      eventContract.methods
+        .setTokenUri(tokenId, tokenUri)
+        .send({ from: accounts[0] })
+        .then((result) => res(result));
+    });
+  });
+};
+
 export const getUri = (tokenId) => {
   return new Promise(function (res, rej) {
     eventContract.methods
