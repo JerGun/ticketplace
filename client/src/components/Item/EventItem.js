@@ -98,7 +98,6 @@ function EventItem() {
       image: eventMeta.data.image,
       name: eventMeta.data.name,
       link: eventMeta.data.link,
-      description: eventMeta.data.description,
       location: eventMeta.data.location,
       startDate: eventMeta.data.startDate,
       endDate: eventMeta.data.endDate,
@@ -367,7 +366,7 @@ function EventItem() {
               <div className="absolute flex space-x-5 top-5 right-5">
                 {owner && (
                   <Link
-                    to={`/event/${params.eventId}`}
+                    to={`/event/${params.eventId}/edit`}
                     data-tip="Share"
                     className="h-11 w-11 flex justify-center items-center rounded-lg shadow-md bg-hover hover:bg-hover-light"
                   >

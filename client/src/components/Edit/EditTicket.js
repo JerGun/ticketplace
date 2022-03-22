@@ -81,14 +81,13 @@ function EditTicket() {
       ticketMeta.data.startDate.split("/")[1] - 1,
       ticketMeta.data.startDate.split("/")[0]
     );
-    setTempStartDate(now - tempDate > 0 ? "" : tempDate);
+    setTempStartDate(now - tempDate >= 0 ? "" : tempDate);
     tempDate = new Date(
       ticketMeta.data.endDate.split("/")[2],
       ticketMeta.data.endDate.split("/")[1] - 1,
       ticketMeta.data.endDate.split("/")[0]
     );
-    setTempEndDate(now - tempDate > 0 ? "" : tempDate);
-    console.log(now - tempDate);
+    setTempEndDate(now - tempDate >= 0 ? "" : tempDate);
   };
 
   const handleNameChange = (e) => {
@@ -151,7 +150,6 @@ function EditTicket() {
     try {
       const added = await client.add(data);
       const url = `https://ipfs.infura.io/ipfs/${added.path}`;
-      console.log(url);
 
       setUri(params.ticketId, url)
         .then((result) => {
