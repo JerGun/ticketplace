@@ -8,6 +8,7 @@ import Home from "./components/Home";
 import Account from "./components/Account/Account";
 import CreateEvent from "./components/Create/CreateEvent";
 import CreateTicket from "./components/Create/CreateTicket";
+import EditTicket from "./components/Edit/EditTicket";
 import TicketItem from "./components/Item/TicketItem";
 import CustomScrollbars from "./components/CustomScrollbars";
 import SetUpOrganizer from "./components/Account/AccountSetup";
@@ -16,6 +17,7 @@ import SettingAccount from "./components/Account/AccountSettings";
 import VerifyRequest from "./components/VerifyRequest";
 import ListTicket from "./components/ListTicket";
 import Events from "./components/Item/Events";
+import EditEvent from "./components/Edit/EditEvent";
 import EventItem from "./components/Item/EventItem";
 import ConnectWallet from "./components/ConnectWallet";
 
@@ -79,9 +81,14 @@ function App() {
                   element={<TicketItem />}
                 />
                 <Route path="event/create" element={<CreateEvent />} />
+                <Route path="event/:eventId/edit" element={<EditEvent />} />
                 <Route
                   path="event/:eventId/ticket/create"
                   element={<CreateTicket />}
+                />
+                <Route
+                  path="event/:eventId/ticket/:ticketId/edit"
+                  element={<EditTicket />}
                 />
                 <Route
                   path="event/:eventId/ticket/:tokenId/sell"
