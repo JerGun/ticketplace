@@ -307,12 +307,15 @@ function TicketItem() {
                         </div>
                       </>
                     )}
-                    <button
-                      className="h-11 w-full flex justify-center items-center rounded-lg font-bold text-white bg-hover hover:bg-hover-light"
-                      // onClick={() => setShowCheckoutModal(true)}
-                    >
-                      Edit
-                    </button>
+                    {ticket.organizer === account && (
+                      <Link
+                        to={`/event/${params.eventId}/ticket/${params.ticketId}/edit`}
+                        className="h-11 w-full flex justify-center items-center rounded-lg font-bold text-white bg-hover hover:bg-hover-light"
+                        // onClick={() => setShowCheckoutModal(true)}
+                      >
+                        Edit
+                      </Link>
+                    )}
                     {ticket.list && (
                       <button
                         className="h-11 w-full flex justify-center items-center rounded-lg font-bold text-white bg-red-500 hover:bg-red-400"
