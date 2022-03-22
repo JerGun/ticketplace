@@ -1,4 +1,4 @@
-import { React, useState, Fragment, useEffect } from "react";
+import { React, useState, Fragment, useEffect, useRef } from "react";
 import { Dialog, Listbox, Transition } from "@headlessui/react";
 import {
   Routes,
@@ -33,6 +33,7 @@ const listOption = [
 
 function Account() {
   const [account, setAccount] = useState("");
+  const [loadingState, setLoadingState] = useState(false);
   const [copy, setCopy] = useState(false);
   const [share, setShare] = useState(false);
   const [copyDisabled, setCopyDisabled] = useState(false);
@@ -49,11 +50,19 @@ function Account() {
 
   const navigate = useNavigate();
   const location = useLocation();
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    isMounted.current = false;
+  }, []);
 
   useEffect(() => {}, [location]);
 
-  useEffect(() => {
-    checkUser();
+  useEffect(async () => {
+    await checkUser();
+    if (isMounted) {
+      setLoadingState(true);
+    }
   }, []);
 
   const checkUser = async () => {
@@ -192,25 +201,31 @@ function Account() {
                     htmlFor="upload-button"
                     className="absolute h-full w-full rounded-full hover:cursor-pointer"
                   >
-                    {image.preview ? (
-                      <div className="relative h-full w-full group rounded-full">
-                        <div className="absolute z-10 h-full w-full flex justify-center items-center rounded-full text-white opacity-0 group-hover:opacity-100">
-                          <Edit className="scale-50" />
+                    {loadingState ? (
+                      image.preview ? (
+                        <div className="relative h-full w-full group rounded-full">
+                          <div className="absolute z-10 h-full w-full flex justify-center items-center rounded-full text-white opacity-0 group-hover:opacity-100">
+                            <Edit className="scale-50" />
+                          </div>
+                          <div className="h-full w-full rounded-full group-hover:opacity-50">
+                            <img
+                              src={image.preview}
+                              alt="Profile"
+                              className="h-full w-full rounded-full object-cover"
+                            />
+                          </div>
                         </div>
-                        <div className="h-full w-full rounded-full group-hover:opacity-50">
-                          <img
-                            src={image.preview}
-                            alt="Profile"
-                            className="h-full w-full rounded-full object-cover"
-                          />
+                      ) : (
+                        <div className="relative h-full w-full group rounded-full">
+                          <div className="absolute h-full w-full rounded-full bg-gradient-to-tr from-primary to-sky-200 group-hover:opacity-50"></div>
+                          <div className="absolute z-10 h-full w-full flex justify-center items-center rounded-full text-white opacity-0 group-hover:opacity-100">
+                            <Edit className="scale-50" />
+                          </div>
                         </div>
-                      </div>
+                      )
                     ) : (
                       <div className="relative h-full w-full group rounded-full">
-                        <div className="absolute h-full w-full rounded-full bg-gradient-to-tr from-primary to-sky-200 group-hover:opacity-50"></div>
-                        <div className="absolute z-10 h-full w-full flex justify-center items-center rounded-full text-white opacity-0 group-hover:opacity-100">
-                          <Edit className="scale-50" />
-                        </div>
+                        <div className="absolute h-full w-full rounded-full bg-hover animate-pulse"></div>
                       </div>
                     )}
                   </label>
