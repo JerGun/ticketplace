@@ -21,7 +21,6 @@ function CreateTicket() {
   const [tempEndDate, setTempEndDate] = useState("");
   const [startTime, setStartTime] = useState("Start Time");
   const [endTime, setEndTime] = useState("End Time");
-  const [fileUrl, setFileUrl] = useState("");
   const [bnb, setBnb] = useState(0);
   const [nameRequired, setNameRequired] = useState(false);
   const [descriptionRequired, setDescriptionRequired] = useState(false);
@@ -44,30 +43,30 @@ function CreateTicket() {
 
   useEffect(async () => {
     if (window.ethereum) {
-      const account = await getAccount();
-      await axios
-        .get(`${API_URL}/account/${account}`)
-        .then((response) => {
-          if (response.data) {
-            if (response.data.email) {
-              return response.data.email.length !== 0
-                ? !response.data.verify
-                  ? navigate("/account/settings")
-                  : null
-                : navigate("/account/setup");
-            }
-          } else {
-            navigate("/account/setup");
-          }
-        })
-        .catch((err) => console.log(err));
-
-      const eventUri = await getUri(params.eventId);
-      const eventMeta = await axios.get(eventUri);
-      setFileUrl(eventMeta.data.image);
+      await init();
       fetchBNB();
     }
   }, []);
+
+  const init = async () => {
+    const account = await getAccount();
+    await axios
+      .get(`${API_URL}/account/${account}`)
+      .then((response) => {
+        if (response.data) {
+          if (response.data.email) {
+            return response.data.email.length !== 0
+              ? !response.data.verify
+                ? navigate("/account/settings")
+                : null
+              : navigate("/account/setup");
+          }
+        } else {
+          navigate("/account/setup");
+        }
+      })
+      .catch((err) => console.log(err));
+  };
 
   const handleNameChange = (e) => {
     setFormInput({
@@ -138,6 +137,8 @@ function CreateTicket() {
       return;
     let startDate = formatter.formatDate(new Date(tempStartDate));
     let endDate = formatter.formatDate(new Date(tempEndDate));
+    const eventUri = await getUri(params.eventId);
+    const eventMeta = await axios.get(eventUri);
     const data = JSON.stringify({
       name,
       link,
@@ -147,7 +148,7 @@ function CreateTicket() {
       startTime,
       endTime,
       location,
-      image: fileUrl,
+      image: eventMeta.data.image,
     });
     try {
       const added = await client.add(data);
