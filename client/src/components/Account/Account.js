@@ -138,7 +138,7 @@ function Account() {
           <div className="w-full flex flex-col space-y-5 items-center">
             <div className="relative w-10/12 flex flex-col space-y-5 items-center">
               <div className="absolute flex right-0 space-x-5">
-                {info.verify && (
+                {/* {info.verify && (
                   <>
                     <Link
                       to="/verify-request"
@@ -155,7 +155,7 @@ function Account() {
                       style={{ opacity: 1 }}
                     />
                   </>
-                )}
+                )} */}
                 <button
                   data-tip="Share"
                   className="h-11 w-11 flex justify-center items-center rounded-lg bg-input"
