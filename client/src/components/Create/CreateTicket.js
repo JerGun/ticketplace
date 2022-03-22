@@ -250,7 +250,7 @@ function CreateTicket() {
               endDate={tempEndDate}
               onStartDateChange={setTempStartDate}
               onEndDateChange={setTempEndDate}
-              minimumDate={new Date()}
+              // minimumDate={new Date()}
               minimumLength={1}
               format="dd MMM yyyy"
               locale={enGB}

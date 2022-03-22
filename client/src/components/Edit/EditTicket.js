@@ -81,13 +81,13 @@ function EditTicket() {
       ticketMeta.data.startDate.split("/")[1] - 1,
       ticketMeta.data.startDate.split("/")[0]
     );
-    setTempStartDate(now - tempDate >= 0 ? "" : tempDate);
+    setTempStartDate(tempDate);
     tempDate = new Date(
       ticketMeta.data.endDate.split("/")[2],
       ticketMeta.data.endDate.split("/")[1] - 1,
       ticketMeta.data.endDate.split("/")[0]
     );
-    setTempEndDate(now - tempDate >= 0 ? "" : tempDate);
+    setTempEndDate(tempDate);
   };
 
   const handleNameChange = (e) => {
@@ -244,7 +244,7 @@ function EditTicket() {
               endDate={tempEndDate}
               onStartDateChange={setTempStartDate}
               onEndDateChange={setTempEndDate}
-              minimumDate={new Date()}
+              // minimumDate={new Date()}
               minimumLength={1}
               format="dd MMM yyyy"
               locale={enGB}

@@ -59,13 +59,13 @@ function EditEvent() {
       eventMeta.data.startDate.split("/")[1] - 1,
       eventMeta.data.startDate.split("/")[0]
     );
-    setTempStartDate(now - tempDate >= 0 ? "" : tempDate);
+    setTempStartDate(tempDate);
     tempDate = new Date(
       eventMeta.data.endDate.split("/")[2],
       eventMeta.data.endDate.split("/")[1] - 1,
       eventMeta.data.endDate.split("/")[0]
     );
-    setTempEndDate(now - tempDate >= 0 ? "" : tempDate);
+    setTempEndDate(tempDate);
   };
 
   const checkEmailVerified = async () => {
@@ -276,7 +276,7 @@ function EditEvent() {
                 endDate={tempEndDate}
                 onStartDateChange={setTempStartDate}
                 onEndDateChange={setTempEndDate}
-                minimumDate={new Date()}
+                // minimumDate={new Date()}
                 minimumLength={1}
                 format="dd MMM yyyy"
                 locale={enGB}
