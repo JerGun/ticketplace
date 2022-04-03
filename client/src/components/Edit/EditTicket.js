@@ -75,7 +75,6 @@ function EditTicket() {
     setFormInput(item);
     setStartTime(ticketMeta.data.startTime);
     setEndTime(ticketMeta.data.endTime);
-    let now = Date.now();
     let tempDate = new Date(
       ticketMeta.data.startDate.split("/")[2],
       ticketMeta.data.startDate.split("/")[1] - 1,

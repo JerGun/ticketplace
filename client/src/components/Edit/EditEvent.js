@@ -53,7 +53,6 @@ function EditEvent() {
     setImage({ ...image, preview: eventMeta.data.image });
     setStartTime(eventMeta.data.startTime);
     setEndTime(eventMeta.data.endTime);
-    let now = Date.now();
     let tempDate = new Date(
       eventMeta.data.startDate.split("/")[2],
       eventMeta.data.startDate.split("/")[1] - 1,
