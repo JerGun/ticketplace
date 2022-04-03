@@ -54,6 +54,8 @@ function CreateEvent() {
               }
               setVerify(response.data.verify);
             }
+          } else {
+            navigate("/account/setup");
           }
         } else {
           navigate("/account/setup");
