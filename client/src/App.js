@@ -30,7 +30,7 @@ function App() {
       await loadNetwork();
       await loadAccount();
     }
-  }, [account]);
+  }, [account, network]);
 
   useEffect(() => {
     if (window.ethereum) {
