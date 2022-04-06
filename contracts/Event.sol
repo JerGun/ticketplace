@@ -11,7 +11,7 @@ contract Event is ERC1155 {
     Counters.Counter private _itemsSold;
     address payable owner;
 
-    constructor() ERC1155("") {
+    constructor() ERC1155("Ticketplace") {
         owner = payable(msg.sender);
     }
 

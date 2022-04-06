@@ -7,6 +7,12 @@ const mnemonic = process.env.MNEMONIC;
 module.exports = {
   contracts_build_directory: path.join(__dirname, "client/src/contracts"),
 
+  plugins: [
+    'truffle-plugin-verify'
+  ],
+  api_keys: {
+    bscscan: process.env.BSCSCANAPIKEY
+  },
   networks: {
     development: {
       host: "127.0.0.1",
