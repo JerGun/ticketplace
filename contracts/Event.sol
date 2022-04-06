@@ -51,6 +51,8 @@ contract Event is ERC1155 {
 
     mapping(address => EventItem[]) private createdEvents;
 
+    event CreateMarketItem(address sender, uint256 tokenId, uint256 price);
+
     function uri(uint256 tokenId) public view override returns (string memory) {
         return (_uris[tokenId]);
     }
@@ -118,6 +120,8 @@ contract Event is ERC1155 {
         ticketToken[tokenId].list = true;
 
         safeTransferFrom(msg.sender, address(this), tokenId, 1, "");
+
+        emit CreateMarketItem(msg.sender, tokenId, price);
     }
 
     function cancelListing(uint256 itemId) public payable {
